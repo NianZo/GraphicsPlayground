@@ -6,7 +6,6 @@
  */
 
 #include <wx/wxprec.h>
-#include <wxprec.h>
 
 #ifndef WX_PRECOMP
     #include <wx/wx.h>

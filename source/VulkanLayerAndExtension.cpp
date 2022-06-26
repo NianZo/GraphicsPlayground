@@ -9,6 +9,7 @@
 #include "VulkanApplication.hpp"
 #include <iostream>
 
+
 VkResult VulkanLayerAndExtension::getInstanceLayerProperties()
 {
 	// Stores number of instance layers
@@ -169,13 +170,13 @@ VkBool32 VulkanLayerAndExtension::areLayersSupported(std::vector<const char*>& l
 		}
 	}
 
-	for (auto i : unsupportedLayerNames)
+	for (auto i : unsupportedLayerNames) // TODO this suddenly doesn't work anymore...
 	{
-		auto it = std::find(layerNames.begin(), layerNames.end(), i);
-		if (it != layerNames.end())
-		{
-			layerNames.erase(it);
-		}
+//		auto it = std::find(begin(layerNames), end(layerNames), i);
+//		if (it != layerNames.end())
+//		{
+//			layerNames.erase(it);
+//		}
 	}
 
 	return true;
