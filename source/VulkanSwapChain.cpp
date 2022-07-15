@@ -12,13 +12,16 @@
 #include "VulkanRenderer.hpp"
 #include "VulkanApplication.hpp"
 #include <iostream>
-#include <xcb/xcb.h>
+//#include <xcb/xcb.h>
 
 
-VulkanSwapChain::VulkanSwapChain(VulkanRenderer* renderer)
+
+VulkanSwapChain::VulkanSwapChain(VulkanRenderer* renderer, QVulkanInstance& qVkInstance, QWindow* qWindow) : m_qVkInstance(qVkInstance)
 {
 	rendererObj = renderer;
 	appObj = VulkanApplication::GetInstance();
+	//m_qVkInstance = qVkInstance;
+	m_qWindow = qWindow;
 }
 
 VulkanSwapChain::~VulkanSwapChain()
@@ -90,26 +93,28 @@ VkResult VulkanSwapChain::createSwapChainExtensions()
 
 VkResult VulkanSwapChain::createSurface()
 {
-	VkInstance& instance = appObj->instanceObj.instance;
+	//VkInstance& instance = appObj->instanceObj.instance;
 
-	return glfwCreateWindowSurface(instance, rendererObj->window, nullptr, &scPublicVars.surface);
+	scPublicVars.surface = QVulkanInstance::surfaceForWindow(m_qWindow);
+	return VK_SUCCESS;
+	//return glfwCreateWindowSurface(instance, rendererObj->window, nullptr, &scPublicVars.surface);
 
 	//VkXcbSurfaceCreateInfoKHR
-	VkXcbSurfaceCreateInfoKHR createInfo;
-	createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-	const xcb_setup_t *setup;
-	xcb_screen_iterator_t iter;
-	int scr;
-
-	createInfo.connection = xcb_connect(NULL, &scr);
-	if (info.connection == NULL || xcb_connection_has_error(createInfo.connection)) {
-	    std::cout << "Unable to make an XCB connection\n";
-	    exit(-1);
-	}
-
-	setup = xcb_get_setup(createInfo.connection);
-	iter = xcb_setup_roots_iterator(setup);
-	while (scr-- > 0) xcb_screen_next(&iter);
+//	VkXcbSurfaceCreateInfoKHR createInfo;
+//	createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+//	const xcb_setup_t *setup;
+//	xcb_screen_iterator_t iter;
+//	int scr;
+//
+//	createInfo.connection = xcb_connect(NULL, &scr);
+//	if (info.connection == NULL || xcb_connection_has_error(createInfo.connection)) {
+//	    std::cout << "Unable to make an XCB connection\n";
+//	    exit(-1);
+//	}
+//
+//	setup = xcb_get_setup(createInfo.connection);
+//	iter = xcb_setup_roots_iterator(setup);
+//	while (scr-- > 0) xcb_screen_next(&iter);
 
 	//info.screen = iter.data;
 

@@ -12,7 +12,7 @@
 
 void onWindowResized(GLFWwindow* window, int newWidth, int newHeight);
 
-VulkanRenderer::VulkanRenderer(VulkanApplication* app, VulkanDevice* deviceObject)
+VulkanRenderer::VulkanRenderer(VulkanApplication* app, VulkanDevice* deviceObject, QVulkanInstance& qVkInstance, QWindow* qWindow)
 {
 	assert(app != nullptr);
 	assert(deviceObject != nullptr);
@@ -24,7 +24,7 @@ VulkanRenderer::VulkanRenderer(VulkanApplication* app, VulkanDevice* deviceObjec
 	application = app;
 	deviceObj = deviceObject;
 
-	swapChainObj = new VulkanSwapChain(this);
+	swapChainObj = new VulkanSwapChain(this, qVkInstance, qWindow);
 	VulkanDrawable* drawableObj = new VulkanDrawable(this);
 	drawableList.push_back(drawableObj);
 }
@@ -41,14 +41,14 @@ void VulkanRenderer::createPresentationWindow(const int windowWidth, const int w
 	height = windowHeight;
 	// Do a linux thing here :)
 	//glfwInit(); // TODO, this instance needs to query glfw for extensions, so it calls this first
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	//glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-	window = glfwCreateWindow(windowWidth, windowHeight, "Learning Vulkan Window", nullptr, nullptr);
+	//window = glfwCreateWindow(windowWidth, windowHeight, "Learning Vulkan Window", nullptr, nullptr);
 
 	// For window resizing
-	glfwSetWindowUserPointer(window, this);
-	glfwSetWindowSizeCallback(window, onWindowResized);
+	//glfwSetWindowUserPointer(window, this);
+	//glfwSetWindowSizeCallback(window, onWindowResized);
 }
 
 void onWindowResized(GLFWwindow* window, int newWidth, int newHeight)
@@ -85,7 +85,7 @@ void VulkanRenderer::initialize()
 	std::cout << "created shaders" << std::endl;
 
 
-	const char* filename = "../texture.jpg";
+	const char* filename = "texture.jpg";
 	bool renderOptimalTexture = true;
 	if (renderOptimalTexture)
 	{
@@ -146,8 +146,8 @@ bool VulkanRenderer::render()
 		}
 
 	}
-	glfwPollEvents();
-	return glfwWindowShouldClose(window);
+	//glfwPollEvents();
+	return false;//glfwWindowShouldClose(window);
 }
 
 void VulkanRenderer::createDepthImage()
@@ -519,8 +519,8 @@ void VulkanRenderer::createShaders()
 	void* fragShaderCode;
 	size_t sizeVert, sizeFrag;
 
-	vertShaderCode = readFile("./../DrawTex-vert.spv", &sizeVert);
-	fragShaderCode = readFile("./../DrawTex-frag.spv", &sizeFrag);
+	vertShaderCode = readFile("DrawTex-vert.spv", &sizeVert);
+	fragShaderCode = readFile("DrawTex-frag.spv", &sizeFrag);
 
 	shaderObj.buildShaderModuleWithSPV((uint32_t*)vertShaderCode, sizeVert, (uint32_t*)fragShaderCode, sizeFrag);
 }

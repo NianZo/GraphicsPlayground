@@ -21,7 +21,7 @@
 class VulkanRenderer
 {
 public:
-	VulkanRenderer(VulkanApplication* app, VulkanDevice* deviceObject);
+	VulkanRenderer(VulkanApplication* app, VulkanDevice* deviceObject, QVulkanInstance& qVkInstance, QWindow* qWindow);
 	~VulkanRenderer();
 
 	void initialize();

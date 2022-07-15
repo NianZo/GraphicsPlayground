@@ -11,10 +11,10 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#define VK_USE_PLATFORM_XCB_KHR
+//#define VK_USE_PLATFORM_XCB_KHR
 //#define VK_USE_PLATFORM_XCB_KHR
 //#include "vulkan/vulkan_xcb.h"
-#include <vulkan/vk_sdk_platform.h>
+//#include <vulkan/vk_sdk_platform.h>
 #include <vulkan/vulkan.h>
 //#include <vulkan.hpp>
 

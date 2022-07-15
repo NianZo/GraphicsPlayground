@@ -64,6 +64,16 @@ VulkanApplication::VulkanApplication()
 	isPrepared = false;
 	deviceObj = nullptr;
 	rendererObj = nullptr;
+
+	char title[] = "Hello World!";
+
+	// Check if the supplied layers are supported or not
+	instanceObj.layerExtension.areLayersSupported(layerNames);
+
+	// Create the Vulkan instance with
+	// specified layer and extension names.
+	std::cout << "Start initializing VulkanApplication" << std::endl;
+	createVulkanInstance(layerNames, instanceExtensionNames, title);
 }
 
 VulkanApplication::~VulkanApplication()
@@ -78,17 +88,9 @@ VkResult VulkanApplication::createVulkanInstance(std::vector<const char*>& layer
 	return VK_SUCCESS;
 }
 
-void VulkanApplication::initialize()
+void VulkanApplication::initialize(QVulkanInstance& qVkInstance, QWindow* qWindow, uint32_t width, uint32_t height)
 {
-	char title[] = "Hello World!";
 
-	// Check if the supplied layers are supported or not
-	instanceObj.layerExtension.areLayersSupported(layerNames);
-
-	// Create the Vulkan instance with
-	// specified layer and extension names.
-	std::cout << "Start initializing VulkanApplication" << std::endl;
-	createVulkanInstance(layerNames, instanceExtensionNames, title);
 
 	// Get list of PhysicalDevices (gpus) in the system
 	std::cout << "About to enumerate physical devices..." << std::endl;
@@ -104,9 +106,9 @@ void VulkanApplication::initialize()
 	if (!rendererObj)
 	{
 		std::cout << "About to create vulkan renderer\n";
-		rendererObj = new VulkanRenderer(this, deviceObj);
+		rendererObj = new VulkanRenderer(this, deviceObj, qVkInstance, qWindow);
 		std::cout << "Just created vulkan renderer\n";
-		rendererObj->createPresentationWindow(500, 500);
+		rendererObj->createPresentationWindow(width, height);
 		rendererObj->getSwapChain()->initializeSwapChain();
 	}
 

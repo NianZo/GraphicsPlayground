@@ -23,7 +23,7 @@ public:
 	static VulkanApplication* GetInstance();
 
 	// Program life cycle
-	void initialize(); // Initialize and allocate resources
+	void initialize(QVulkanInstance& qVkInstance, QWindow* qWindow, uint32_t width, uint32_t height); // Initialize and allocate resources
 	void prepare(); // Prepare resources
 	void update(); // Update data
 	bool render(); // Render primitives

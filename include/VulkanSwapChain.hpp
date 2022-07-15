@@ -9,6 +9,8 @@
 #define CHAPTER_3_HANDSHAKE_INCLUDE_VULKANSWAPCHAIN_HPP_
 
 #include "Header.hpp"
+#include <QWindow>
+#include <QVulkanInstance>
 class VulkanInstance;
 class VulkanDevice;
 class VulkanRenderer;
@@ -75,7 +77,7 @@ struct SwapChainPublicVariables
 class VulkanSwapChain
 {
 public:
-	VulkanSwapChain(VulkanRenderer* renderer);
+	VulkanSwapChain(VulkanRenderer* renderer, QVulkanInstance& qVkInstance, QWindow* qWindow);
 	~VulkanSwapChain();
 	void initializeSwapChain();
 	void createSwapChain(const VkCommandBuffer& cmd);
@@ -114,6 +116,9 @@ private:
 	SwapChainPrivateVariables scPrivateVars;
 	VulkanRenderer* rendererObj;
 	VulkanApplication* appObj;
+
+	QVulkanInstance& m_qVkInstance;
+	QWindow* m_qWindow;
 };
 
 #endif /* CHAPTER_3_HANDSHAKE_INCLUDE_VULKANSWAPCHAIN_HPP_ */
