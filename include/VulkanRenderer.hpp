@@ -56,7 +56,7 @@ public:
 	// Window instance / handle
 	//xcb_connection_t* connection;
 	//xcb_screen_t* screen;
-	GLFWwindow* window;
+	//GLFWwindow* window;
 	//xcb_intern_atom_reply_t* reply;
 	char name[80]; // app name appearing on the window
 

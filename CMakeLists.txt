@@ -61,10 +61,10 @@ qt_standard_project_setup()
 
 include_directories("${CMAKE_SOURCE_DIR}/external/stb")
 
-find_package(glfw3 REQUIRED)
-link_libraries(glfw)
+#find_package(glfw3 REQUIRED)
+#link_libraries(glfw)
 
-include_directories(AFTER ${VULKAN_PATH}/include)
+
 
 link_directories(${VULKAN_PATH}/bin)
 link_libraries(${Vulkan_LIBRARIES})
@@ -85,6 +85,7 @@ file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/hellovulkanwidget/*.h)
 #set(CPP_FILES "${CPP_FILES} ./shared/trianglerenderer.cpp")
 #set(HPP_FILES "${HPP_FILES} ./shared/trianglerenderer.h")
 include_directories(${QT_INCLUDES})
+include_directories(${VULKAN_PATH}/include)
 # Build project, provide name and include files to be compiled
 add_executable(${Recipe_Name} ${CPP_FILES} ${HPP_FILES} shared/trianglerenderer.cpp shared/trianglerenderer.h ${VK_CPP_FILES} ${VK_HPP_FILES})
 

@@ -9,8 +9,9 @@
 #include "VulkanApplication.hpp"
 #include "MeshData.hpp"
 #include <iostream>
+//#include <vulkan/vulkan_core.h>
 
-void onWindowResized(GLFWwindow* window, int newWidth, int newHeight);
+//void onWindowResized(GLFWwindow* window, int newWidth, int newHeight);
 
 VulkanRenderer::VulkanRenderer(VulkanApplication* app, VulkanDevice* deviceObject, QVulkanInstance& qVkInstance, QWindow* qWindow)
 {
@@ -51,7 +52,7 @@ void VulkanRenderer::createPresentationWindow(const int windowWidth, const int w
 	//glfwSetWindowSizeCallback(window, onWindowResized);
 }
 
-void onWindowResized(GLFWwindow* window, int newWidth, int newHeight)
+void onWindowResized(int newWidth, int newHeight)
 {
 	std::cout << "onWindowResized starting..." << std::endl;
 	VulkanApplication* appObj = VulkanApplication::GetInstance();
@@ -85,7 +86,7 @@ void VulkanRenderer::initialize()
 	std::cout << "created shaders" << std::endl;
 
 
-	const char* filename = "texture.jpg";
+	const char* filename = "/home/nic/Documents/Projects/GraphicsPlayground/texture.jpg";
 	bool renderOptimalTexture = true;
 	if (renderOptimalTexture)
 	{
@@ -112,6 +113,8 @@ void VulkanRenderer::createCommandPool()
 	cmdPoolInfo.queueFamilyIndex = deviceObj->graphicsQueueWithPresentIndex;
 
 	vkCreateCommandPool(deviceObj->device, &cmdPoolInfo, nullptr, &cmdPool);
+	//vk::UniqueDevice device;
+	//device->createCommandPool(cmdPoolInfo);
 }
 
 void VulkanRenderer::buildSwapChainAndDepthImage()
@@ -519,8 +522,8 @@ void VulkanRenderer::createShaders()
 	void* fragShaderCode;
 	size_t sizeVert, sizeFrag;
 
-	vertShaderCode = readFile("DrawTex-vert.spv", &sizeVert);
-	fragShaderCode = readFile("DrawTex-frag.spv", &sizeFrag);
+	vertShaderCode = readFile("/home/nic/Documents/Projects/GraphicsPlayground/DrawTex-vert.spv", &sizeVert);
+	fragShaderCode = readFile("/home/nic/Documents/Projects/GraphicsPlayground/DrawTex-frag.spv", &sizeFrag);
 
 	shaderObj.buildShaderModuleWithSPV((uint32_t*)vertShaderCode, sizeVert, (uint32_t*)fragShaderCode, sizeFrag);
 }
