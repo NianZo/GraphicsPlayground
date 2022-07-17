@@ -1,3 +1,4 @@
+[![Actions Status](https://github.com/NianZo/GraphicsPlayground/workflows/Build%20and%20Test/badge.svg)](https://github.com/NianZo/GraphicsPlayground/actions)
 # GraphicsPlayground
 GUI application to practice rendering techniques with Vulkan
 
