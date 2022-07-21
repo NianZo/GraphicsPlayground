@@ -55,9 +55,13 @@
 #include <QLoggingCategory>
 #include <QPointer>
 #include "hellovulkanwidget.h"
+#include <QVulkanWindow>
 
 #include "Header.hpp"
 #include "VulkanApplication.hpp"
+
+#include <iostream>
+#include "ui_MainGUI.h"
 
 #include <thread>
 
@@ -101,40 +105,50 @@ int main(int argc, char *argv[])
     QVulkanInstance inst;
 
     inst.setVkInstance(appObj->instanceObj.instance);
-//#ifndef Q_OS_ANDROID
-    //inst.setLayers(QByteArrayList() << "VK_LAYER_LUNARG_standard_validation");
-//#else
-//    inst.setLayers(QByteArrayList()
-//                   << "VK_LAYER_GOOGLE_threading"
-//                   << "VK_LAYER_LUNARG_parameter_validation"
-//                   << "VK_LAYER_LUNARG_object_tracker"
-//                   << "VK_LAYER_LUNARG_core_validation"
-//                   << "VK_LAYER_LUNARG_image"
-//                   << "VK_LAYER_LUNARG_swapchain"
-//                   << "VK_LAYER_GOOGLE_unique_objects");
-//#endif
 
     if (!inst.create())
         qFatal("Failed to create Vulkan instance: %d", inst.errorCode());
 
-    VulkanWindow *vulkanWindow = new VulkanWindow;
-    vulkanWindow->setSurfaceType(QSurface::VulkanSurface);
-    vulkanWindow->setVulkanInstance(&inst);
+    //VulkanWindow *vulkanWindow = new VulkanWindow;
+    //vulkanWindow->setSurfaceType(QSurface::VulkanSurface);
+    //vulkanWindow->setVulkanInstance(&inst);
 
+    QWindow* widget = new QWindow;
+    widget->setSurfaceType(QSurface::VulkanSurface);
+    widget->setVulkanInstance(&inst);
+    //Ui::Form ui;
+    //ui.setupUi(&widget);
 
+    //widget.show();
+    //return app.exec();
+    std::cout << "About to create main window\n";
 
-    MainWindow mainWindow(vulkanWindow, messageLogWidget.data());
-    QObject::connect(vulkanWindow, &VulkanWindow::vulkanInfoReceived, &mainWindow, &MainWindow::onVulkanInfoReceived);
-    QObject::connect(vulkanWindow, &VulkanWindow::frameQueued, &mainWindow, &MainWindow::onFrameQueued);
-
-    mainWindow.resize(1024, 768);
+    MainWindow mainWindow(widget);
+    widget->setSurfaceType(QSurface::VulkanSurface);
+    //widget->setVulkanInstance(&inst);
     mainWindow.show();
+    VkSurfaceKHR surface = QVulkanInstance::surfaceForWindow(widget);
+    if (surface == VK_NULL_HANDLE)
+    {
+    	std::cout << "Got NULL surface from surfaceForWindow\n";
+    }
+    std::cout << "Got surface from widget\n";
+    //MainWindow mainWindow(vulkanWindow, messageLogWidget.data());
+    //QObject::connect(vulkanWindow, &VulkanWindow::vulkanInfoReceived, &mainWindow, &MainWindow::onVulkanInfoReceived);
+    //QObject::connect(vulkanWindow, &VulkanWindow::frameQueued, &mainWindow, &MainWindow::onFrameQueued);
+    //widget.show();
+    //mainWindow.resize(1024, 768);
 
-    appObj->initialize(inst, vulkanWindow, 1024, 768);
+//    if (widget->format() != QSurface::VulkanSurface)
+//    {
+//    	std::cout << "Got wrong surface format\n";
+//    }
+    //std::cout << "Surface format: " << (int)widget->format() << "\n";
+
+    appObj->initialize(inst, widget, 1024, 768);
     appObj->prepare();
-    //appObj->render();
-    //appObj->update();
     std::thread t1(renderLoop, appObj);
+    std::cout << "About to execute the app\n";
 
     return app.exec();
 }

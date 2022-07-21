@@ -58,7 +58,7 @@ endif()
 
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 qt_standard_project_setup()
-
+set(CMAKE_AUTOUIC ON)
 include_directories("${CMAKE_SOURCE_DIR}/external/stb")
 
 #find_package(glfw3 REQUIRED)
@@ -81,6 +81,10 @@ file(GLOB_RECURSE VK_HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.*)
 # Gather list of header and source files for compilation
 file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/hellovulkanwidget/*.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/hellovulkanwidget/*.h)
+set(AUTOGEN_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/default)
+qt6_wrap_ui(CPP_FILES hellovulkanwidget/MainGUI.ui)
+include_directories(${AUTOGEN_BUILD_DIR})
+message(STATUS "Autogen build dir: ${AUTOGEN_BUILD_DIR}")
 
 #set(CPP_FILES "${CPP_FILES} ./shared/trianglerenderer.cpp")
 #set(HPP_FILES "${HPP_FILES} ./shared/trianglerenderer.h")

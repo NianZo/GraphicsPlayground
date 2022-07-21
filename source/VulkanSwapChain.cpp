@@ -94,8 +94,9 @@ VkResult VulkanSwapChain::createSwapChainExtensions()
 VkResult VulkanSwapChain::createSurface()
 {
 	//VkInstance& instance = appObj->instanceObj.instance;
-
+	std::cout << "About to get surface from m_qWindow\n";
 	scPublicVars.surface = QVulkanInstance::surfaceForWindow(m_qWindow);
+	std::cout << "Got surface from m_qWindow\n";
 	return VK_SUCCESS;
 	//return glfwCreateWindowSurface(instance, rendererObj->window, nullptr, &scPublicVars.surface);
 
