@@ -61,25 +61,24 @@
 #include "VulkanApplication.hpp"
 
 #include <iostream>
-#include "ui_MainGUI.h"
 
 #include <thread>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-Q_LOGGING_CATEGORY(lcVk, "qt.vulkan")
+//Q_LOGGING_CATEGORY(lcVk, "qt.vulkan")
 
-static QPointer<QPlainTextEdit> messageLogWidget;
-static QtMessageHandler oldMessageHandler = nullptr;
+//static QPointer<QPlainTextEdit> messageLogWidget;
+//static QtMessageHandler oldMessageHandler = nullptr;
 
-static void messageHandler(QtMsgType msgType, const QMessageLogContext &logContext, const QString &text)
-{
-    if (!messageLogWidget.isNull())
-        messageLogWidget->appendPlainText(text);
-    if (oldMessageHandler)
-        oldMessageHandler(msgType, logContext, text);
-}
+//static void messageHandler(QtMsgType msgType, const QMessageLogContext &logContext, const QString &text)
+//{
+//    if (!messageLogWidget.isNull())
+//        messageLogWidget->appendPlainText(text);
+//    if (oldMessageHandler)
+//        oldMessageHandler(msgType, logContext, text);
+//}
 
 void renderLoop(VulkanApplication* appObj)
 {
@@ -95,12 +94,12 @@ int main(int argc, char *argv[])
     VulkanApplication* appObj = VulkanApplication::GetInstance();
 
 
-    messageLogWidget = new QPlainTextEdit(QLatin1String(QLibraryInfo::build()) + QLatin1Char('\n'));
-    messageLogWidget->setReadOnly(true);
+    //messageLogWidget = new QPlainTextEdit(QLatin1String(QLibraryInfo::build()) + QLatin1Char('\n'));
+    //messageLogWidget->setReadOnly(true);
 
-    oldMessageHandler = qInstallMessageHandler(messageHandler);
+    //oldMessageHandler = qInstallMessageHandler(messageHandler);
 
-    QLoggingCategory::setFilterRules(QStringLiteral("qt.vulkan=true"));
+    //QLoggingCategory::setFilterRules(QStringLiteral("qt.vulkan=true"));
 
     QVulkanInstance inst;
 
@@ -116,16 +115,8 @@ int main(int argc, char *argv[])
     QWindow* widget = new QWindow;
     widget->setSurfaceType(QSurface::VulkanSurface);
     widget->setVulkanInstance(&inst);
-    //Ui::Form ui;
-    //ui.setupUi(&widget);
-
-    //widget.show();
-    //return app.exec();
-    std::cout << "About to create main window\n";
 
     MainWindow mainWindow(widget);
-    widget->setSurfaceType(QSurface::VulkanSurface);
-    //widget->setVulkanInstance(&inst);
     mainWindow.show();
     VkSurfaceKHR surface = QVulkanInstance::surfaceForWindow(widget);
     if (surface == VK_NULL_HANDLE)
@@ -133,19 +124,9 @@ int main(int argc, char *argv[])
     	std::cout << "Got NULL surface from surfaceForWindow\n";
     }
     std::cout << "Got surface from widget\n";
-    //MainWindow mainWindow(vulkanWindow, messageLogWidget.data());
-    //QObject::connect(vulkanWindow, &VulkanWindow::vulkanInfoReceived, &mainWindow, &MainWindow::onVulkanInfoReceived);
-    //QObject::connect(vulkanWindow, &VulkanWindow::frameQueued, &mainWindow, &MainWindow::onFrameQueued);
-    //widget.show();
-    //mainWindow.resize(1024, 768);
 
-//    if (widget->format() != QSurface::VulkanSurface)
-//    {
-//    	std::cout << "Got wrong surface format\n";
-//    }
-    //std::cout << "Surface format: " << (int)widget->format() << "\n";
 
-    appObj->initialize(inst, widget, 1024, 768);
+    appObj->initialize(inst, widget, (uint32_t)widget->width(), (uint32_t)widget->height());
     appObj->prepare();
     std::thread t1(renderLoop, appObj);
     std::cout << "About to execute the app\n";

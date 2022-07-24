@@ -27,6 +27,7 @@ public slots:
 //    void onVulkanInfoReceived(const QString &text);
 //    void onFrameQueued(int colorValue);
 //    void onGrabRequested();
+	void resizeEvent(QResizeEvent* event);
 
 private:
     QWidget *m_window;
@@ -39,23 +40,8 @@ private:
 
 };
 
-//class VulkanRendererQt : public TriangleRenderer
-//{
-//public:
-//    VulkanRendererQt(VulkanWindow *w);
-//
-//    void initResources() override;
-//    void startNextFrame() override;
-//};
 
-class VulkanWindow : public QWindow
-{
-    Q_OBJECT
 
-public:
-    //QVulkanWindowRenderer *createRenderer() override;
 
-signals:
-    void vulkanInfoReceived(const QString &text);
-    void frameQueued(int colorValue);
-};
+
+

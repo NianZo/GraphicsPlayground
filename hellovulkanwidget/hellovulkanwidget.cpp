@@ -1,15 +1,4 @@
-
-
 #include "hellovulkanwidget.h"
-#include <QVulkanFunctions>
-#include <QApplication>
-#include <QVBoxLayout>
-#include <QPlainTextEdit>
-#include <QPushButton>
-#include <QLCDNumber>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QTabWidget>
 #include "ui_MainGUI.h"
 
 MainWindow::MainWindow(QWindow *w) :
@@ -19,9 +8,7 @@ MainWindow::MainWindow(QWindow *w) :
 	ui->setupUi(this);
 
     QWidget* wrapper = QWidget::createWindowContainer(w, ui->widget);
-    wrapper->setMinimumSize(QSize(960, 540));
-    //ui->verticalLayout->addWidget(wrapper);
-    //ui->retranslateUi(this);
+    wrapper->setMinimumSize(ui->widget->size());
 
     m_window = wrapper;
 	//ui->widget = QWidget::createWindowContainer(w);
@@ -54,32 +41,9 @@ MainWindow::MainWindow(QWindow *w) :
 //    setLayout(layout);
 }
 
-//void MainWindow::onVulkanInfoReceived(const QString &text)
-//{
-//    m_info->setPlainText(text);
-//}
-//
-//void MainWindow::onFrameQueued(int colorValue)
-//{
-//    m_number->display(colorValue);
-//}
+void MainWindow::resizeEvent(QResizeEvent* event)
+{
+	m_window->setMinimumSize(ui->widget->size());
+}
 
-//void MainWindow::onGrabRequested()
-//{
-////    if (!m_window->supportsGrab()) {
-////        QMessageBox::warning(this, tr("Cannot grab"), tr("This swapchain does not support readbacks."));
-////        return;
-////    }
-////
-////    QImage img = m_window->grab();
-////
-////    // Our startNextFrame() implementation is synchronous so img is ready to be
-////    // used right here.
-////
-////    QFileDialog fd(this);
-////    fd.setAcceptMode(QFileDialog::AcceptSave);
-////    fd.setDefaultSuffix("png");
-////    fd.selectFile("test.png");
-////    if (fd.exec() == QDialog::Accepted)
-////        img.save(fd.selectedFiles().first());
-//}
+

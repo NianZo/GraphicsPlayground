@@ -6,56 +6,86 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1224</width>
-    <height>623</height>
+    <width>855</width>
+    <height>489</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="verticalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>731</width>
-     <height>531</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QTextBrowser" name="textBrowser_2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="4,1">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,4">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Vulkan Renderer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>16</horstretch>
+           <verstretch>9</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>96</width>
+           <height>54</height>
+          </size>
+         </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>1</width>
+           <height>1</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>500</width>
+           <height>500</height>
+          </size>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3"/>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QComboBox" name="comboBox"/>
+       </item>
+       <item>
+        <widget class="QTabWidget" name="tabWidget">
+         <widget class="QWidget" name="tab">
+          <attribute name="title">
+           <string>Tab 1</string>
+          </attribute>
          </widget>
-        </item>
-        <item>
-         <widget class="QWidget" name="widget" native="true">
-          <property name="minimumSize">
-           <size>
-            <width>1920</width>
-            <height>1080</height>
-           </size>
-          </property>
+         <widget class="QWidget" name="tab_2">
+          <attribute name="title">
+           <string>Tab 2</string>
+          </attribute>
          </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <widget class="QTextBrowser" name="textBrowser"/>
-    </item>
-   </layout>
-  </widget>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTextEdit" name="textEdit"/>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
