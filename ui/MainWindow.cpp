@@ -1,4 +1,5 @@
-#include "hellovulkanwidget.h"
+#include "MainWindow.h"
+
 #include "ui_MainGUI.h"
 
 MainWindow::MainWindow(QWindow *w) :

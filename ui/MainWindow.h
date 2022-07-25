@@ -1,9 +1,5 @@
-
 #include <QWidget>
 #include <QWindow>
-
-//class VulkanWindow;
-//class
 
 //QT_BEGIN_NAMESPACE
 class QTabWidget;
@@ -23,7 +19,7 @@ class MainWindow : public QWidget
 public:
     explicit MainWindow(QWindow *w = nullptr);
 
-public slots:
+public:
 //    void onVulkanInfoReceived(const QString &text);
 //    void onFrameQueued(int colorValue);
 //    void onGrabRequested();

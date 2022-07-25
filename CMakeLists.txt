@@ -42,23 +42,9 @@ if (AUTO_LOCATE_VULKAN)
             return()
         endif()
     endif()
-else()
-    message(STATUS "Attempting to locate VulkanSDK using manual path...")
-    set(VULKAN_SDK "/home/nic/Staging/VulkanSDK/1.3.211.0")
-    set(VULKAN_VERSION "1.3.211.0")
-    set(VULKAN_PATH "${VULKAN_SDK}")
-    message(STATUS "Using manual specified path: ${VULKAN_PATH}")
-
-    # Check if manual set path exists
-    if (NOT EXISTS "${VULKAN_PATH}")
-        message(ERROR "Unable to locate this VulkanSDK path: ${VULKAN_PATH}")
-        return()
-    endif()
 endif()
 
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
-qt_standard_project_setup()
-set(CMAKE_AUTOUIC ON)
+
 include_directories("${CMAKE_SOURCE_DIR}/external/stb")
 
 #find_package(glfw3 REQUIRED)
@@ -66,35 +52,30 @@ include_directories("${CMAKE_SOURCE_DIR}/external/stb")
 
 
 
-link_directories(${VULKAN_PATH}/bin)
+#link_directories(${VULKAN_PATH}/bin)
 link_libraries(${Vulkan_LIBRARIES})
 
-# Define include path
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+
+
+add_subdirectory(ui)
 # Gather list of header and source files for compilation
-file(GLOB_RECURSE VK_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp)
-file(GLOB_RECURSE VK_HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.*)
-
-
-
-# Gather list of header and source files for compilation
-file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/hellovulkanwidget/*.cpp)
-file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/hellovulkanwidget/*.h)
-set(AUTOGEN_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/default)
-qt6_wrap_ui(CPP_FILES hellovulkanwidget/MainGUI.ui)
-include_directories(${AUTOGEN_BUILD_DIR})
-message(STATUS "Autogen build dir: ${AUTOGEN_BUILD_DIR}")
+#file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ui/*.cpp)
+#file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ui/*.h)
+#set(AUTOGEN_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/default)
+#qt6_wrap_ui(CPP_FILES ui/MainGUI.ui)
+#include_directories(${AUTOGEN_BUILD_DIR})
+#message(STATUS "Autogen build dir: ${AUTOGEN_BUILD_DIR}")
 
 #set(CPP_FILES "${CPP_FILES} ./shared/trianglerenderer.cpp")
 #set(HPP_FILES "${HPP_FILES} ./shared/trianglerenderer.h")
-include_directories(${QT_INCLUDES})
-include_directories(${VULKAN_PATH}/include)
-# Build project, provide name and include files to be compiled
-add_executable(${Recipe_Name} ${CPP_FILES} ${HPP_FILES} shared/trianglerenderer.cpp shared/trianglerenderer.h ${VK_CPP_FILES} ${VK_HPP_FILES})
 
-target_link_libraries(${Recipe_Name} PRIVATE Qt6::Core Qt6::Widgets)
-target_link_libraries(${Recipe_Name} ${VULKAN_LIB_LIST})
+
+# Build project, provide name and include files to be compiled
+#add_executable(${Recipe_Name} ${CPP_FILES} ${HPP_FILES} ${VK_CPP_FILES} ${VK_HPP_FILES})
+
+
+
 
 
 
