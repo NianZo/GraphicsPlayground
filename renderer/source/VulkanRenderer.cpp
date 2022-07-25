@@ -13,7 +13,7 @@
 
 //void onWindowResized(GLFWwindow* window, int newWidth, int newHeight);
 
-VulkanRenderer::VulkanRenderer(VulkanApplication* app, VulkanDevice* deviceObject, QVulkanInstance& qVkInstance, QWindow* qWindow)
+VulkanRenderer::VulkanRenderer(VulkanApplication* app, VulkanDevice* deviceObject, VkSurfaceKHR* surface)
 {
 	assert(app != nullptr);
 	assert(deviceObject != nullptr);
@@ -25,7 +25,7 @@ VulkanRenderer::VulkanRenderer(VulkanApplication* app, VulkanDevice* deviceObjec
 	application = app;
 	deviceObj = deviceObject;
 
-	swapChainObj = new VulkanSwapChain(this, qVkInstance, qWindow);
+	swapChainObj = new VulkanSwapChain(this, surface);
 	VulkanDrawable* drawableObj = new VulkanDrawable(this);
 	drawableList.push_back(drawableObj);
 }

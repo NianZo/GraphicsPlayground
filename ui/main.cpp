@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     std::cout << "Got surface from widget\n";
 
 
-    appObj->initialize(inst, widget, (uint32_t)widget->width(), (uint32_t)widget->height());
+    appObj->initialize(&surface, (uint32_t)widget->width(), (uint32_t)widget->height());
     appObj->prepare();
     std::thread t1(renderLoop, appObj);
 

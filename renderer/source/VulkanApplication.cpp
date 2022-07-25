@@ -88,7 +88,7 @@ VkResult VulkanApplication::createVulkanInstance(std::vector<const char*>& layer
 	return VK_SUCCESS;
 }
 
-void VulkanApplication::initialize(QVulkanInstance& qVkInstance, QWindow* qWindow, uint32_t width, uint32_t height)
+void VulkanApplication::initialize(VkSurfaceKHR* surface, uint32_t width, uint32_t height)
 {
 
 
@@ -106,7 +106,7 @@ void VulkanApplication::initialize(QVulkanInstance& qVkInstance, QWindow* qWindo
 	if (!rendererObj)
 	{
 		std::cout << "About to create vulkan renderer\n";
-		rendererObj = new VulkanRenderer(this, deviceObj, qVkInstance, qWindow);
+		rendererObj = new VulkanRenderer(this, deviceObj, surface);
 		std::cout << "Just created vulkan renderer\n";
 		rendererObj->createPresentationWindow(width, height);
 		rendererObj->getSwapChain()->initializeSwapChain();

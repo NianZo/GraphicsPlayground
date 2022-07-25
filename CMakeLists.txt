@@ -53,11 +53,11 @@ include_directories("${CMAKE_SOURCE_DIR}/external/stb")
 
 
 #link_directories(${VULKAN_PATH}/bin)
-link_libraries(${Vulkan_LIBRARIES})
 
 
 
 
+add_subdirectory(renderer)
 add_subdirectory(ui)
 # Gather list of header and source files for compilation
 #file(GLOB_RECURSE CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ui/*.cpp)
