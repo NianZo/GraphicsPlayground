@@ -4,6 +4,8 @@
  *  Created on: Mar 26, 2022
  *      Author: nic
  */
+#define STB_IMAGE_IMPLEMENTATION
+//#include <stb_image.h>
 
 #include "VulkanApplication.hpp"
 #include <iostream>

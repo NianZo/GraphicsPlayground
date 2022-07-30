@@ -1,0 +1,9 @@
+set(UI_TEST_BINARY "UIUnitTests")
+
+file(GLOB_RECURSE UI_TEST_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+
+add_executable(${UI_TEST_BINARY} ${UI_TEST_CPP_FILES})
+target_include_directories(${UI_TEST_BINARY} PUBLIC ${CMAKE_SOURCE_DIR}/ui)
+target_link_libraries(${UI_TEST_BINARY} PUBLIC ${RENDERER_LIB} gtest)
+
+add_test(NAME ${UI_TEST_BINARY} COMMAND ${UI_TEST_BINARY})

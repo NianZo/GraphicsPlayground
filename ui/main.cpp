@@ -14,8 +14,7 @@
 #include <thread>
 #include "MainWindow.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+
 
 //Q_LOGGING_CATEGORY(lcVk, "qt.vulkan")
 
