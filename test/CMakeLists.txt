@@ -1,9 +1,16 @@
 set(UI_TEST_BINARY "UIUnitTests")
 
 file(GLOB_RECURSE UI_TEST_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+#file(GLOB_RECURSE UI_CPP_FILES ${CMAKE_SOURCE_DIR}/ui/*.cpp)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+qt_standard_project_setup()
+#set(CMAKE_AUTOUIC ON)
 
-add_executable(${UI_TEST_BINARY} ${UI_TEST_CPP_FILES})
-target_include_directories(${UI_TEST_BINARY} PUBLIC ${CMAKE_SOURCE_DIR}/ui)
-target_link_libraries(${UI_TEST_BINARY} PUBLIC ${RENDERER_LIB} gtest)
+add_executable(${UI_TEST_BINARY} ${UI_TEST_CPP_FILES} ${UI_CPP_FILES})
+target_include_directories(${UI_TEST_BINARY} PUBLIC ${CMAKE_SOURCE_DIR}/ui ${AUTOGEN_BUILD_DIR} ${Qt6Widgets_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/renderer/include)
+message(WARNING "QT_INCLUDES: ${Qt6Widgets_INCLUDE_DIRS} ${RENDERER_LIB}")
+target_link_libraries(${UI_TEST_BINARY} PUBLIC "VulkanRenderer" "MainUI" gtest)
+target_link_libraries(${UI_TEST_BINARY} PRIVATE Qt6::Core Qt6::Widgets)
+#set_property(TARGET ${UI_TEST_BINARY} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 add_test(NAME ${UI_TEST_BINARY} COMMAND ${UI_TEST_BINARY})

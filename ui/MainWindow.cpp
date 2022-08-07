@@ -1,6 +1,6 @@
 #include "MainWindow.h"
 
-#include "ui_MainGUI.h"
+#include "ui/ui_MainGUI.h"
 
 MainWindow::MainWindow(QWindow *w) :
     //: m_window(w)
