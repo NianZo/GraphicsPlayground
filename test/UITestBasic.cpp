@@ -8,18 +8,19 @@
 #include "gtest/gtest.h"
 #include "MainWindow.h"
 #include <QApplication>
+#include <thread>
 
 int argc = 0;
 char* argv = "UIUnitTests";
 
-TEST(UIBasic, GPUBoxGrabsStrings)
+TEST(UIBasic, CreateUIForm)
 {
 	//char* testName = "UITest";
 	//int numArgs = 1;
 	QApplication app(argc, &argv);
-	QWindow* window = new QWindow; // Test fails if this isn't dynamically allocated
-	MainWindow mainWindow(window);
-
+	MainWindow mainWindow;
+	std::thread t1(MainWindow::renderLoop, mainWindow.appObj);
+	app.exec();
 }
 
 

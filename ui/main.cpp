@@ -29,51 +29,18 @@
 //        oldMessageHandler(msgType, logContext, text);
 //}
 
-void renderLoop(VulkanApplication* appObj)
-{
-	while(!appObj->render()) {
-		appObj->update();
-	};
-}
+
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    VulkanApplication* appObj = VulkanApplication::GetInstance();
 
 
-    //messageLogWidget = new QPlainTextEdit(QLatin1String(QLibraryInfo::build()) + QLatin1Char('\n'));
-    //messageLogWidget->setReadOnly(true);
+    MainWindow mainWindow;
+    std::thread t1(MainWindow::renderLoop, mainWindow.appObj);
+    //mainWindow.show();
 
-    //oldMessageHandler = qInstallMessageHandler(messageHandler);
-
-    //QLoggingCategory::setFilterRules(QStringLiteral("qt.vulkan=true"));
-
-    QVulkanInstance inst;
-
-    inst.setVkInstance(appObj->instanceObj.instance);
-
-    if (!inst.create())
-        qFatal("Failed to create Vulkan instance: %d", inst.errorCode());
-
-    QWindow* widget = new QWindow;
-    widget->setSurfaceType(QSurface::VulkanSurface);
-    widget->setVulkanInstance(&inst);
-
-    MainWindow mainWindow(widget);
-    mainWindow.show();
-    VkSurfaceKHR surface = QVulkanInstance::surfaceForWindow(widget);
-    if (surface == VK_NULL_HANDLE)
-    {
-    	std::cout << "Got NULL surface from surfaceForWindow\n";
-    }
-    std::cout << "Got surface from widget\n";
-
-
-    appObj->initialize(&surface, (uint32_t)widget->width(), (uint32_t)widget->height());
-    appObj->prepare();
-    std::thread t1(renderLoop, appObj);
 
     return app.exec();
 }

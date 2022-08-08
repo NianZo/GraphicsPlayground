@@ -1,5 +1,6 @@
 #include <QWidget>
 #include <QWindow>
+#include "VulkanApplication.hpp"
 
 //QT_BEGIN_NAMESPACE
 class QTabWidget;
@@ -17,13 +18,16 @@ class MainWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWindow *w = nullptr);
+    explicit MainWindow();
 
 public:
 //    void onVulkanInfoReceived(const QString &text);
 //    void onFrameQueued(int colorValue);
 //    void onGrabRequested();
 	void resizeEvent(QResizeEvent* event);
+	static void renderLoop(VulkanApplication* appObj);
+
+	VulkanApplication* appObj;
 
 private:
     QWidget *m_window;

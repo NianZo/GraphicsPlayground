@@ -1,17 +1,61 @@
 #include "MainWindow.h"
 
 #include "ui/ui_MainGUI.h"
+#include "VulkanApplication.hpp"
+#include <QVulkanInstance>
+#include <iostream>
+#include <thread>
 
-MainWindow::MainWindow(QWindow *w) :
+void MainWindow::renderLoop(VulkanApplication* appObj)
+{
+	while(!appObj->render()) {
+		appObj->update();
+	};
+}
+
+MainWindow::MainWindow() :
     //: m_window(w)
 	ui(new Ui::Form)
 {
 	ui->setupUi(this);
 
-    QWidget* wrapper = QWidget::createWindowContainer(w, ui->widget);
+    appObj = VulkanApplication::GetInstance();
+
+
+    //messageLogWidget = new QPlainTextEdit(QLatin1String(QLibraryInfo::build()) + QLatin1Char('\n'));
+    //messageLogWidget->setReadOnly(true);
+
+    //oldMessageHandler = qInstallMessageHandler(messageHandler);
+
+    //QLoggingCategory::setFilterRules(QStringLiteral("qt.vulkan=true"));
+
+    QVulkanInstance inst;
+
+    inst.setVkInstance(appObj->instanceObj.instance);
+
+    if (!inst.create())
+        qFatal("Failed to create Vulkan instance: %d", inst.errorCode());
+
+    QWindow* widget = new QWindow;
+    widget->setSurfaceType(QSurface::VulkanSurface);
+    widget->setVulkanInstance(&inst);
+
+    QWidget* wrapper = QWidget::createWindowContainer(widget, ui->widget);
     wrapper->setMinimumSize(ui->widget->size());
 
     m_window = wrapper;
+    show();
+    VkSurfaceKHR surface = QVulkanInstance::surfaceForWindow(widget);
+    if (surface == VK_NULL_HANDLE)
+    {
+    	std::cout << "Got NULL surface from surfaceForWindow\n";
+    }
+    std::cout << "Got surface from widget\n";
+
+
+    appObj->initialize(&surface, (uint32_t)widget->width(), (uint32_t)widget->height());
+    appObj->prepare();
+    //std::thread t1(renderLoop, appObj);
 	//ui->widget = QWidget::createWindowContainer(w);
 //
 //    m_info = new QPlainTextEdit;
