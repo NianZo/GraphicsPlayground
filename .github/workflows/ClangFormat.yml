@@ -31,4 +31,4 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: clang-format-12 --dry-run --Werror src/*pp
+        run: clang-format-12 --dry-run --Werror ui/*pp
