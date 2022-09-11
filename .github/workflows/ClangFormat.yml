@@ -29,8 +29,8 @@ jobs:
         # Need to install a newer compiler for numbers header to be seen
         run: |
           sudo apt-get update
-          sudo apt-get install clang;
+          sudo apt-get install clang-12;
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: clang-format --dry-run --Werror ui/*pp
+        run: clang-format-12 --dry-run --Werror ui/*pp
