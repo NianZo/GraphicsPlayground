@@ -2,7 +2,7 @@ set(MAIN_BINARY "GraphicsPlayground")
 
 # Define include path
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
-qt_standard_project_setup()
+qt6_standard_project_setup()
 set(CMAKE_AUTOUIC ON)
 
 
