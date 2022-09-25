@@ -20,7 +20,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Setup
+    #- name: Setup
       #run: |
       #  sudo apt-get update
       #  sudo apt-get install qt6-base_6.3.1 libgtest-dev mesa-common-dev vulkan-tools libvulkan-dev
