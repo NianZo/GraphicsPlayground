@@ -35,7 +35,7 @@ jobs:
       # Build your program with the given configuration
       #run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
       run: | 
-        docker run -it --rm --name=build --mount type=bind,source=${PWD},target=/src ci/ci_build:0.1 bash
+        docker run --rm --name=build --mount type=bind,source=${PWD},target=/src ci/ci_build:0.1 bash
         cd src
         cmake -B build -S .
         make -C build
