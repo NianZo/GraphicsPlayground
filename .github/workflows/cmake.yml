@@ -24,7 +24,7 @@ jobs:
     
     - name: Docker build and test
       id: Build
-      uses: ./.github/workflows/Docker.yml
+      uses: ./
       with: 
         action-to-perform: 'build&test'
       #runs:
