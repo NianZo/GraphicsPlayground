@@ -1,0 +1,12 @@
+name: 'Docker base'
+description: 'Setup the Docker environment and run a task'
+inputs:
+  action-to-perform:
+    description: 'Which build system task to run'
+    required: true
+    default: 'build&test'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.action-to-perform }}
