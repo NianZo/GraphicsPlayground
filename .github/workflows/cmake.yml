@@ -18,11 +18,13 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
+    #- uses: actions/checkout@v3
     
     - name: Docker build and test
       id: Build
-      uses: actions/Docker-CI-Action@v1
+      uses: ./.github/workflows/Docker.yml
       with: 
         action-to-perform: 'build&test'
       #runs:
