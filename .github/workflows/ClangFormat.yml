@@ -18,19 +18,28 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    #- uses: actions/checkout@v3
+    
+    - name: Docker build and test
+      id: Build
+      uses: ./.github/actions/Docker-CI
+      with: 
+        action-to-perform: 'format'
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      # - uses: actions/checkout@v2
       
-      - name: Setup
-        # Need to install a newer compiler for numbers header to be seen
-        run: |
-          sudo apt-get update
-          sudo apt-get install clang-14;
+      # - name: Setup
+      #   # Need to install a newer compiler for numbers header to be seen
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install clang-14;
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: clang-format-14 --dry-run --Werror ui/*pp
+      # # Runs a single command using the runners shell
+      # - name: Run a one-line script
+      #   run: clang-format-14 --dry-run --Werror ui/*pp
