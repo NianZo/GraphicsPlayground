@@ -10,7 +10,14 @@ project(${Recipe_Name})
 add_subdirectory(renderer)
 add_subdirectory(ui)
 
-add_subdirectory(test)
+option(ENABLE_TESTING "Enable Test Builds" ON)
+
+if(ENABLE_TESTING)
+    message("Building tests")
+    include(CTest)
+    enable_testing()
+    add_subdirectory(test)
+endif()
 
 
 
