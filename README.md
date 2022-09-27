@@ -1,5 +1,6 @@
 [![Actions Status](https://github.com/NianZo/GraphicsPlayground/workflows/Build%20and%20Test/badge.svg)](https://github.com/NianZo/GraphicsPlayground/actions)
 [![Actions Status](https://github.com/NianZo/GraphicsPlayground/workflows/Clang%20Format/badge.svg)](https://github.com/NianZo/GraphicsPlayground/actions)
+[![Actions Status](https://github.com/NianZo/GraphicsPlayground/workflows/Clang%20Tidy/badge.svg)](https://github.com/NianZo/GraphicsPlayground/actions)
 # GraphicsPlayground
 GUI application to practice rendering techniques with Vulkan
 

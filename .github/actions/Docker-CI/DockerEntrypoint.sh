@@ -11,4 +11,8 @@ elif [ $1 = "format" ]
 then
     cd src
     clang-format --dry-run --Werror ui/*pp
+elif [ $1 = "tidy" ]
+then
+    cd src
+    clang-tidy -p build ui/*pp
 fi
