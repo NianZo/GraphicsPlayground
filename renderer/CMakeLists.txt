@@ -50,6 +50,10 @@ target_link_libraries(${RENDERER_LIB} PUBLIC ${Vulkan_LIBRARIES})
 target_include_directories(${RENDERER_LIB} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(${RENDERER_LIB} PUBLIC ${VULKAN_PATH}/include)
 
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    target_link_libraries(${RENDERER_LIB} PRIVATE --coverage)
+endif()
+
 
 
 
