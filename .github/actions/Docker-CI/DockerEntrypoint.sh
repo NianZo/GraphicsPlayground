@@ -11,6 +11,7 @@ then
     cd build
     ctest -C Debug
 
+    cd ..
     bash <(curl -S https://codecov.io/bash)
 elif [ $1 = "format" ]
 then
