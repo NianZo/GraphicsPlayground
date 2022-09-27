@@ -1,7 +1,7 @@
 #include "MainWindow.h"
 
 #include "VulkanApplication.hpp"
-#include "ui/ui_MainGUI.h"
+#include "ui_MainGUI.h"
 #include <QVulkanInstance>
 #include <iostream>
 #include <thread>
