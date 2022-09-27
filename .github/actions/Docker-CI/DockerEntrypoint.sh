@@ -8,6 +8,7 @@ then
     cmake -B build -S .
     make -C build
 elif [ $1 = "format" ]
+then
     cd src
     clang-format --dry-run --Werror ui/*pp
 fi
