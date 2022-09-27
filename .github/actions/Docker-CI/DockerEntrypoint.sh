@@ -5,8 +5,13 @@ echo "Command: $1"
 if [ $1 = "build&test" ]
 then
     cd src
-    cmake -B build -S .
-    make -C build
+    cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug
+    cmake --build build --config Debug
+
+    cd build
+    ctest -C Debug
+
+    bash <(curl -S https://codecov.io/bash)
 elif [ $1 = "format" ]
 then
     cd src
