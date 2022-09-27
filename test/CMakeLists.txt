@@ -14,7 +14,7 @@ target_link_libraries(${UI_TEST_BINARY} PRIVATE Qt6::Core Qt6::Widgets)
 #set_property(TARGET ${UI_TEST_BINARY} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-    target_link_libraries(${TEST_BINARY} PRIVATE --coverage)
+    target_link_libraries(${UI_TEST_BINARY} PRIVATE --coverage)
 endif()
 
 add_test(NAME ${UI_TEST_BINARY} COMMAND ${UI_TEST_BINARY})
