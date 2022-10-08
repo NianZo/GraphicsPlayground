@@ -64,6 +64,7 @@ VulkanApplication::VulkanApplication()
 
 	isResizing = false;
 	isPrepared = false;
+	shouldClose = false;
 	deviceObj = nullptr;
 	rendererObj = nullptr;
 
@@ -127,7 +128,7 @@ void VulkanApplication::prepare()
 bool VulkanApplication::render()
 {
 	if (!isPrepared) return false;
-	return rendererObj->render();
+	return rendererObj->render() || shouldClose;
 }
 
 VkResult VulkanApplication::enumeratePhysicalDevices(std::vector<VkPhysicalDevice>& gpuList)

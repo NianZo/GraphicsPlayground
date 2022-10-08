@@ -2,9 +2,10 @@
 
 #include "VulkanApplication.hpp"
 #include "ui_MainGUI.h"
-#include <QVulkanInstance>
+
 #include <iostream>
 #include <thread>
+
 
 void MainWindow::renderLoop(VulkanApplication *appObj) {
   while (!appObj->render()) {
@@ -25,32 +26,29 @@ MainWindow::MainWindow() : //: m_window(w)
 
   // QLoggingCategory::setFilterRules(QStringLiteral("qt.vulkan=true"));
 
-  QVulkanInstance inst;
 
   inst.setVkInstance(appObj->instanceObj.instance);
 
   if (!inst.create())
     qFatal("Failed to create Vulkan instance: %d", inst.errorCode());
 
-  QWindow *widget = new QWindow;
-  widget->setSurfaceType(QSurface::VulkanSurface);
-  widget->setVulkanInstance(&inst);
+  m_window = new QWindow;
+  m_window->setSurfaceType(QSurface::VulkanSurface);
+  m_window->setVulkanInstance(&inst);
 
-  QWidget *wrapper = QWidget::createWindowContainer(widget, ui->widget);
-  wrapper->setMinimumSize(ui->widget->size());
+  m_windowWrapper = QWidget::createWindowContainer(m_window, ui->widget);
+  m_windowWrapper->setMinimumSize(ui->widget->size());
 
-  m_window = wrapper;
   show();
-  VkSurfaceKHR surface = QVulkanInstance::surfaceForWindow(widget);
+  surface = QVulkanInstance::surfaceForWindow(m_window); // causing seg fault on destruction
+  //surface = inst.surfaceForWindow(m_window);
   if (surface == VK_NULL_HANDLE) {
     std::cout << "Got NULL surface from surfaceForWindow\n";
   }
-  std::cout << "Got surface from widget\n";
 
-  appObj->initialize(&surface, (uint32_t)widget->width(), (uint32_t)widget->height());
+  appObj->initialize(&surface, (uint32_t)m_window->width(), (uint32_t)m_window->height());
   appObj->prepare();
-  // std::thread t1(renderLoop, appObj);
-  // ui->widget = QWidget::createWindowContainer(w);
+  std::cout << "Finished MainWindow::MainWindow()\n";
   //
   //    m_info = new QPlainTextEdit;
   //    m_info->setReadOnly(true);
@@ -80,6 +78,28 @@ MainWindow::MainWindow() : //: m_window(w)
   //    setLayout(layout);
 }
 
+MainWindow::~MainWindow()
+{
+	//hide();
+	//vkDestroySurfaceKHR(appObj->instanceObj.instance, surface, nullptr);
+	//appObj->deInitialize();
+	//delete wrapper;
+	std::cout << "Called vkDestroySurfaceKHR\n";
+	//widget->destroy(); // Causing segfault
+	//delete widget;
+	close(); // needed or there will be a segfault
+	//delete widget;
+	//m_window->destroy();
+	std::cout << "Called widget->destroy()\n";
+	//delete m_window;
+	std::cout << "Called delete m_window\n";
+	//delete m_windowWrapper;
+	//hide();
+	delete ui;
+	//appObj->~VulkanApplication();
+	std::cout << "Finished running MainWindow::~MainWindow()\n";
+}
+
 void MainWindow::resizeEvent(QResizeEvent *event) {
-  m_window->setMinimumSize(ui->widget->size());
+  m_windowWrapper->setMinimumSize(ui->widget->size());
 }

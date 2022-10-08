@@ -36,6 +36,7 @@ public:
 	//static std::unique_ptr<VulkanApplication> instance;
 	bool isPrepared;
 	bool isResizing;
+	bool shouldClose;
 
 private:
 	VulkanApplication(); // Private to enforce Singleton pattern

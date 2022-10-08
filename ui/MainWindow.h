@@ -1,5 +1,6 @@
 #include <QWidget>
 #include <QWindow>
+#include <QVulkanInstance>
 #include "VulkanApplication.hpp"
 
 //QT_BEGIN_NAMESPACE
@@ -15,10 +16,11 @@ namespace Ui
 
 class MainWindow : public QWidget
 {
-    Q_OBJECT
+//    Q_OBJECT
 
 public:
     explicit MainWindow();
+    ~MainWindow();
 
 public:
 //    void onVulkanInfoReceived(const QString &text);
@@ -30,7 +32,11 @@ public:
 	VulkanApplication* appObj;
 
 private:
-    QWidget *m_window;
+	VkSurfaceKHR surface;
+    QWidget *m_windowWrapper;
+    QVulkanInstance inst;
+    QWindow *m_window;
+    //QWidget *wrapper;
     //QTabWidget *m_infoTab;
     //QPlainTextEdit *m_info;
     //QLCDNumber *m_number;
