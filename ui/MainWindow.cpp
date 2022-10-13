@@ -17,27 +17,19 @@ MainWindow::MainWindow() : //: m_window(w)
                            ui(new Ui::Form) {
   ui->setupUi(this);
 
-  appObj = VulkanApplication::GetInstance();
-
-  // messageLogWidget = new QPlainTextEdit(QLatin1String(QLibraryInfo::build()) + QLatin1Char('\n'));
-  // messageLogWidget->setReadOnly(true);
-
-  // oldMessageHandler = qInstallMessageHandler(messageHandler);
-
-  // QLoggingCategory::setFilterRules(QStringLiteral("qt.vulkan=true"));
-
-
-  inst.setVkInstance(appObj->instanceObj.instance);
-
-  if (!inst.create())
-    qFatal("Failed to create Vulkan instance: %d", inst.errorCode());
-
-  m_window = new QWindow;
-  m_window->setSurfaceType(QSurface::VulkanSurface);
-  m_window->setVulkanInstance(&inst);
-
-  m_windowWrapper = QWidget::createWindowContainer(m_window, ui->widget);
-  m_windowWrapper->setMinimumSize(ui->widget->size());
+  //appObj = VulkanApplication::GetInstance();
+//
+//  inst.setVkInstance(appObj->instanceObj.instance);
+//
+//  if (!inst.create())
+//    qFatal("Failed to create Vulkan instance: %d", inst.errorCode());
+//
+//  m_window = new QWindow;
+//  m_window->setSurfaceType(QSurface::VulkanSurface);
+//  m_window->setVulkanInstance(&inst);
+//
+//  m_windowWrapper = QWidget::createWindowContainer(m_window, ui->widget);
+//  m_windowWrapper->setMinimumSize(ui->widget->size());
 
 //  show();
 //  surface = QVulkanInstance::surfaceForWindow(m_window);
@@ -54,8 +46,8 @@ MainWindow::MainWindow() : //: m_window(w)
 MainWindow::~MainWindow()
 {
 
-	close(); // needed or there will be a segfault
-	delete m_window;
+	//close(); // needed or there will be a segfault
+	//delete m_window;
 	//delete m_window;
 	std::cout << "Called delete m_window\n";
 	delete ui;

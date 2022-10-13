@@ -5,6 +5,7 @@ echo "Command: $1"
 if [ $1 = "build&test" ]
 then
     cd src
+    export QT_QPA_PLATFORM=offscreen
     cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug
     cmake --build build --config Debug
 
@@ -22,3 +23,6 @@ then
     cd src
     clang-tidy -p build ui/*pp
 fi
+
+# to run locally: docker run --name qttest-container --privileged -v "$(pwd)"/../../../:/src qttest "build&test"
+# to remove after running: docker rm qttest-container
