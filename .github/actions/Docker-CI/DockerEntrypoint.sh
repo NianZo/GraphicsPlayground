@@ -6,6 +6,8 @@ if [ $1 = "build&test" ]
 then
     cd src
     export QT_QPA_PLATFORM=offscreen
+    #export LIBGL_ALWAYS_SOFTWARE=true
+    #export GALLIUM_DRIVER=llvmpipe
     cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug
     cmake --build build --config Debug
 
