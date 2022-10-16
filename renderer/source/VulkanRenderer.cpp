@@ -86,7 +86,7 @@ void VulkanRenderer::initialize()
 	std::cout << "created shaders" << std::endl;
 
 
-	const char* filename = "texture.jpg";
+	const char* filename = "../../texture.jpg";
 	bool renderOptimalTexture = true;
 	if (renderOptimalTexture)
 	{
@@ -522,8 +522,8 @@ void VulkanRenderer::createShaders()
 	void* fragShaderCode;
 	size_t sizeVert, sizeFrag;
 
-	vertShaderCode = readFile("/home/nic/Documents/Projects/GraphicsPlayground/DrawTex-vert.spv", &sizeVert);
-	fragShaderCode = readFile("/home/nic/Documents/Projects/GraphicsPlayground/DrawTex-frag.spv", &sizeFrag);
+	vertShaderCode = readFile("../../DrawTex-vert.spv", &sizeVert);
+	fragShaderCode = readFile("../../DrawTex-frag.spv", &sizeFrag);
 
 	shaderObj.buildShaderModuleWithSPV((uint32_t*)vertShaderCode, sizeVert, (uint32_t*)fragShaderCode, sizeFrag);
 }
