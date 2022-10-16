@@ -5,14 +5,17 @@ echo "Command: $1"
 if [ $1 = "build&test" ]
 then
     cd src
-    export QT_QPA_PLATFORM=offscreen
+    #startx&
+    Xvfb :1 -screen 0 1920x1080x16&
+    export DISPLAY=:1.0
+    #export QT_QPA_PLATFORM=vkkhrdisplay
     #export LIBGL_ALWAYS_SOFTWARE=true
     #export GALLIUM_DRIVER=llvmpipe
     cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug
     cmake --build build --config Debug
 
-    cd build
-    ctest -C Debug
+    #cd build
+    ctest --test-dir build -C Debug --output-on-failure
 
     cd ..
     bash <(curl -S https://codecov.io/bash)
@@ -26,5 +29,9 @@ then
     clang-tidy -p build ui/*pp
 fi
 
-# to run locally: docker run --name qttest-container --privileged -v "$(pwd)"/../../../:/src qttest "build&test"
-# to remove after running: docker rm qttest-container
+# to run locally: 
+# docker build -t qttest -f Dockerfile .
+# docker run --name qttest-container --privileged -v "$(pwd)"/../../../:/src qttest "build&test"
+# to remove after running: 
+# docker rm qttest-container
+# docker image rm qttest

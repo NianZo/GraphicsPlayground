@@ -137,6 +137,7 @@ VkResult VulkanApplication::enumeratePhysicalDevices(std::vector<VkPhysicalDevic
 	std::cout << "about to use instanceObj in enumeratePhysicalDevices" << std::endl;
 	vkEnumeratePhysicalDevices(instanceObj.instance, &gpuDeviceCount, nullptr);
 	std::cout << "Used instanceObj in enumeratePhysicalDevices" << std::endl;
+	std::cout << "number of physical devices enumerated: " << gpuDeviceCount << std::endl;
 	gpuList.resize(gpuDeviceCount);
 	return vkEnumeratePhysicalDevices(instanceObj.instance, &gpuDeviceCount, gpuList.data());
 }

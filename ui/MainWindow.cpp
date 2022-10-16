@@ -19,6 +19,11 @@ MainWindow::MainWindow() : //: m_window(w)
 
   appObj = VulkanApplication::GetInstance();
 
+  if (appObj->instanceObj.instance == NULL)
+  {
+	  std::cout << "Got invalid VkInstance from appObj\n";
+  }
+
   inst.setVkInstance(appObj->instanceObj.instance);
 
   if (!inst.create())

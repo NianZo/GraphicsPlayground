@@ -86,7 +86,7 @@ void VulkanRenderer::initialize()
 	std::cout << "created shaders" << std::endl;
 
 
-	const char* filename = "/home/nic/Documents/Projects/GraphicsPlayground/texture.jpg";
+	const char* filename = "texture.jpg";
 	bool renderOptimalTexture = true;
 	if (renderOptimalTexture)
 	{
