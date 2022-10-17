@@ -11,6 +11,7 @@ then
     #export QT_QPA_PLATFORM=vkkhrdisplay
     #export LIBGL_ALWAYS_SOFTWARE=true
     #export GALLIUM_DRIVER=llvmpipe
+    ./compile_shaders.sh
     cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug
     cmake --build build --config Debug
 
