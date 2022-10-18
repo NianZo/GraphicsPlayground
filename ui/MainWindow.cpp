@@ -6,20 +6,24 @@
 #include <iostream>
 #include <thread>
 
-void MainWindow::renderLoop(VulkanApplication *appObj) {
-  while (!appObj->render()) {
-    appObj->update();
-  };
+void MainWindow::renderLoop(VulkanApplication *appObj)
+{
+  while (!appObj->render())
+    {
+      appObj->update();
+    };
 }
 
-MainWindow::MainWindow() : ui(new Ui::Form) {
+MainWindow::MainWindow() : ui(new Ui::Form)
+{
   ui->setupUi(this);
 
   appObj = VulkanApplication::GetInstance();
 
-  if (appObj->instanceObj.instance == NULL) {
-    std::cout << "Got invalid VkInstance from appObj\n";
-  }
+  if (appObj->instanceObj.instance == NULL)
+    {
+      std::cout << "Got invalid VkInstance from appObj\n";
+    }
 
   inst.setVkInstance(appObj->instanceObj.instance);
 
@@ -35,16 +39,18 @@ MainWindow::MainWindow() : ui(new Ui::Form) {
 
   show();
   surface = QVulkanInstance::surfaceForWindow(m_window);
-  if (surface == VK_NULL_HANDLE) {
-    std::cout << "Got NULL surface from surfaceForWindow\n";
-  }
+  if (surface == VK_NULL_HANDLE)
+    {
+      std::cout << "Got NULL surface from surfaceForWindow\n";
+    }
 
   appObj->initialize(&surface, (uint32_t)m_window->width(), (uint32_t)m_window->height());
   appObj->prepare();
   std::cout << "Finished MainWindow::MainWindow()\n";
 }
 
-MainWindow::~MainWindow() {
+MainWindow::~MainWindow()
+{
 
   close(); // needed or there will be a segfault
   delete m_window;
@@ -54,6 +60,7 @@ MainWindow::~MainWindow() {
   std::cout << "Finished running MainWindow::~MainWindow()\n";
 }
 
-void MainWindow::resizeEvent(QResizeEvent *event) {
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
   m_windowWrapper->setMinimumSize(ui->widget->size());
 }
