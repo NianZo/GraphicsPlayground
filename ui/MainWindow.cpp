@@ -12,8 +12,7 @@ void MainWindow::renderLoop(VulkanApplication *appObj) {
   };
 }
 
-MainWindow::MainWindow() : //: m_window(w)
-                           ui(new Ui::Form) {
+MainWindow::MainWindow() : ui(new Ui::Form) {
   ui->setupUi(this);
 
   appObj = VulkanApplication::GetInstance();
