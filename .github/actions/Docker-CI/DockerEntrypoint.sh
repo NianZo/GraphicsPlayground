@@ -18,6 +18,11 @@ then
     #cd build
     ctest --test-dir build -C Debug --output-on-failure
 
+    if [ $? != 0 ]
+    then
+        exit $?
+    fi
+
     cd ..
     bash <(curl -S https://codecov.io/bash)
 elif [ $1 = "format" ]
