@@ -6,7 +6,6 @@
 #include <iostream>
 #include <thread>
 
-
 void MainWindow::renderLoop(VulkanApplication *appObj) {
   while (!appObj->render()) {
     appObj->update();
@@ -19,9 +18,8 @@ MainWindow::MainWindow() : //: m_window(w)
 
   appObj = VulkanApplication::GetInstance();
 
-  if (appObj->instanceObj.instance == NULL)
-  {
-	  std::cout << "Got invalid VkInstance from appObj\n";
+  if (appObj->instanceObj.instance == NULL) {
+    std::cout << "Got invalid VkInstance from appObj\n";
   }
 
   inst.setVkInstance(appObj->instanceObj.instance);
@@ -45,18 +43,16 @@ MainWindow::MainWindow() : //: m_window(w)
   appObj->initialize(&surface, (uint32_t)m_window->width(), (uint32_t)m_window->height());
   appObj->prepare();
   std::cout << "Finished MainWindow::MainWindow()\n";
-
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
 
-	close(); // needed or there will be a segfault
-	delete m_window;
-	//delete m_window;
-	std::cout << "Called delete m_window\n";
-	delete ui;
-	std::cout << "Finished running MainWindow::~MainWindow()\n";
+  close(); // needed or there will be a segfault
+  delete m_window;
+  // delete m_window;
+  std::cout << "Called delete m_window\n";
+  delete ui;
+  std::cout << "Finished running MainWindow::~MainWindow()\n";
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event) {
