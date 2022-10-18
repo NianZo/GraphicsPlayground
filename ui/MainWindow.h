@@ -1,7 +1,8 @@
+#include "VulkanApplication.hpp"
+#include <QVulkanInstance>
 #include <QWidget>
 #include <QWindow>
-#include <QVulkanInstance>
-#include "VulkanApplication.hpp"
+#include <memory>
 
 //QT_BEGIN_NAMESPACE
 class QTabWidget;
@@ -12,7 +13,7 @@ class QLCDNumber;
 namespace Ui
 {
 	class Form;
-}
+} // namespace Ui
 
 class MainWindow : public QWidget
 {
@@ -20,13 +21,13 @@ class MainWindow : public QWidget
 
 public:
     explicit MainWindow();
-    ~MainWindow();
+    ~MainWindow() override;
+    MainWindow(const MainWindow&) = delete;
+    MainWindow(MainWindow&&) = delete;
+    MainWindow& operator=(const MainWindow&) = delete;
+    MainWindow& operator=(MainWindow&&) = delete;
 
-public:
-//    void onVulkanInfoReceived(const QString &text);
-//    void onFrameQueued(int colorValue);
-//    void onGrabRequested();
-	void resizeEvent(QResizeEvent* event);
+	void resizeEvent(QResizeEvent* event) override;
 	static void renderLoop(VulkanApplication* appObj);
 
 	VulkanApplication* appObj;
@@ -35,7 +36,7 @@ private:
 	VkSurfaceKHR surface;
     QWidget *m_windowWrapper;
     QVulkanInstance inst;
-    QWindow *m_window;
+    std::unique_ptr<QWindow> m_window;
     //QWidget *wrapper;
     //QTabWidget *m_infoTab;
     //QPlainTextEdit *m_info;

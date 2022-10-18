@@ -20,7 +20,7 @@ add_library(${UI_LIB} STATIC ${CPP_FILES} ${HPP_FILES})
 target_include_directories(${UI_LIB} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/renderer/include ${CMAKE_CURRENT_BINARY_DIR} ${Qt6Widgets_INCLUDE_DIRS})
 #target_include_directories(${MAIN_BINARY} PUBLIC ${AUTOGEN_BUILD_DIR})
 message(WARNING "QT_INCLUDES: ${Qt6Widgets_INCLUDE_DIRS}")
-#target_include_directories(${MAIN_BINARY} PUBLIC ${Qt6Widgets_INCLUDE_DIRS})
+
 
 target_link_libraries(${UI_LIB} PRIVATE Qt6::Core Qt6::Widgets)
 target_link_libraries(${UI_LIB} PUBLIC "VulkanRenderer")
@@ -32,3 +32,5 @@ endif()
 add_executable(${MAIN_BINARY} main.cpp)#${CPP_FILES} ${HPP_FILES})
 target_link_libraries(${MAIN_BINARY} PUBLIC ${UI_LIB})
 target_link_libraries(${MAIN_BINARY} PRIVATE Qt6::Core Qt6::Widgets)
+
+target_include_directories(${MAIN_BINARY} PUBLIC ${Qt6Widgets_INCLUDE_DIRS})
