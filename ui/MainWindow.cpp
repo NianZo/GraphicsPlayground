@@ -4,24 +4,24 @@
 #include <iostream>
 #include <thread>
 
-void MainWindow::renderLoop(VulkanApplication *appObj)
+void MainWindow::renderLoop(VulkanApplication* appObj)
 {
   while (!appObj->render())
-    {
-      appObj->update();
-    };
+  {
+    appObj->update();
+  };
 }
 
 MainWindow::MainWindow() : ui(new Ui::Form), appObj(VulkanApplication::GetInstance())
 {
   ui->setupUi(this);
 
-  //appObj = VulkanApplication::GetInstance();
+  // appObj = VulkanApplication::GetInstance();
 
   if (appObj->instanceObj.instance == nullptr)
-    {
-      std::cout << "Got invalid VkInstance from appObj\n";
-    }
+  {
+    std::cout << "Got invalid VkInstance from appObj\n";
+  }
 
   inst.setVkInstance(appObj->instanceObj.instance);
 
@@ -40,9 +40,9 @@ MainWindow::MainWindow() : ui(new Ui::Form), appObj(VulkanApplication::GetInstan
   show();
   surface = QVulkanInstance::surfaceForWindow(m_window.get());
   if (surface == VK_NULL_HANDLE)
-    {
-      std::cout << "Got NULL surface from surfaceForWindow\n";
-    }
+  {
+    std::cout << "Got NULL surface from surfaceForWindow\n";
+  }
 
   appObj->initialize(&surface, static_cast<uint32_t>(m_window->width()), static_cast<uint32_t>(m_window->height()));
   appObj->prepare();
