@@ -1,6 +1,7 @@
-#include "Header.hpp"
+//#include "Header.hpp"
 #include "MainWindow.h"
-#include "VulkanApplication.hpp"
+#include "VulkanRenderer.hpp"
+//#include "VulkanApplication.hpp"
 #include <QApplication>
 #include <QLibraryInfo>
 #include <QLoggingCategory>
@@ -29,7 +30,7 @@ int main(int argc, char* argv[])
   QApplication app(argc, argv);
 
   MainWindow mainWindow;
-  std::thread thread1(MainWindow::renderLoop, mainWindow.appObj);
+  //std::thread thread1(MainWindow::renderLoop, mainWindow.appObj);
   // mainWindow.show();
 
   return QApplication::exec();

@@ -1,4 +1,5 @@
-#include "VulkanApplication.hpp"
+//#include "VulkanApplication.hpp"
+#include "VulkanRenderer.hpp"
 #include <QVulkanInstance>
 #include <QWidget>
 #include <QWindow>
@@ -28,9 +29,10 @@ public:
     MainWindow& operator=(MainWindow&&) = delete;
 
 	void resizeEvent(QResizeEvent* event) override;
-	static void renderLoop(VulkanApplication* appObj);
+	//static void renderLoop(VulkanApplication* appObj);
 
-	VulkanApplication* appObj;
+	//VulkanApplication* appObj;
+	VulkanRenderer2 renderer;
 
 private:
 	VkSurfaceKHR surface;

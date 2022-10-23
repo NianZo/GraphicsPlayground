@@ -17,7 +17,7 @@ add_library(${UI_LIB} STATIC ${CPP_FILES} ${HPP_FILES})
 
 
 #set_property(TARGET ${MAIN_BINARY} PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_include_directories(${UI_LIB} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/renderer/include ${CMAKE_CURRENT_BINARY_DIR} ${Qt6Widgets_INCLUDE_DIRS})
+target_include_directories(${UI_LIB} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/newRenderer ${CMAKE_CURRENT_BINARY_DIR} ${Qt6Widgets_INCLUDE_DIRS})
 #target_include_directories(${MAIN_BINARY} PUBLIC ${AUTOGEN_BUILD_DIR})
 message(WARNING "QT_INCLUDES: ${Qt6Widgets_INCLUDE_DIRS}")
 

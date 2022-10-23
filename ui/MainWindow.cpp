@@ -1,29 +1,31 @@
 #include "MainWindow.h"
-#include "VulkanApplication.hpp"
+//#include "VulkanApplication.hpp"
 #include "ui_MainGUI.h"
 #include <iostream>
 #include <thread>
 
-void MainWindow::renderLoop(VulkanApplication* appObj)
-{
-  while (!appObj->render())
-  {
-    appObj->update();
-  };
-}
+//void MainWindow::renderLoop(VulkanApplication* appObj)
+//{
+//  while (!appObj->render())
+//  {
+//    appObj->update();
+//  };
+//}
 
-MainWindow::MainWindow() : ui(new Ui::Form), appObj(VulkanApplication::GetInstance())
+MainWindow::MainWindow() : ui(new Ui::Form), renderer(VulkanRenderer2("Graphics Playground"))//appObj(VulkanApplication::GetInstance())
 {
   ui->setupUi(this);
 
   // appObj = VulkanApplication::GetInstance();
 
-  if (appObj->instanceObj.instance == nullptr)
+  if (renderer.instance == VK_NULL_HANDLE)
+  //if (appObj->instanceObj.instance == nullptr)
   {
     std::cout << "Got invalid VkInstance from appObj\n";
   }
 
-  inst.setVkInstance(appObj->instanceObj.instance);
+  inst.setVkInstance(renderer.instance);
+  //inst.setVkInstance(appObj->instanceObj.instance);
 
   if (!inst.create())
   {
@@ -44,8 +46,8 @@ MainWindow::MainWindow() : ui(new Ui::Form), appObj(VulkanApplication::GetInstan
     std::cout << "Got NULL surface from surfaceForWindow\n";
   }
 
-  appObj->initialize(&surface, static_cast<uint32_t>(m_window->width()), static_cast<uint32_t>(m_window->height()));
-  appObj->prepare();
+//  appObj->initialize(&surface, static_cast<uint32_t>(m_window->width()), static_cast<uint32_t>(m_window->height()));
+//  appObj->prepare();
   std::cout << "Finished MainWindow::MainWindow()\n";
 }
 

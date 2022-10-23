@@ -14,7 +14,7 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_compile_options(--coverage -O0)
 endif()
 
-add_subdirectory(renderer)
+add_subdirectory(newRenderer)
 add_subdirectory(ui)
 
 option(ENABLE_TESTING "Enable Test Builds" ON)
