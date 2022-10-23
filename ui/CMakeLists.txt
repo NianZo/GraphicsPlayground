@@ -5,6 +5,9 @@ find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 qt6_standard_project_setup()
 set(CMAKE_AUTOUIC ON)
 
+# Put a 'null' .clang-tidy file where generated Qt files will be so that Clang-Tidy ignores them
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/.clang-tidy" "---
+Checks: '-*,llvm-twine-local'")
 
 # Gather list of header and source files for compilation
 file(GLOB_RECURSE CPP_FILES MainWindow.cpp)#${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
@@ -33,4 +36,4 @@ add_executable(${MAIN_BINARY} main.cpp)#${CPP_FILES} ${HPP_FILES})
 target_link_libraries(${MAIN_BINARY} PUBLIC ${UI_LIB})
 target_link_libraries(${MAIN_BINARY} PRIVATE Qt6::Core Qt6::Widgets)
 
-target_include_directories(${MAIN_BINARY} PUBLIC ${Qt6Widgets_INCLUDE_DIRS})
+target_include_directories(${MAIN_BINARY} PUBLIC ${Qt6Widgets_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/newRenderer)

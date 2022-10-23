@@ -12,7 +12,7 @@ then
     #export LIBGL_ALWAYS_SOFTWARE=true
     #export GALLIUM_DRIVER=llvmpipe
     ./compile_shaders.sh
-    cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug
+    cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     cmake --build build --config Debug
 
     #cd build
@@ -32,6 +32,7 @@ then
 elif [ $1 = "tidy" ]
 then
     cd src
+    cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     clang-tidy -p build ui/*pp
 fi
 

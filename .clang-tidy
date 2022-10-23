@@ -10,5 +10,5 @@ Checks: '*,-fuchsia-*,-zircon-*,-abseil-*,-modernize-use-trailing-return-type,-l
     -bugprone-easily-swappable-parameters,
     -altera-id-dependent-backward-branch'
 WarningsAsErrors: '.*'
-HeaderFilterRegex: '.*'
+HeaderFilterRegex: ''
 FormatStyle: none
