@@ -16,6 +16,7 @@ then
     cmake --build build --config Debug
 
     #cd build
+    #ctest -C Debug --output-on-failure
     ctest --test-dir build -C Debug --output-on-failure
 
     if [ $? != 0 ]

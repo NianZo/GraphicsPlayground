@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     message("Building in Debug")
-    add_compile_options(--coverage -O0)
+    add_compile_options(--coverage -O0 -fprofile-instr-generate -fcoverage-mapping)
 endif()
 
 add_subdirectory(newRenderer)
