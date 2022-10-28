@@ -30,8 +30,8 @@ int main(int argc, char* argv[])
   QApplication app(argc, argv);
 
   MainWindow mainWindow;
-  //std::thread thread1(MainWindow::renderLoop, mainWindow.appObj);
-  // mainWindow.show();
+  // std::thread thread1(MainWindow::renderLoop, mainWindow.appObj);
+  //  mainWindow.show();
 
   return QApplication::exec();
 }
