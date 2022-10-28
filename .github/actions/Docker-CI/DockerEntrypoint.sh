@@ -14,6 +14,7 @@ then
     ./compile_shaders.sh
     cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     cmake --build build --config Debug
+    export LLVM_PROFILE_FILE=/profile.profraw
 
     #cd build
     #ctest -C Debug --output-on-failure
@@ -24,6 +25,8 @@ then
         exit $?
     fi
 
+    llvm-profdata merge -sparse /profile.profraw -o build/coverage.profdata
+    llvm-cov show build/test/UIUnitTests -instr-profile=build/coverage.profdata > build/coverage.txt
     #cd ..
     bash <(curl -S https://codecov.io/bash)
 elif [ $1 = "format" ]

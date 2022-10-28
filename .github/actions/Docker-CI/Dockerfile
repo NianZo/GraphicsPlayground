@@ -5,7 +5,7 @@ ENV HOME /root
 
 SHELL ["/bin/bash", "-c"]
 
-RUN pacman -Syu --noconfirm && pacman -S --noconfirm clang cmake qt6-base vulkan-devel glslang glm gtest make git xorg-server xorg-xinit vulkan-icd-loader mesa vulkan-swrast xorg-server-xvfb
+RUN pacman -Syu --noconfirm && pacman -S --noconfirm clang llvm cmake qt6-base vulkan-devel glslang glm gtest make git xorg-server xorg-xinit vulkan-icd-loader mesa vulkan-swrast xorg-server-xvfb
 #RUN echo LIBGL_ALWAYS_SOFTWARE=true >> /etc/environment
 #RUN echo GALLIUM_DRIVER=llvmpipe >> /etc/environment
 
