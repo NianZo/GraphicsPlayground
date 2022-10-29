@@ -39,4 +39,9 @@ TEST(UIBasic, CreateUIForm)
 */
 }
 
+TEST(UIBasic, CloseWindowFromButton)
+{
+	EXPECT_TRUE(false);
+}
+
 
