@@ -5,6 +5,10 @@ inputs:
     description: 'Which build system task to run'
     required: true
     default: 'build&test'
+  codecov-token:
+    description: 'Token for codecov upload'
+    required: true
+    default: ${CODECOV_TOKEN}
 runs:
   using: 'docker'
   image: 'Dockerfile'

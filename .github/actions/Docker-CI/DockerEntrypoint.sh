@@ -28,7 +28,10 @@ then
     llvm-profdata merge -sparse /profile.profraw -o build/coverage.profdata
     llvm-cov show build/test/UIUnitTests -instr-profile=build/coverage.profdata > build/coverage.txt
     #cd ..
-    bash <(curl -S https://codecov.io/bash)
+    #bash <(curl -S https://codecov.io/bash)
+    curl -Os https://uploader.codecov.io/latest/linux/codecov
+    chmod +x codecov
+    ./codecov -t $2
 elif [ $1 = "format" ]
 then
     cd src
