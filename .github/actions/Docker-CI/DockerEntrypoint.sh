@@ -22,7 +22,7 @@ then
 
     if [ $? != 0 ]
     then
-        exit $?
+        exit 1
     fi
 
     llvm-profdata merge -sparse /profile.profraw -o build/coverage.profdata
