@@ -34,6 +34,6 @@ endif()
 
 add_executable(${MAIN_BINARY} main.cpp)#${CPP_FILES} ${HPP_FILES})
 target_link_libraries(${MAIN_BINARY} PUBLIC ${UI_LIB})
-target_link_libraries(${MAIN_BINARY} PRIVATE Qt6::Core Qt6::Widgets)
+target_link_libraries(${MAIN_BINARY} PRIVATE Qt6::Core Qt6::Widgets project_warnings)
 
 target_include_directories(${MAIN_BINARY} PUBLIC ${Qt6Widgets_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/newRenderer)

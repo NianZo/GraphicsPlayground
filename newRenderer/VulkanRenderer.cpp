@@ -6,6 +6,7 @@
  */
 
 #include "VulkanRenderer.hpp"
+#include <stdexcept>
 #include <vector>
 
 
@@ -29,11 +30,15 @@ VulkanRenderer2::VulkanRenderer2(const char* const applicationName)
 	instanceInfo.pNext = nullptr;//&layerExtension.dbgReportCreateInfo;
 	instanceInfo.flags = 0;
 	instanceInfo.pApplicationInfo = &appInfo;
-	instanceInfo.enabledLayerCount = (uint32_t) layers.size();
+	instanceInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
 	instanceInfo.ppEnabledLayerNames = layers.size() ? layers.data() : nullptr;
-	instanceInfo.enabledExtensionCount = (uint32_t)extensions.size();
+	instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 	instanceInfo.ppEnabledExtensionNames = extensions.size() ? extensions.data() : nullptr;
 	VkResult res = vkCreateInstance(&instanceInfo, nullptr, &instance);
+	if (res != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create VkInstance\n");
+	}
 	//assert(res == VK_SUCCESS);
 	//return res;
 	uint32_t physicalDeviceCount;

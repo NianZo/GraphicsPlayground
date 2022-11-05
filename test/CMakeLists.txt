@@ -10,7 +10,7 @@ add_executable(${UI_TEST_BINARY} ${UI_TEST_CPP_FILES} ${UI_CPP_FILES})
 target_include_directories(${UI_TEST_BINARY} PUBLIC ${CMAKE_SOURCE_DIR}/ui ${AUTOGEN_BUILD_DIR} ${Qt6Widgets_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/newRenderer)
 message(WARNING "QT_INCLUDES: ${Qt6Widgets_INCLUDE_DIRS} ${RENDERER_LIB}")
 target_link_libraries(${UI_TEST_BINARY} PUBLIC "VulkanRenderer" "MainUI" gtest)
-target_link_libraries(${UI_TEST_BINARY} PRIVATE Qt6::Core Qt6::Widgets)
+target_link_libraries(${UI_TEST_BINARY} PRIVATE Qt6::Core Qt6::Widgets project_warnings)
 #set_property(TARGET ${UI_TEST_BINARY} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)

@@ -14,6 +14,11 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_compile_options(--coverage -O0 -fprofile-instr-generate -fcoverage-mapping)
 endif()
 
+# Standard compiler warnings
+add_library(project_warnings INTERFACE)
+include(CompilerWarnings.cmake)
+set_project_warnings(project_warnings)
+
 add_subdirectory(newRenderer)
 add_subdirectory(ui)
 

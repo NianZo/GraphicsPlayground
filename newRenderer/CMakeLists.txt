@@ -49,6 +49,7 @@ target_include_directories(${RENDERER_LIB} PUBLIC ${CMAKE_SOURCE_DIR}/external/s
 target_link_libraries(${RENDERER_LIB} PUBLIC ${Vulkan_LIBRARIES})
 target_include_directories(${RENDERER_LIB} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${RENDERER_LIB} PUBLIC ${VULKAN_PATH}/include)
+target_link_libraries(${RENDERER_LIB} PRIVATE project_warnings)
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     target_link_libraries(${RENDERER_LIB} PRIVATE --coverage -fprofile-instr-generate -fcoverage-mapping)
