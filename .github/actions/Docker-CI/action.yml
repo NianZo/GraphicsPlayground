@@ -10,7 +10,8 @@ inputs:
     required: true
     default: ${CODECOV_TOKEN}
 runs:
-  using: 'docker'
-  image: nianzo:cpp-development-environment-latest
+  #using: 'docker'
+  container:
+    image: nianzo:cpp-development-environment-latest
   args:
     - ${{ inputs.action-to-perform }}
