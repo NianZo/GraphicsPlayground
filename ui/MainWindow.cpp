@@ -3,6 +3,7 @@
 #include "ui_MainGUI.h"
 #include <iostream>
 #include <thread>
+#include <QString>
 
 // void MainWindow::renderLoop(VulkanApplication* appObj)
 //{
@@ -46,6 +47,26 @@ MainWindow::MainWindow() : ui(new Ui::Form), renderer(VulkanRenderer2("Graphics 
     std::cout << "Got NULL surface from surfaceForWindow\n";
   }
 
+  QString deviceProperties;
+  QTextStream dpStream(&deviceProperties);
+  dpStream << "API Version: " << renderer.physicalDevices[1].properties.apiVersion <<
+		  "\nDriver Version: " << renderer.physicalDevices[1].properties.driverVersion <<
+		  "\nVendor ID: " << Qt::showbase << Qt::uppercasedigits << Qt::hex << renderer.physicalDevices[1].properties.vendorID <<
+		  "\nDevice ID: " << Qt::hex << renderer.physicalDevices[1].properties.deviceID <<
+		  "\nDevice Type: " << renderer.physicalDevices[1].properties.deviceType <<
+		  "\nDevice NAme: " << renderer.physicalDevices[1].properties.deviceName <<
+		  "\nPipeline Cache UUID: " << renderer.physicalDevices[1].properties.pipelineCacheUUID <<
+		  "\nLimits: " <<
+		  "\nSparse Properties: " << "\n";
+//  sprintf(deviceProperties, "API Version: %d\nDriver Version: %d\nVendor ID: %d\nDevice ID: %d\nDevice Type: %d\nDevice Name: %s\nPipeline Cache UUID: %d\nLimits: \nSparse Properties: \n",
+//		  renderer.physicalDevices[0].properties.apiVersion,
+//		  renderer.physicalDevices[0].properties.driverVersion,
+//		  renderer.physicalDevices[0].properties.vendorID,
+//		  renderer.physicalDevices[0].properties.deviceID,
+//		  renderer.physicalDevices[0].properties.deviceType,
+//		  renderer.physicalDevices[0].properties.deviceName,
+//		  renderer.physicalDevices[0].properties.pipelineCacheUUID);
+  ui->label_2->setText(deviceProperties);
   //  appObj->initialize(&surface, static_cast<uint32_t>(m_window->width()), static_cast<uint32_t>(m_window->height()));
   //  appObj->prepare();
   std::cout << "Finished MainWindow::MainWindow()\n";

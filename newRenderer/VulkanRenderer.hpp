@@ -28,6 +28,7 @@ public:
 
 	VkInstance instance;
 	std::vector<PhysicalDeviceDescriptor> physicalDevices;
+
 };
 
 
