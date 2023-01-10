@@ -24,11 +24,19 @@ class VulkanRenderer2
 public:
 	explicit VulkanRenderer2(const char* const applicationName);
 
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+			VkDebugUtilsMessageSeverityFlagBitsEXT flags,
+			VkDebugUtilsMessageTypeFlagsEXT objType,
+			const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+			void* userData);
 	//void enumeratePhysicalDevices;
-
 	VkInstance instance;
 	std::vector<PhysicalDeviceDescriptor> physicalDevices;
-
+	VkDebugUtilsMessengerEXT debugMessenger;
+	bool enableValidationLayers = true;
+private:
+	VkResult setupDebugMessenger();
+	VkDebugUtilsMessengerCreateInfoEXT populateDebugMessengerCreateInfo();
 };
 
 
