@@ -1,5 +1,6 @@
 //#include "VulkanApplication.hpp"
 #include "VulkanRenderer.hpp"
+#include "RendererBase.hpp"
 #include <QVulkanInstance>
 #include <QWidget>
 #include <QWindow>
@@ -32,7 +33,9 @@ public:
 	//static void renderLoop(VulkanApplication* appObj);
 
 	//VulkanApplication* appObj;
-	VulkanRenderer2 renderer;
+
+	RendererBase rendererBase;
+	std::unique_ptr<VulkanRenderer2> renderer;
 
 private:
 	VkSurfaceKHR surface;
@@ -52,7 +55,62 @@ private:
 class VulkanPhysicalDeviceFeatureWrapper
 {
 public:
-	static const std::array<std::string, 55> featureNames;
+	static constexpr std::array<const char*, 55> featureNames =
+		{{"robustBufferAccess",
+	      "fullDrawIndexUint32",
+	      "imageCubeArray",
+	      "independentBlend",
+	      "geometryShader",
+	      "tessellationShader",
+	      "sampleRateShading",
+	      "dualSrcBlend",
+	      "logicOp",
+	      "multiDrawIndirect",
+	      "drawIndirectFirstInstance",
+	      "depthClamp",
+	      "depthBiasClamp",
+	      "fillModeNonSolid",
+	      "depthBounds",
+	      "wideLines",
+	      "largePoints",
+	      "alphaToOne",
+	      "multiViewport",
+	      "samplerAnisotropy",
+	      "textureCompressionETC2",
+	      "textureCompressionASTC_LDR",
+	      "textureCompressionBC",
+	      "occlusionQueryPrecise",
+	      "pipelineStatisticsQuery",
+	      "vertexPipelineStoresAndAtomics",
+	      "fragmentStoresAndAtomics",
+	      "shaderTessellationAndGeometryPointSize",
+	      "shaderImageGatherExtended",
+	      "shaderStorageImageExtendedFormats",
+	      "shaderStorageImageMultisample",
+	      "shaderStorageImageReadWithoutFormat",
+	      "shaderStorageImageWriteWithoutFormat",
+	      "shaderUniformBufferArrayDynamicIndexing",
+	      "shaderSampledImageArrayDynamicIndexing",
+	      "shaderStorageBufferArrayDynamicIndexing",
+	      "shaderStorageImageArrayDynamicIndexing",
+	      "shaderClipDistance",
+	      "shaderCullDistance",
+	      "shaderFloat64",
+	      "shaderInt64",
+	      "shaderInt16",
+	      "shaderResourceResidency",
+	      "shaderResourceMinLod",
+	      "sparseBinding",
+	      "sparseResidencyBuffer",
+	      "sparseResidencyImage2D",
+	      "sparseResidencyImage3D",
+	      "sparseResidency2Samples",
+	      "sparseResidency4Samples",
+	      "sparseResidency8Samples",
+	      "sparseResidency16Samples",
+	      "sparseResidencyAliased",
+	      "variableMultisampleRate",
+	      "inheritedQueries"}};
 	std::array<VkBool32, 55> featureArray;
 
 	VulkanPhysicalDeviceFeatureWrapper(const VkPhysicalDeviceFeatures& features)

@@ -12,13 +12,14 @@
 TEST(RenderTestBasic, CreateRenderer)
 {
 	{
-		VulkanRenderer2 renderer("RenderTestBasic");
-		EXPECT_NE(renderer.physicalDevices.size(), 0);
+		RendererBase rendererBase("RenderTestBasic");
+		//VulkanRenderer2 renderer("RenderTestBasic");
+		EXPECT_NE(rendererBase.physicalDevices.size(), 0);
 
 		// Verify that the structures describing the physical devices are filled out for at least one valid gpu
 		// Can't verify for all because I have a 'null'? gpu with vendor id 0 and no features
 		bool validGPUFound = false;
-		for (const auto& gpuDescriptor : renderer.physicalDevices)
+		for (const PhysicalDeviceDescriptor& gpuDescriptor : rendererBase.physicalDevices)
 		{
 			if (gpuDescriptor.properties.vendorID != 0)
 			{
