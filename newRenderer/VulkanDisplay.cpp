@@ -55,7 +55,7 @@ VulkanDisplay::VulkanDisplay(VulkanRenderer2* renderer, VkSurfaceKHR& displaySur
 	createInfo.pNext = nullptr;
 	createInfo.flags = 0;
 	createInfo.surface = surface;
-	createInfo.minImageCount = 2;
+	createInfo.minImageCount = surfaceCapabilities.minImageCount;
 	createInfo.imageFormat = swapchainImageFormat;
 	createInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
 	createInfo.imageExtent = swapchainExtent;//surfaceCapabilities.minImageExtent;
