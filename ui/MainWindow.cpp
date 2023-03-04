@@ -77,7 +77,7 @@ MainWindow::MainWindow() : ui(new Ui::Form), rendererBase(RendererBase("Graphics
     renderer = std::make_unique<VulkanRenderer2>(rendererBase, surface, ui->comboBox->currentIndex(), ui->widget->size().width(), ui->widget->size().height());
     // renderer(rendererBase, surface, ui->comboBox->currentIndex());
     renderer->Render();
-    //renderer->RenderTriangle();
+    // renderer->RenderTriangle();
     std::cout << "Finished MainWindow::MainWindow()\n";
 }
 
@@ -101,7 +101,7 @@ void MainWindow::resizeEvent([[maybe_unused]] QResizeEvent* event)
         surface = QVulkanInstance::surfaceForWindow(m_window.get());
         renderer->Resize(surface, ui->widget->size().width(), ui->widget->size().height());
         renderer->Render();
-        //renderer->RenderTriangle();
+        // renderer->RenderTriangle();
     }
     m_windowWrapper->setMinimumSize(ui->widget->size());
     m_windowWrapper->setMaximumSize(ui->widget->size());
