@@ -13,6 +13,7 @@
 #include <vector>
 #include <memory>
 #include <VulkanDisplay.hpp>
+#include <string>
 //class VulkanDisplay;
 
 //struct PhysicalDeviceDescriptor
@@ -33,6 +34,7 @@ public:
 	uint32_t FindCombinedQueueFamily(VkSurfaceKHR& surface);
 
 	void Render();
+	void RenderTriangle();
 	void Resize(VkSurfaceKHR surface, uint32_t width, uint32_t height);
 //	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 //			VkDebugUtilsMessageSeverityFlagBitsEXT flags,
@@ -65,6 +67,8 @@ private:
 	{
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
+
+	static std::vector<char> readFile(const std::string& filename);
 	//VkSurfaceKHR surface;
 //	VkResult setupDebugMessenger();
 //	VkDebugUtilsMessengerCreateInfoEXT populateDebugMessengerCreateInfo();

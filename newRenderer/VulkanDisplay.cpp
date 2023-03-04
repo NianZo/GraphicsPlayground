@@ -17,6 +17,8 @@ VulkanDisplay::VulkanDisplay(VulkanRenderer2* renderer, VkSurfaceKHR& displaySur
 {
 	m_renderer = renderer;
 	surface = displaySurface;
+	m_width = width;
+	m_height = height;
 
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_renderer->gpu.physicalDevice, surface, &surfaceCapabilities);
 

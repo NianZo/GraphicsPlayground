@@ -8,3 +8,5 @@ $VULKAN_SDK/bin/glslangValidator -V100 -o Draw-vert.spv Draw.vert
 $VULKAN_SDK/bin/glslangValidator -V100 -o Draw-frag.spv Draw.frag
 $VULKAN_SDK/bin/glslangValidator -V100 -o DrawTex-vert.spv DrawTex.vert
 $VULKAN_SDK/bin/glslangValidator -V100 -o DrawTex-frag.spv DrawTex.frag
+$VULKAN_SDK/bin/glslangValidator -V100 -o DrawTriangle-vert.spv DrawTriangle.vert
+$VULKAN_SDK/bin/glslangValidator -V100 -o DrawTriangle-frag.spv DrawTriangle.frag
