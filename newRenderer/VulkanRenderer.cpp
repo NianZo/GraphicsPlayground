@@ -5,6 +5,7 @@
  *      Author: nic
  */
 
+#include "Drawable.hpp"
 #include "VulkanRenderer.hpp"
 #include "VulkanDisplay.hpp"
 #include <stdexcept>
@@ -130,90 +131,97 @@ uint32_t VulkanRenderer2::FindCombinedQueueFamily(VkSurfaceKHR& surface)
 
 void VulkanRenderer2::Render()
 {
-	vkWaitForFences(device, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
-	vkResetFences(device, 1, &inFlightFence);
-
+	Drawable drawable(*this, commandPool);
 
 	uint32_t imageIndex = 0;
 	vkAcquireNextImageKHR(device, display.get()->swapchain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
 	VkImage& image = display.get()->image.get()->images[imageIndex];
 
-	// Eventually command buffer recording should be done in a RendererDescription or Drawable object
-	vkResetCommandBuffer(commandBuffer, 0);
-	VkCommandBufferBeginInfo beginInfo;
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.pNext = nullptr;
-	beginInfo.flags = 0;
-	beginInfo.pInheritanceInfo = nullptr;
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+//	vkWaitForFences(device, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
+//	vkResetFences(device, 1, &inFlightFence);
 
-	VkImageSubresourceRange subresourceRange;
-	subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	subresourceRange.baseMipLevel = 0;
-	subresourceRange.levelCount = 1;
-	subresourceRange.baseArrayLayer = 0;
-	subresourceRange.layerCount = 1;
+	drawable.ClearWindow(image);
 
-	// Move the image into the correct layout
-	// No? just use clearcolorimage
-	VkImageMemoryBarrier generalToClearBarrier;
-	generalToClearBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	generalToClearBarrier.pNext = nullptr;
-	generalToClearBarrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-	generalToClearBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-	generalToClearBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	generalToClearBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-	generalToClearBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	generalToClearBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	generalToClearBarrier.image = image;
-	generalToClearBarrier.subresourceRange = subresourceRange;
-
-	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &generalToClearBarrier);
-	//VK_PIPELINE_STAGE_TRANSFER_BIT
-	// Use this for now to clear the image to a specific color
-	VkClearColorValue clearColor = {{0.42F, 1.0F, 0.46F, 1.0F}};
-
-	vkCmdClearColorImage(commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearColor, 1, &subresourceRange);
-
-	VkImageMemoryBarrier clearToPresentBarrier;
-	clearToPresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	clearToPresentBarrier.pNext = nullptr;
-	clearToPresentBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-	clearToPresentBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-	clearToPresentBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-	clearToPresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-	clearToPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	clearToPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	clearToPresentBarrier.image = image;
-	clearToPresentBarrier.subresourceRange = subresourceRange;
-
-	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearToPresentBarrier);
+	drawable.ExecuteCommandBuffer();
 
 
-	vkEndCommandBuffer(commandBuffer);
 
-	// Submit command buffer
-	std::array<VkSemaphore, 1> waitSemaphores = {imageAvailableSemaphore};
+//	// Eventually command buffer recording should be done in a RendererDescription or Drawable object
+//	vkResetCommandBuffer(commandBuffer, 0);
+//	VkCommandBufferBeginInfo beginInfo;
+//	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+//	beginInfo.pNext = nullptr;
+//	beginInfo.flags = 0;
+//	beginInfo.pInheritanceInfo = nullptr;
+//	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+//
+//	VkImageSubresourceRange subresourceRange;
+//	subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+//	subresourceRange.baseMipLevel = 0;
+//	subresourceRange.levelCount = 1;
+//	subresourceRange.baseArrayLayer = 0;
+//	subresourceRange.layerCount = 1;
+//
+//	// Move the image into the correct layout
+//	// No? just use clearcolorimage
+//	VkImageMemoryBarrier generalToClearBarrier;
+//	generalToClearBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+//	generalToClearBarrier.pNext = nullptr;
+//	generalToClearBarrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+//	generalToClearBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+//	generalToClearBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+//	generalToClearBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+//	generalToClearBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+//	generalToClearBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+//	generalToClearBarrier.image = image;
+//	generalToClearBarrier.subresourceRange = subresourceRange;
+//
+//	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &generalToClearBarrier);
+//	//VK_PIPELINE_STAGE_TRANSFER_BIT
+//	// Use this for now to clear the image to a specific color
+//	VkClearColorValue clearColor = {{0.42F, 1.0F, 0.46F, 1.0F}};
+//
+//	vkCmdClearColorImage(commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearColor, 1, &subresourceRange);
+//
+//	VkImageMemoryBarrier clearToPresentBarrier;
+//	clearToPresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+//	clearToPresentBarrier.pNext = nullptr;
+//	clearToPresentBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+//	clearToPresentBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+//	clearToPresentBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+//	clearToPresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+//	clearToPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+//	clearToPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+//	clearToPresentBarrier.image = image;
+//	clearToPresentBarrier.subresourceRange = subresourceRange;
+//
+//	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearToPresentBarrier);
+//
+//
+//	vkEndCommandBuffer(commandBuffer);
+//
+//	// Submit command buffer
+	//std::array<VkSemaphore, 1> waitSemaphores = {imageAvailableSemaphore};
 	std::array<VkSemaphore, 1> signalSemaphores = {renderFinishedSemaphore};
-	std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_TRANSFER_BIT};
-
-	VkSubmitInfo submitInfo;
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.pNext = nullptr;
-	submitInfo.waitSemaphoreCount = waitSemaphores.size();
-	submitInfo.pWaitSemaphores = waitSemaphores.data();
-	submitInfo.pWaitDstStageMask = waitStages.data();
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
-	submitInfo.signalSemaphoreCount = signalSemaphores.size();
-	submitInfo.pSignalSemaphores = signalSemaphores.data();
-
-	VkResult result = vkQueueSubmit(combinedQueue, 1, &submitInfo, inFlightFence);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to submit drawing buffer: \n" + std::to_string(result));
-	}
+//	std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_TRANSFER_BIT};
+//
+//	VkSubmitInfo submitInfo;
+//	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+//	submitInfo.pNext = nullptr;
+//	submitInfo.waitSemaphoreCount = waitSemaphores.size();
+//	submitInfo.pWaitSemaphores = waitSemaphores.data();
+//	submitInfo.pWaitDstStageMask = waitStages.data();
+//	submitInfo.commandBufferCount = 1;
+//	submitInfo.pCommandBuffers = &commandBuffer;
+//	submitInfo.signalSemaphoreCount = signalSemaphores.size();
+//	submitInfo.pSignalSemaphores = signalSemaphores.data();
+//
+//	VkResult result = vkQueueSubmit(combinedQueue, 1, &submitInfo, inFlightFence);
+//	if (result != VK_SUCCESS)
+//	{
+//		throw std::runtime_error("Failed to submit drawing buffer: \n" + std::to_string(result));
+//	}
 
 	std::array<VkSwapchainKHR, 1> swapchains = {display.get()->swapchain};
 	VkPresentInfoKHR presentInfo;
@@ -226,7 +234,7 @@ void VulkanRenderer2::Render()
 	presentInfo.pImageIndices = &imageIndex;
 	presentInfo.pResults = nullptr;
 
-	result = vkQueuePresentKHR(combinedQueue, &presentInfo);
+	VkResult result = vkQueuePresentKHR(combinedQueue, &presentInfo);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to present image\n");
