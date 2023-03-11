@@ -34,7 +34,6 @@ public:
 	uint32_t FindCombinedQueueFamily(VkSurfaceKHR& surface);
 
 	void Render();
-	void RenderTriangle();
 	void Resize(VkSurfaceKHR surface, uint32_t width, uint32_t height);
 //	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 //			VkDebugUtilsMessageSeverityFlagBitsEXT flags,
@@ -59,9 +58,9 @@ public:
 	// TODO probably shouldn't live here
 	VkCommandBuffer commandBuffer;
 
-	VkSemaphore imageAvailableSemaphore;
-	VkSemaphore renderFinishedSemaphore;
-	VkFence inFlightFence;
+	//VkSemaphore imageAvailableSemaphore;
+	//VkSemaphore renderFinishedSemaphore;
+	//VkFence inFlightFence;
 private:
 	std::vector<const char*> deviceExtensionNames =
 	{
