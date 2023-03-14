@@ -21,6 +21,7 @@ set_project_warnings(project_warnings)
 
 add_subdirectory(newRenderer)
 add_subdirectory(ui)
+add_subdirectory(shaders)
 
 option(ENABLE_TESTING "Enable Test Builds" ON)
 
