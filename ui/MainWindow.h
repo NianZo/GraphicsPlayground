@@ -1,10 +1,10 @@
 //#include "VulkanApplication.hpp"
-#include "VulkanRenderer.hpp"
-#include "RendererBase.hpp"
 #include <QVulkanInstance>
 #include <QWidget>
 #include <QWindow>
 #include <memory>
+#include "RendererBase.hpp"
+#include "VulkanRenderer.hpp"
 
 //QT_BEGIN_NAMESPACE
 class QTabWidget;
@@ -35,7 +35,7 @@ public:
 	//VulkanApplication* appObj;
 
 	RendererBase rendererBase;
-	std::unique_ptr<VulkanRenderer2> renderer;
+	std::unique_ptr<VulkanRenderer> renderer;
 
 private:
 	VkSurfaceKHR surface;

@@ -6,6 +6,7 @@
  */
 
 #include "VulkanImage.hpp"
+
 #include "VulkanDisplay.hpp"
 #include "VulkanRenderer.hpp"
 

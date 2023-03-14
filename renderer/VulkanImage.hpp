@@ -5,8 +5,8 @@
  *      Author: nic
  */
 
-#ifndef NEWRENDERER_VULKANIMAGE_HPP_
-#define NEWRENDERER_VULKANIMAGE_HPP_
+#ifndef RENDERER_VULKANIMAGE_HPP_
+#define RENDERER_VULKANIMAGE_HPP_
 
 #include <vulkan/vulkan.h>
 #include <vector>
@@ -25,4 +25,4 @@ public:
 };
 
 
-#endif /* NEWRENDERER_VULKANIMAGE_HPP_ */
+#endif /* RENDERER_VULKANIMAGE_HPP_ */

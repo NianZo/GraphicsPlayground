@@ -6,7 +6,7 @@
  */
 
 #include "Drawable.hpp"
-#include "VulkanRenderer.hpp"
+
 #include <stdexcept>
 #include <vector>
 #include <iostream>
@@ -14,10 +14,11 @@
 #include <array>
 #include <fstream>
 #include <memory>
+#include "VulkanRenderer.hpp"
 
 std::vector<char> readFile(const std::string& filename);
 
-Drawable::Drawable(VulkanRenderer2& renderer, VkCommandPool& commandPool) : m_renderer(renderer)
+Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool) : m_renderer(renderer)
 {
 	VkCommandBufferAllocateInfo commandBufferAI;
 	commandBufferAI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;

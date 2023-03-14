@@ -5,15 +5,15 @@
  *      Author: nic
  */
 
-#ifndef NEWRENDERER_VULKANRENDERER_HPP_
-#define NEWRENDERER_VULKANRENDERER_HPP_
+#ifndef RENDERER_VULKANRENDERER_HPP_
+#define RENDERER_VULKANRENDERER_HPP_
 
-#include "RendererBase.hpp"
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <memory>
-#include <VulkanDisplay.hpp>
 #include <string>
+#include "RendererBase.hpp"
+#include "VulkanDisplay.hpp"
 //class VulkanDisplay;
 
 //struct PhysicalDeviceDescriptor
@@ -25,11 +25,11 @@
 //	std::vector<VkQueueFamilyProperties> queueFamilyProperties;
 //};
 
-class VulkanRenderer2
+class VulkanRenderer
 {
 public:
-	VulkanRenderer2(RendererBase& base, VkSurfaceKHR& surface, uint32_t index, uint32_t width, uint32_t height);
-	~VulkanRenderer2();
+	VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32_t index, uint32_t width, uint32_t height);
+	~VulkanRenderer();
 
 	uint32_t FindCombinedQueueFamily(VkSurfaceKHR& surface);
 
@@ -74,4 +74,4 @@ private:
 };
 
 
-#endif /* NEWRENDERER_VULKANRENDERER_HPP_ */
+#endif /* RENDERER_VULKANRENDERER_HPP_ */

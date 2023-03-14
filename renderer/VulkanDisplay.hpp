@@ -5,20 +5,20 @@
  *      Author: nic
  */
 
-#ifndef NEWRENDERER_VULKANDISPLAY_HPP_
-#define NEWRENDERER_VULKANDISPLAY_HPP_
+#ifndef RENDERER_VULKANDISPLAY_HPP_
+#define RENDERER_VULKANDISPLAY_HPP_
 
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <memory>
 #include "VulkanImage.hpp"
 
-class VulkanRenderer2;
+class VulkanRenderer;
 
 class VulkanDisplay
 {
 public:
-	VulkanDisplay(VulkanRenderer2* renderer, VkSurfaceKHR& surface, uint32_t width, uint32_t height);
+	VulkanDisplay(VulkanRenderer* renderer, VkSurfaceKHR& surface, uint32_t width, uint32_t height);
 	~VulkanDisplay();
 
 	uint32_t m_width;
@@ -46,7 +46,7 @@ public:
 
 	std::vector<VkSurfaceFormatKHR> surfaceFormats;
 	std::unique_ptr<VulkanImage> image;
-	VulkanRenderer2* m_renderer;
+	VulkanRenderer* m_renderer;
 private:
 	//VkPhysicalDevice& gpu;
 	//VkSurfaceKHR& surface;
@@ -54,4 +54,4 @@ private:
 };
 
 
-#endif /* NEWRENDERER_VULKANDISPLAY_HPP_ */
+#endif /* RENDERER_VULKANDISPLAY_HPP_ */

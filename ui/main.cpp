@@ -1,7 +1,5 @@
 // #include "Header.hpp"
 #include "MainWindow.h"
-#include "VulkanRenderer.hpp"
-// #include "VulkanApplication.hpp"
 #include <QApplication>
 #include <QLibraryInfo>
 #include <QLoggingCategory>
@@ -11,6 +9,7 @@
 #include <QVulkanWindow>
 #include <iostream>
 #include <thread>
+#include "VulkanRenderer.hpp"
 
 // Q_LOGGING_CATEGORY(lcVk, "qt.vulkan")
 

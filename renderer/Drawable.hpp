@@ -5,8 +5,8 @@
  *      Author: nic
  */
 
-#ifndef NEWRENDERER_DRAWABLE_HPP_
-#define NEWRENDERER_DRAWABLE_HPP_
+#ifndef RENDERER_DRAWABLE_HPP_
+#define RENDERER_DRAWABLE_HPP_
 
 #include <vulkan/vulkan.h>
 #include <vector>
@@ -14,7 +14,7 @@
 #include <fstream>
 //#include <set>
 
-class VulkanRenderer2;
+class VulkanRenderer;
 
 // Fill out from UI / load from file / store to file
 struct GraphicsPipelineDescriptor
@@ -58,7 +58,7 @@ struct GraphicsPipelineState
 class Drawable
 {
 public:
-	Drawable(VulkanRenderer2& renderer, VkCommandPool& pool);
+	Drawable(VulkanRenderer& renderer, VkCommandPool& pool);
 	~Drawable();
 	void ClearWindow(VkImage& image);
 	void ExecuteCommandBuffer();
@@ -69,11 +69,11 @@ public:
 	VkFence inFlightFence;
 
 private:
-	VulkanRenderer2& m_renderer;
+	VulkanRenderer& m_renderer;
 	VkCommandBuffer commandBuffer;
 	std::vector<GraphicsPipelineDescriptor> pipelineDescriptors;
 	std::vector<GraphicsPipelineState> pipelineStates;
 };
 
 
-#endif /* NEWRENDERER_DRAWABLE_HPP_ */
+#endif /* RENDERER_DRAWABLE_HPP_ */

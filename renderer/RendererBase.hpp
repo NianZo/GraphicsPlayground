@@ -5,8 +5,8 @@
  *      Author: nic
  */
 
-#ifndef NEWRENDERER_RENDERERBASE_HPP_
-#define NEWRENDERER_RENDERERBASE_HPP_
+#ifndef RENDERER_RENDERERBASE_HPP_
+#define RENDERER_RENDERERBASE_HPP_
 
 #include <vector>
 #include <vulkan/vulkan.h>
@@ -43,4 +43,4 @@ private:
 };
 
 
-#endif /* NEWRENDERER_RENDERERBASE_HPP_ */
+#endif /* RENDERER_RENDERERBASE_HPP_ */

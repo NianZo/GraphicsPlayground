@@ -6,14 +6,15 @@
  */
 
 #include "VulkanDisplay.hpp"
-#include "VulkanRenderer.hpp"
-#include "VulkanImage.hpp"
+
 #include "algorithm"
 #include <limits>
 
 #include <iostream>
+#include "VulkanImage.hpp"
+#include "VulkanRenderer.hpp"
 
-VulkanDisplay::VulkanDisplay(VulkanRenderer2* renderer, VkSurfaceKHR& displaySurface, uint32_t width, uint32_t height)
+VulkanDisplay::VulkanDisplay(VulkanRenderer* renderer, VkSurfaceKHR& displaySurface, uint32_t width, uint32_t height)
 {
 	m_renderer = renderer;
 	surface = displaySurface;

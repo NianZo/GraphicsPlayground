@@ -74,7 +74,7 @@ MainWindow::MainWindow() : ui(new Ui::Form), rendererBase(RendererBase("Graphics
     //  appObj->prepare();
     // renderer = VulkanRenderer2("Graphics Playground");
     // renderer.chooseGPU(surface, ui->comboBox->currentIndex());
-    renderer = std::make_unique<VulkanRenderer2>(rendererBase, surface, ui->comboBox->currentIndex(), ui->widget->size().width(), ui->widget->size().height());
+    renderer = std::make_unique<VulkanRenderer>(rendererBase, surface, ui->comboBox->currentIndex(), ui->widget->size().width(), ui->widget->size().height());
     // renderer(rendererBase, surface, ui->comboBox->currentIndex());
     renderer->Render();
     // renderer->RenderTriangle();

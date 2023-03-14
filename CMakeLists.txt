@@ -19,7 +19,7 @@ add_library(project_warnings INTERFACE)
 include(CompilerWarnings.cmake)
 set_project_warnings(project_warnings)
 
-add_subdirectory(newRenderer)
+add_subdirectory(renderer)
 add_subdirectory(ui)
 add_subdirectory(shaders)
 

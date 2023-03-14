@@ -5,17 +5,18 @@
  *      Author: nic
  */
 
-#include "Drawable.hpp"
 #include "VulkanRenderer.hpp"
-#include "VulkanDisplay.hpp"
+
 #include <stdexcept>
 #include <vector>
 #include <iostream>
 #include <array>
 #include <fstream>
+#include "Drawable.hpp"
+#include "VulkanDisplay.hpp"
 
 
-VulkanRenderer2::VulkanRenderer2(RendererBase& base, VkSurfaceKHR& surface, uint32_t index, uint32_t width, uint32_t height) : rendererBase(base), gpu(base.physicalDevices[index])
+VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32_t index, uint32_t width, uint32_t height) : rendererBase(base), gpu(base.physicalDevices[index])
 {
 	combinedQueueFamily = FindCombinedQueueFamily(surface);
 	std::array<float, 1> queuePriorities = {0.0F};
@@ -75,7 +76,7 @@ VulkanRenderer2::VulkanRenderer2(RendererBase& base, VkSurfaceKHR& surface, uint
 	display = std::make_unique<VulkanDisplay>(this, surface, width, height);
 }
 
-VulkanRenderer2::~VulkanRenderer2()
+VulkanRenderer::~VulkanRenderer()
 {
 	//delete display;
 	vkDeviceWaitIdle(device);
@@ -85,7 +86,7 @@ VulkanRenderer2::~VulkanRenderer2()
 	vkDestroyDevice(device, nullptr);
 }
 
-uint32_t VulkanRenderer2::FindCombinedQueueFamily(VkSurfaceKHR& surface)
+uint32_t VulkanRenderer::FindCombinedQueueFamily(VkSurfaceKHR& surface)
 {
 	for (uint32_t i = 0; i < gpu.queueFamilyProperties.size(); i++)
 	{
@@ -99,7 +100,7 @@ uint32_t VulkanRenderer2::FindCombinedQueueFamily(VkSurfaceKHR& surface)
 	throw std::runtime_error("No combined queue family found\n");
 }
 
-void VulkanRenderer2::Render()
+void VulkanRenderer::Render()
 {
 	Drawable drawable(*this, commandPool);
 
@@ -133,7 +134,7 @@ void VulkanRenderer2::Render()
 	}
 }
 
-void VulkanRenderer2::Resize(VkSurfaceKHR surface, [[maybe_unused]] uint32_t width, [[maybe_unused]] uint32_t height)
+void VulkanRenderer::Resize(VkSurfaceKHR surface, [[maybe_unused]] uint32_t width, [[maybe_unused]] uint32_t height)
 {
 	vkDeviceWaitIdle(device);
 	display.reset();
@@ -142,7 +143,7 @@ void VulkanRenderer2::Resize(VkSurfaceKHR surface, [[maybe_unused]] uint32_t wid
 
 }
 
-std::vector<char> VulkanRenderer2::readFile(const std::string& filename)
+std::vector<char> VulkanRenderer::readFile(const std::string& filename)
 {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
 

@@ -6,6 +6,7 @@
  */
 
 #include "RendererBase.hpp"
+
 #include <iostream>
 
 RendererBase::RendererBase(const char* const applicationName)
