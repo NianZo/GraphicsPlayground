@@ -174,7 +174,7 @@ void Drawable::RenderTriangle(uint32_t imageIndex)
 
 	pipelineDescriptors.emplace_back(descriptor);
 
-	pipelineStates.emplace_back(std::move(GraphicsPipelineState(m_renderer.device, descriptor)));
+	pipelineStates.emplace_back(GraphicsPipelineState(m_renderer.device, descriptor));
 
 	vkResetCommandBuffer(commandBuffer, 0);
 

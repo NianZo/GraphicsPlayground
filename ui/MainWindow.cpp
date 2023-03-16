@@ -109,8 +109,8 @@ void MainWindow::resizeEvent([[maybe_unused]] QResizeEvent* event)
 
 void MainWindow::gpuComboBoxSelection(int index)
 {
-    const std::span<char> deviceNameSpan(rendererBase.physicalDevices[index].properties.deviceName);
-    const std::span<uint8_t> pipelineCacheUUIDSpan(rendererBase.physicalDevices[index].properties.pipelineCacheUUID);
+    const auto deviceNameSpan = std::span<char>(rendererBase.physicalDevices[index].properties.deviceName);
+    const auto pipelineCacheUUIDSpan = std::span<uint8_t>(rendererBase.physicalDevices[index].properties.pipelineCacheUUID);
     QString deviceProperties;
     QTextStream dpStream(&deviceProperties);
     dpStream << "API Version: " << rendererBase.physicalDevices[index].properties.apiVersion
