@@ -18,13 +18,17 @@ class VulkanRenderer;
 class VulkanDisplay
 {
   public:
-    VulkanDisplay(VulkanRenderer* renderer, VkSurfaceKHR& surface, uint32_t width, uint32_t height);
+    VulkanDisplay(VulkanRenderer& renderer, VkSurfaceKHR& surface, uint32_t width, uint32_t height);
+    VulkanDisplay(const VulkanDisplay&) = delete;
+    VulkanDisplay& operator=(const VulkanDisplay&) = delete;
+    VulkanDisplay(VulkanDisplay&&) noexcept;
+    VulkanDisplay& operator=(VulkanDisplay&&) = delete;
     ~VulkanDisplay();
 
-    uint32_t m_width;
-    uint32_t m_height;
-    // uint32_t queueFamilyIndex;
+    VulkanRenderer& renderer;
     VkSurfaceKHR surface;
+    // uint32_t queueFamilyIndex;
+
     VkSwapchainKHR swapchain;
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
 
@@ -46,7 +50,7 @@ class VulkanDisplay
 
     std::vector<VkSurfaceFormatKHR> surfaceFormats;
     std::unique_ptr<VulkanImage> image;
-    VulkanRenderer* m_renderer;
+
 
   private:
     // VkPhysicalDevice& gpu;

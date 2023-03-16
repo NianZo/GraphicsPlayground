@@ -213,7 +213,7 @@ void Drawable::RenderTriangle(uint32_t imageIndex)
     renderPassBI.framebuffer = framebuffers[imageIndex];
     renderPassBI.renderArea.offset = {0, 0};
     renderPassBI.renderArea.extent = m_renderer.display->swapchainExtent;
-    VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+    VkClearValue clearColor = {{{0.0F, 0.0F, 0.0F, 1.0F}}};
     renderPassBI.clearValueCount = 1;
     renderPassBI.pClearValues = &clearColor;
     vkCmdBeginRenderPass(commandBuffer, &renderPassBI, VK_SUBPASS_CONTENTS_INLINE);
@@ -262,12 +262,12 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor()
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
     VkViewport viewport;
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = 0.0f;
-    viewport.height = 0.0f;
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
+    viewport.x = 0.0F;
+    viewport.y = 0.0F;
+    viewport.width = 0.0F;
+    viewport.height = 0.0F;
+    viewport.minDepth = 0.0F;
+    viewport.maxDepth = 1.0F;
     viewports.emplace_back(viewport);
 
     VkRect2D scissor;
@@ -281,20 +281,20 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor()
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    rasterizer.lineWidth = 1.0f;
+    rasterizer.lineWidth = 1.0F;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
-    rasterizer.depthBiasConstantFactor = 0.0f;
-    rasterizer.depthBiasClamp = 0.0f;
-    rasterizer.depthBiasSlopeFactor = 0.0f;
+    rasterizer.depthBiasConstantFactor = 0.0F;
+    rasterizer.depthBiasClamp = 0.0F;
+    rasterizer.depthBiasSlopeFactor = 0.0F;
 
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampling.pNext = nullptr;
     multisampling.flags = 0;
     multisampling.sampleShadingEnable = VK_FALSE;
     multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-    multisampling.minSampleShading = 1.0f;
+    multisampling.minSampleShading = 1.0F;
     multisampling.pSampleMask = nullptr;
     multisampling.alphaToCoverageEnable = VK_FALSE;
     multisampling.alphaToOneEnable = VK_FALSE;
@@ -318,10 +318,10 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor()
     colorBlending.logicOp = VK_LOGIC_OP_COPY;
     colorBlending.attachmentCount = static_cast<uint32_t>(colorBlendAttachments.size());
     colorBlending.pAttachments = colorBlendAttachments.data();
-    colorBlending.blendConstants[0] = 0.0f;
-    colorBlending.blendConstants[1] = 0.0f;
-    colorBlending.blendConstants[2] = 0.0f;
-    colorBlending.blendConstants[3] = 0.0f;
+    colorBlending.blendConstants[0] = 0.0F;
+    colorBlending.blendConstants[1] = 0.0F;
+    colorBlending.blendConstants[2] = 0.0F;
+    colorBlending.blendConstants[3] = 0.0F;
 
     colorAttachment.flags = 0;
     colorAttachment.format = VK_FORMAT_UNDEFINED;

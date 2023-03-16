@@ -11,10 +11,10 @@
 
 VulkanImage::VulkanImage(VulkanDisplay& display) : m_display(display)
 {
-    uint32_t imageCount;
-    vkGetSwapchainImagesKHR(display.m_renderer->device, display.swapchain, &imageCount, nullptr);
+    uint32_t imageCount = 0;
+    vkGetSwapchainImagesKHR(display.renderer.device, display.swapchain, &imageCount, nullptr);
     images.resize(imageCount);
-    vkGetSwapchainImagesKHR(display.m_renderer->device, display.swapchain, &imageCount, images.data());
+    vkGetSwapchainImagesKHR(display.renderer.device, display.swapchain, &imageCount, images.data());
 
     imageViews.resize(imageCount);
     for (uint32_t i = 0; i < imageCount; i++)
@@ -36,7 +36,7 @@ VulkanImage::VulkanImage(VulkanDisplay& display) : m_display(display)
         imageViewCI.subresourceRange.baseArrayLayer = 0;
         imageViewCI.subresourceRange.layerCount = 1;
 
-        VkResult result = vkCreateImageView(display.m_renderer->device, &imageViewCI, nullptr, &imageViews[i]);
+        const VkResult result = vkCreateImageView(display.renderer.device, &imageViewCI, nullptr, &imageViews[i]);
         if (result != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to get image views for swapchain\n");
@@ -44,11 +44,27 @@ VulkanImage::VulkanImage(VulkanDisplay& display) : m_display(display)
     }
 }
 
+VulkanImage::VulkanImage(VulkanImage&& other) noexcept :
+		m_display(other.m_display)
+{
+	for (VkImage& image : other.images)
+	{
+		images.push_back(image);
+		image = VK_NULL_HANDLE;
+	}
+
+	for (VkImageView& imageView : other.imageViews)
+	{
+		imageViews.push_back(imageView);
+		imageView = VK_NULL_HANDLE;
+	}
+}
+
 VulkanImage::~VulkanImage()
 {
     for (VkImageView& imageView : imageViews)
     {
-        vkDestroyImageView(m_display.m_renderer->device, imageView, nullptr);
+        vkDestroyImageView(m_display.renderer.device, imageView, nullptr);
     }
 
     // Images from swapchain are destroyed when swapchain is destroyed, do not destroy them manually

@@ -14,9 +14,14 @@
 #include <stdexcept>
 #include <vector>
 
-VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32_t index, uint32_t width, uint32_t height) : rendererBase(base), gpu(base.physicalDevices[index])
+VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32_t index, uint32_t width, uint32_t height) :
+		rendererBase(base),
+		gpu(base.physicalDevices[index]),
+		device(VK_NULL_HANDLE),
+		combinedQueueFamily(FindCombinedQueueFamily(surface)),
+		combinedQueue(VK_NULL_HANDLE),
+		commandPool(VK_NULL_HANDLE)
 {
-    combinedQueueFamily = FindCombinedQueueFamily(surface);
     std::array<float, 1> queuePriorities = {0.0F};
     VkDeviceQueueCreateInfo queueCI;
     queueCI.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -58,20 +63,22 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32
         throw std::runtime_error("Failed to create command pool for combined queue family\n");
     }
 
-    VkCommandBufferAllocateInfo commandBufferAI;
-    commandBufferAI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    commandBufferAI.pNext = nullptr;
-    commandBufferAI.commandPool = commandPool;
-    commandBufferAI.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    commandBufferAI.commandBufferCount = 1;
+    display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
+}
 
-    result = vkAllocateCommandBuffers(device, &commandBufferAI, &commandBuffer);
-    if (result != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to allocate command buffer from combined queue family command pool\n");
-    }
+VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept :
+		rendererBase(other.rendererBase),
+		display(std::move(other.display)),
+		gpu(other.gpu),
+		device(other.device),
+		combinedQueueFamily(other.combinedQueueFamily),
+		combinedQueue(other.combinedQueue),
+		commandPool(other.commandPool)
 
-    display = std::make_unique<VulkanDisplay>(this, surface, width, height);
+{
+	other.device = VK_NULL_HANDLE;
+	other.combinedQueue = VK_NULL_HANDLE;
+	other.commandPool = VK_NULL_HANDLE;
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -88,9 +95,9 @@ uint32_t VulkanRenderer::FindCombinedQueueFamily(VkSurfaceKHR& surface)
 {
     for (uint32_t i = 0; i < gpu.queueFamilyProperties.size(); i++)
     {
-        VkBool32 isSupported;
+        VkBool32 isSupported = VK_FALSE;
         vkGetPhysicalDeviceSurfaceSupportKHR(gpu.physicalDevice, i, surface, &isSupported);
-        if ((gpu.queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) && isSupported)
+        if (((gpu.queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0U) && isSupported != 0U)
         {
             return i;
         }
@@ -103,7 +110,7 @@ void VulkanRenderer::Render()
     Drawable drawable(*this, commandPool);
 
     uint32_t imageIndex = 0;
-    vkAcquireNextImageKHR(device, display.get()->swapchain, UINT64_MAX, drawable.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    vkAcquireNextImageKHR(device, display->swapchain, UINT64_MAX, drawable.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
     // VkImage& image = display.get()->image.get()->images[imageIndex];
     // drawable.ClearWindow(image);
@@ -114,7 +121,7 @@ void VulkanRenderer::Render()
 
     std::array<VkSemaphore, 1> signalSemaphores = {drawable.renderFinishedSemaphore};
 
-    std::array<VkSwapchainKHR, 1> swapchains = {display.get()->swapchain};
+    std::array<VkSwapchainKHR, 1> swapchains = {display->swapchain};
     VkPresentInfoKHR presentInfo;
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.pNext = nullptr;
@@ -125,7 +132,7 @@ void VulkanRenderer::Render()
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
 
-    VkResult result = vkQueuePresentKHR(combinedQueue, &presentInfo);
+    const VkResult result = vkQueuePresentKHR(combinedQueue, &presentInfo);
     if (result != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to present image\n");
@@ -137,23 +144,7 @@ void VulkanRenderer::Resize(VkSurfaceKHR surface, [[maybe_unused]] uint32_t widt
     vkDeviceWaitIdle(device);
     display.reset();
 
-    display = std::make_unique<VulkanDisplay>(this, surface, width, height);
+    display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
 }
 
-std::vector<char> VulkanRenderer::readFile(const std::string& filename)
-{
-    std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
-    if (!file.is_open())
-    {
-        throw std::runtime_error("Failed to open shader file: " + filename + "\n");
-    }
-
-    size_t fileSize = static_cast<size_t>(file.tellg());
-    std::vector<char> buffer(fileSize);
-    file.seekg(0);
-    file.read(buffer.data(), static_cast<std::streamsize>(fileSize));
-    file.close();
-
-    return buffer;
-}

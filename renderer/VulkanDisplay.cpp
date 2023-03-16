@@ -12,28 +12,30 @@
 #include <iostream>
 #include <limits>
 
-VulkanDisplay::VulkanDisplay(VulkanRenderer* renderer, VkSurfaceKHR& displaySurface, uint32_t width, uint32_t height)
+VulkanDisplay::VulkanDisplay(VulkanRenderer& rendererIn, VkSurfaceKHR& displaySurface, uint32_t width, uint32_t height) :
+		renderer(rendererIn),
+		surface(displaySurface),
+		swapchain(VK_NULL_HANDLE),
+		surfaceCapabilities({0}),
+		swapchainPresentMode(VK_PRESENT_MODE_FIFO_KHR),
+		swapchainImageFormat(VK_FORMAT_B8G8R8A8_SRGB)
 {
-    m_renderer = renderer;
-    surface = displaySurface;
-    m_width = width;
-    m_height = height;
 
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_renderer->gpu.physicalDevice, surface, &surfaceCapabilities);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(renderer.gpu.physicalDevice, surface, &surfaceCapabilities);
 
-    uint32_t surfaceFormatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(m_renderer->gpu.physicalDevice, surface, &surfaceFormatCount, nullptr);
+    uint32_t surfaceFormatCount = 0;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(renderer.gpu.physicalDevice, surface, &surfaceFormatCount, nullptr);
     surfaceFormats.resize(surfaceFormatCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(m_renderer->gpu.physicalDevice, surface, &surfaceFormatCount, surfaceFormats.data());
+    vkGetPhysicalDeviceSurfaceFormatsKHR(renderer.gpu.physicalDevice, surface, &surfaceFormatCount, surfaceFormats.data());
 
-    uint32_t surfacePresentModesCount;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(m_renderer->gpu.physicalDevice, surface, &surfacePresentModesCount, nullptr);
+    uint32_t surfacePresentModesCount = 0;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(renderer.gpu.physicalDevice, surface, &surfacePresentModesCount, nullptr);
     presentModes.resize(surfacePresentModesCount);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(m_renderer->gpu.physicalDevice, surface, &surfacePresentModesCount, presentModes.data());
+    vkGetPhysicalDeviceSurfacePresentModesKHR(renderer.gpu.physicalDevice, surface, &surfacePresentModesCount, presentModes.data());
 
     preTransform = surfaceCapabilities.currentTransform;
-    swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
-    swapchainImageFormat = VK_FORMAT_B8G8R8A8_SRGB;
+//    swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+//    swapchainImageFormat = VK_FORMAT_B8G8R8A8_SRGB;
     //	if (surfaceCapabilities.minImageExtent.width > width || surfaceCapabilities.minImageExtent.height > height)
     //	{
     //		swapchainExtent = surfaceCapabilities.minImageExtent;
@@ -42,8 +44,12 @@ VulkanDisplay::VulkanDisplay(VulkanRenderer* renderer, VkSurfaceKHR& displaySurf
     //	{
     //		swapchainExtent = {width, height};
     //	}
-    swapchainExtent.width = std::clamp(width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
-    swapchainExtent.height = std::clamp(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
+    swapchainExtent = {
+    		std::clamp(width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width),
+			std::clamp(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height)
+    };
+//    swapchainExtent.width = std::clamp(width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
+//    swapchainExtent.height = std::clamp(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
     std::cout << "swapchainExtent: " << width << ", " << height << "\n";
     std::cout << "minImageExtent: " << surfaceCapabilities.minImageExtent.width << ", " << surfaceCapabilities.minImageExtent.height << "\n";
     std::cout << "maxImageExtent: " << surfaceCapabilities.maxImageExtent.width << ", " << surfaceCapabilities.maxImageExtent.height << "\n";
@@ -69,7 +75,7 @@ VulkanDisplay::VulkanDisplay(VulkanRenderer* renderer, VkSurfaceKHR& displaySurf
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    vkCreateSwapchainKHR(m_renderer->device, &createInfo, nullptr, &swapchain);
+    vkCreateSwapchainKHR(renderer.device, &createInfo, nullptr, &swapchain);
 
     image = std::make_unique<VulkanImage>(*this);
     //	fpGetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR) vkGetDeviceProcAddr(device, "vkGetSwapchainImagesKHR");
@@ -77,9 +83,27 @@ VulkanDisplay::VulkanDisplay(VulkanRenderer* renderer, VkSurfaceKHR& displaySurf
     //	fpQueuePresentKHR = (PFN_vkQueuePresentKHR) vkGetDeviceProcAddr(device, "vkQueuePresentKHR");
 }
 
+VulkanDisplay::VulkanDisplay(VulkanDisplay&& other) noexcept :
+		renderer(other.renderer),
+		surface(other.surface),
+		swapchain(other.swapchain),
+		surfaceCapabilities(other.surfaceCapabilities),
+		presentModes(other.presentModes),
+		swapchainExtent(other.swapchainExtent),
+		preTransform(other.preTransform),
+		swapchainPresentMode(other.swapchainPresentMode),
+		swapchainImageFormat(other.swapchainImageFormat),
+		surfaceFormats(other.surfaceFormats),
+		image(std::move(other.image))
+{
+	other.swapchain = VK_NULL_HANDLE;
+}
+
+
+
 VulkanDisplay::~VulkanDisplay()
 {
     std::cout << "Starting ~VulkanDisplay()\n";
     image.reset();
-    vkDestroySwapchainKHR(m_renderer->device, swapchain, nullptr);
+    vkDestroySwapchainKHR(renderer.device, swapchain, nullptr);
 }

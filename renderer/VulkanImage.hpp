@@ -16,7 +16,11 @@ class VulkanDisplay;
 class VulkanImage
 {
   public:
-    VulkanImage(VulkanDisplay& display);
+    explicit VulkanImage(VulkanDisplay& display);
+    VulkanImage(const VulkanImage&) = delete;
+    VulkanImage& operator=(const VulkanImage&) = delete;
+    VulkanImage(VulkanImage&&) noexcept;
+    VulkanImage& operator=(VulkanImage&&) = delete;
     ~VulkanImage();
     std::vector<VkImage> images;
     std::vector<VkImageView> imageViews;
