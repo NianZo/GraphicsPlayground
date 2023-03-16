@@ -8,50 +8,49 @@
 #ifndef RENDERER_VULKANDISPLAY_HPP_
 #define RENDERER_VULKANDISPLAY_HPP_
 
-#include <vulkan/vulkan.h>
-#include <vector>
-#include <memory>
 #include "VulkanImage.hpp"
+#include <memory>
+#include <vector>
+#include <vulkan/vulkan.h>
 
 class VulkanRenderer;
 
 class VulkanDisplay
 {
-public:
-	VulkanDisplay(VulkanRenderer* renderer, VkSurfaceKHR& surface, uint32_t width, uint32_t height);
-	~VulkanDisplay();
+  public:
+    VulkanDisplay(VulkanRenderer* renderer, VkSurfaceKHR& surface, uint32_t width, uint32_t height);
+    ~VulkanDisplay();
 
-	uint32_t m_width;
-	uint32_t m_height;
-	//uint32_t queueFamilyIndex;
-	VkSurfaceKHR surface;
-	VkSwapchainKHR swapchain;
-	VkSurfaceCapabilitiesKHR surfaceCapabilities;
+    uint32_t m_width;
+    uint32_t m_height;
+    // uint32_t queueFamilyIndex;
+    VkSurfaceKHR surface;
+    VkSwapchainKHR swapchain;
+    VkSurfaceCapabilitiesKHR surfaceCapabilities;
 
-	// Arrays for retrieved present modes
-	std::vector<VkPresentModeKHR> presentModes;
+    // Arrays for retrieved present modes
+    std::vector<VkPresentModeKHR> presentModes;
 
-	// Size of the swap chain color images
-	VkExtent2D swapchainExtent;
+    // Size of the swap chain color images
+    VkExtent2D swapchainExtent;
 
-	VkSurfaceTransformFlagBitsKHR preTransform;
+    VkSurfaceTransformFlagBitsKHR preTransform;
 
-	// Stores present mode bitwise flag for the creation of the swap chain
-	VkPresentModeKHR swapchainPresentMode;
+    // Stores present mode bitwise flag for the creation of the swap chain
+    VkPresentModeKHR swapchainPresentMode;
 
-	VkFormat swapchainImageFormat;
+    VkFormat swapchainImageFormat;
 
-	// The retrieved drawing color swap chain images
-	//std::vector<VkImage> swapchainImages;
+    // The retrieved drawing color swap chain images
+    // std::vector<VkImage> swapchainImages;
 
-	std::vector<VkSurfaceFormatKHR> surfaceFormats;
-	std::unique_ptr<VulkanImage> image;
-	VulkanRenderer* m_renderer;
-private:
-	//VkPhysicalDevice& gpu;
-	//VkSurfaceKHR& surface;
+    std::vector<VkSurfaceFormatKHR> surfaceFormats;
+    std::unique_ptr<VulkanImage> image;
+    VulkanRenderer* m_renderer;
 
+  private:
+    // VkPhysicalDevice& gpu;
+    // VkSurfaceKHR& surface;
 };
-
 
 #endif /* RENDERER_VULKANDISPLAY_HPP_ */

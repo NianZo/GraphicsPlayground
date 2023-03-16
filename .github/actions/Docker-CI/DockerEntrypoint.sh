@@ -38,6 +38,7 @@ elif [ $1 = "format" ]
 then
     cd src
     clang-format --dry-run --Werror ui/*pp
+    clang-format --dry-run --Werror renderer/*pp
 elif [ $1 = "tidy" ]
 then
     cd src

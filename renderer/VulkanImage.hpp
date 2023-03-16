@@ -8,21 +8,20 @@
 #ifndef RENDERER_VULKANIMAGE_HPP_
 #define RENDERER_VULKANIMAGE_HPP_
 
-#include <vulkan/vulkan.h>
 #include <vector>
+#include <vulkan/vulkan.h>
 
 class VulkanDisplay;
 
 class VulkanImage
 {
-public:
-	VulkanImage(VulkanDisplay& display);
-	~VulkanImage();
-	std::vector<VkImage> images;
-	std::vector<VkImageView> imageViews;
+  public:
+    VulkanImage(VulkanDisplay& display);
+    ~VulkanImage();
+    std::vector<VkImage> images;
+    std::vector<VkImageView> imageViews;
 
-	VulkanDisplay& m_display;
+    VulkanDisplay& m_display;
 };
-
 
 #endif /* RENDERER_VULKANIMAGE_HPP_ */
