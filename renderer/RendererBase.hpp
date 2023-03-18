@@ -11,7 +11,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-struct PhysicalDeviceDescriptor
+struct __attribute__((aligned(128))) PhysicalDeviceDescriptor
 {
     VkPhysicalDevice physicalDevice;
     VkPhysicalDeviceFeatures features;
@@ -23,12 +23,16 @@ struct PhysicalDeviceDescriptor
 class RendererBase
 {
   public:
-    RendererBase(const char* const applicationName);
+    explicit RendererBase(const char* applicationName);
+    RendererBase(const RendererBase&) = delete; // TODO(nic) I could actually implement these by just creating a new object with same parameters
+    RendererBase& operator=(const RendererBase&) = delete;
+    RendererBase(RendererBase&&) noexcept;
+    RendererBase& operator=(RendererBase&&) noexcept;
     ~RendererBase();
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-        VkDebugUtilsMessageSeverityFlagBitsEXT flags,
-        VkDebugUtilsMessageTypeFlagsEXT objType,
+        VkDebugUtilsMessageSeverityFlagBitsEXT severity,
+        VkDebugUtilsMessageTypeFlagsEXT type,
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
         void* userData);
 
@@ -39,7 +43,7 @@ class RendererBase
 
   private:
     VkResult setupDebugMessenger();
-    VkDebugUtilsMessengerCreateInfoEXT populateDebugMessengerCreateInfo();
+    static VkDebugUtilsMessengerCreateInfoEXT populateDebugMessengerCreateInfo();
 };
 
 #endif /* RENDERER_RENDERERBASE_HPP_ */

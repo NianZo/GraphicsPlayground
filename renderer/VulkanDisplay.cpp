@@ -12,11 +12,12 @@
 #include <iostream>
 #include <limits>
 
+// clang-tidy doesn't understand that Vulkan initializes several of the class members
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 VulkanDisplay::VulkanDisplay(VulkanRenderer& rendererIn, VkSurfaceKHR& displaySurface, uint32_t width, uint32_t height) :
 		renderer(rendererIn),
 		surface(displaySurface),
 		swapchain(VK_NULL_HANDLE),
-		surfaceCapabilities({0}),
 		swapchainPresentMode(VK_PRESENT_MODE_FIFO_KHR),
 		swapchainImageFormat(VK_FORMAT_B8G8R8A8_SRGB)
 {
@@ -33,6 +34,8 @@ VulkanDisplay::VulkanDisplay(VulkanRenderer& rendererIn, VkSurfaceKHR& displaySu
     presentModes.resize(surfacePresentModesCount);
     vkGetPhysicalDeviceSurfacePresentModesKHR(renderer.gpu.physicalDevice, surface, &surfacePresentModesCount, presentModes.data());
 
+    // clang-tidy doesn't understand that surfaceCapabilities is initialized by Vulkan
+    // NOLINTNEXTLINE(cppcoreguidelines-prefer-member-initializer)
     preTransform = surfaceCapabilities.currentTransform;
 //    swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
 //    swapchainImageFormat = VK_FORMAT_B8G8R8A8_SRGB;

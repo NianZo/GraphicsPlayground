@@ -30,6 +30,7 @@ class VulkanDisplay
     // uint32_t queueFamilyIndex;
 
     VkSwapchainKHR swapchain;
+
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
 
     // Arrays for retrieved present modes

@@ -8,17 +8,19 @@
 #include "RendererBase.hpp"
 #include <iostream>
 
+// clang-tidy doesn't understand that Vulkan initializes several of the class members
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 RendererBase::RendererBase(const char* const applicationName)
 {
     std::vector<const char*> layers;
-    std::vector<const char*> extensions = {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_xcb_surface"}; // TODO this is an issue and will come back to haunt me on cross-platform support
+    std::vector<const char*> extensions = {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_xcb_surface"}; // TODO(nic) this is an issue and will come back to haunt me on cross-platform support
     if (enableValidationLayers)
     {
-        // TODO check for validation layer availability here
+        // TODO(nic) check for validation layer availability here
         layers.emplace_back("VK_LAYER_KHRONOS_validation");
         extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
-    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = populateDebugMessengerCreateInfo();
+    const VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = populateDebugMessengerCreateInfo();
 
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -36,9 +38,9 @@ RendererBase::RendererBase(const char* const applicationName)
     instanceInfo.flags = 0;
     instanceInfo.pApplicationInfo = &appInfo;
     instanceInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
-    instanceInfo.ppEnabledLayerNames = layers.size() ? layers.data() : nullptr;
+    instanceInfo.ppEnabledLayerNames = !layers.empty() ? layers.data() : nullptr;
     instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-    instanceInfo.ppEnabledExtensionNames = extensions.size() ? extensions.data() : nullptr;
+    instanceInfo.ppEnabledExtensionNames = !extensions.empty() ? extensions.data() : nullptr;
     VkResult res = vkCreateInstance(&instanceInfo, nullptr, &instance);
     if (res != VK_SUCCESS)
     {
@@ -46,7 +48,7 @@ RendererBase::RendererBase(const char* const applicationName)
     }
     // assert(res == VK_SUCCESS);
     // return res;
-    uint32_t physicalDeviceCount;
+    uint32_t physicalDeviceCount = 0U;
     vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, nullptr);
     std::vector<VkPhysicalDevice> physicalDeviceList(physicalDeviceCount);
     vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, physicalDeviceList.data());
@@ -59,7 +61,7 @@ RendererBase::RendererBase(const char* const applicationName)
         vkGetPhysicalDeviceFeatures(physicalDevice, &descriptor.features);
         vkGetPhysicalDeviceProperties(physicalDevice, &descriptor.properties);
         vkGetPhysicalDeviceMemoryProperties(physicalDevice, &descriptor.memoryProperties);
-        uint32_t queueFamilyCount;
+        uint32_t queueFamilyCount = 0U;
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
         descriptor.queueFamilyProperties.resize(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, descriptor.queueFamilyProperties.data());
@@ -76,11 +78,40 @@ RendererBase::RendererBase(const char* const applicationName)
     }
 }
 
+RendererBase::RendererBase(RendererBase&& other) noexcept :
+		instance(other.instance),
+		physicalDevices(std::move(other.physicalDevices)),
+		debugMessenger(other.debugMessenger),
+		enableValidationLayers(other.enableValidationLayers)
+{
+	other.instance = VK_NULL_HANDLE;
+	other.debugMessenger = VK_NULL_HANDLE;
+}
+
+RendererBase& RendererBase::operator=(RendererBase&& other) noexcept
+{
+	if (this == &other)
+	{
+		return *this;
+	}
+
+	instance = other.instance;
+	physicalDevices = std::move(other.physicalDevices);
+	debugMessenger = other.debugMessenger;
+	enableValidationLayers = other.enableValidationLayers;
+
+	other.instance = VK_NULL_HANDLE;
+	other.debugMessenger = VK_NULL_HANDLE;
+
+	return *this;
+}
+
 RendererBase::~RendererBase()
 {
     if (enableValidationLayers)
     {
         auto vkDestroyDebugUtilsMessengerEXT =
+        	// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT"));
         if (vkDestroyDebugUtilsMessengerEXT == nullptr)
         {
@@ -104,7 +135,7 @@ VkDebugUtilsMessengerCreateInfoEXT RendererBase::populateDebugMessengerCreateInf
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     createInfo.messageType =
-        VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | // NOLINT(hicpp-signed-bitwise)
         VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
         VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     createInfo.pfnUserCallback = debugCallback;
@@ -114,9 +145,10 @@ VkDebugUtilsMessengerCreateInfoEXT RendererBase::populateDebugMessengerCreateInf
 
 VkResult RendererBase::setupDebugMessenger()
 {
-    VkDebugUtilsMessengerCreateInfoEXT createInfo = populateDebugMessengerCreateInfo();
+    const VkDebugUtilsMessengerCreateInfoEXT createInfo = populateDebugMessengerCreateInfo();
 
     auto vkCreateDebugUtilsMessengerEXT =
+    	// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
     if (vkCreateDebugUtilsMessengerEXT == nullptr)
     {
