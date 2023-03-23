@@ -17,7 +17,7 @@
 class VulkanRenderer;
 
 // Fill out from UI / load from file / store to file
-struct GraphicsPipelineDescriptor
+struct __attribute__((aligned(128))) GraphicsPipelineDescriptor
 {
     GraphicsPipelineDescriptor(); // Fill out structs with defaults, then user doesn't need to fill out sType, pNext, flags, etc.
     // VkPipelineShaderStageCreateInfo vertexShaderStage;
@@ -39,20 +39,21 @@ struct GraphicsPipelineDescriptor
 };
 
 // Build all objects using info from GraphicsPipelineDescriptor (and renderpass?)
-struct GraphicsPipelineState
+struct __attribute__((aligned(64))) GraphicsPipelineState
 {
     GraphicsPipelineState(VkDevice& device, const GraphicsPipelineDescriptor& descriptor);
     ~GraphicsPipelineState();
     GraphicsPipelineState(const GraphicsPipelineState&) = delete;
     GraphicsPipelineState& operator=(const GraphicsPipelineState&) = delete;
-    GraphicsPipelineState(GraphicsPipelineState&&);
+    GraphicsPipelineState(GraphicsPipelineState&&) noexcept;
     GraphicsPipelineState& operator=(GraphicsPipelineState&&) = delete; // Can't do this because m_device can't be changed
+
+    VkDevice& m_device;
     VkShaderModule vertShaderModule;
     VkShaderModule fragShaderModule;
     VkPipelineLayout pipelineLayout;
     VkRenderPass renderPass;
     VkPipeline graphicsPipeline;
-    VkDevice& m_device;
 };
 
 class Drawable
@@ -60,6 +61,10 @@ class Drawable
   public:
     Drawable(VulkanRenderer& renderer, VkCommandPool& pool);
     ~Drawable();
+    Drawable(const Drawable&) = delete;
+    Drawable& operator=(const Drawable&) = delete;
+    Drawable(Drawable&&) noexcept;
+    Drawable& operator=(Drawable&&) = delete;
     void ClearWindow(VkImage& image);
     void ExecuteCommandBuffer();
     void RenderTriangle(uint32_t imageIndex);

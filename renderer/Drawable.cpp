@@ -17,6 +17,8 @@
 
 std::vector<char> readFile(const std::string& filename);
 
+// clang-tidy doesn't understand that Vulkan initializes several of the class members
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool) : m_renderer(renderer)
 {
     VkCommandBufferAllocateInfo commandBufferAI;
@@ -72,11 +74,11 @@ void Drawable::ExecuteCommandBuffer()
 {
     // Should the queue execution happen in renderer instead of drawable?
     // Drawable should own fences and semaphores, but renderer owns the queues that this will be submitted to
-    vkWaitForFences(m_renderer.device, 1, &inFlightFence, VK_TRUE, UINT64_MAX); // TODO use a Drawable owned fence instead
+    vkWaitForFences(m_renderer.device, 1, &inFlightFence, VK_TRUE, UINT64_MAX); // TODO(nic) use a Drawable owned fence instead
     vkResetFences(m_renderer.device, 1, &inFlightFence);
 
     // Submit command buffer
-    std::array<VkSemaphore, 1> waitSemaphores = {imageAvailableSemaphore}; // TODO use Drawable's instead
+    std::array<VkSemaphore, 1> waitSemaphores = {imageAvailableSemaphore}; // TODO(nic) use Drawable's instead
     std::array<VkSemaphore, 1> signalSemaphores = {renderFinishedSemaphore};
     std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_TRANSFER_BIT};
 
@@ -91,7 +93,7 @@ void Drawable::ExecuteCommandBuffer()
     submitInfo.signalSemaphoreCount = signalSemaphores.size();
     submitInfo.pSignalSemaphores = signalSemaphores.data();
 
-    VkResult result = vkQueueSubmit(m_renderer.combinedQueue, 1, &submitInfo, inFlightFence);
+    const VkResult result = vkQueueSubmit(m_renderer.combinedQueue, 1, &submitInfo, inFlightFence);
     if (result != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to submit drawing buffer: \n" + std::to_string(result));
@@ -132,7 +134,7 @@ void Drawable::ClearWindow(VkImage& image)
     vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &generalToClearBarrier);
     // VK_PIPELINE_STAGE_TRANSFER_BIT
     //  Use this for now to clear the image to a specific color
-    VkClearColorValue clearColor = {{0.42F, 1.0F, 0.46F, 1.0F}};
+    const VkClearColorValue clearColor = {{0.42F, 1.0F, 0.46F, 1.0F}};
 
     vkCmdClearColorImage(commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearColor, 1, &subresourceRange);
 
@@ -154,7 +156,7 @@ void Drawable::ClearWindow(VkImage& image)
 }
 void Drawable::RenderTriangle(uint32_t imageIndex)
 {
-    VkResult result;
+    VkResult result = VK_SUCCESS;
 
     GraphicsPipelineDescriptor descriptor;
 
@@ -173,7 +175,7 @@ void Drawable::RenderTriangle(uint32_t imageIndex)
 
     pipelineDescriptors.emplace_back(descriptor);
 
-    pipelineStates.emplace_back(GraphicsPipelineState(m_renderer.device, descriptor));
+    pipelineStates.emplace_back(m_renderer.device, descriptor);
 
     vkResetCommandBuffer(commandBuffer, 0);
 
@@ -213,16 +215,16 @@ void Drawable::RenderTriangle(uint32_t imageIndex)
     renderPassBI.framebuffer = framebuffers[imageIndex];
     renderPassBI.renderArea.offset = {0, 0};
     renderPassBI.renderArea.extent = m_renderer.display->swapchainExtent;
-    VkClearValue clearColor = {{{0.0F, 0.0F, 0.0F, 1.0F}}};
+    const VkClearValue clearColor = {{{0.0F, 0.0F, 0.0F, 1.0F}}};
     renderPassBI.clearValueCount = 1;
     renderPassBI.pClearValues = &clearColor;
     vkCmdBeginRenderPass(commandBuffer, &renderPassBI, VK_SUBPASS_CONTENTS_INLINE);
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineStates[0].graphicsPipeline);
 
-    vkCmdSetViewport(commandBuffer, 0, 1, &descriptor.viewports[0]);
+    vkCmdSetViewport(commandBuffer, 0, 1, descriptor.viewports.data());
 
-    vkCmdSetScissor(commandBuffer, 0, 1, &descriptor.scissors[0]);
+    vkCmdSetScissor(commandBuffer, 0, 1, descriptor.scissors.data());
 
     vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
@@ -240,7 +242,7 @@ std::vector<char> readFile(const std::string& filename)
         throw std::runtime_error("Failed to open shader file: " + filename + "\n");
     }
 
-    size_t fileSize = static_cast<size_t>(file.tellg());
+    const size_t fileSize = static_cast<size_t>(file.tellg());
     std::vector<char> buffer(fileSize);
     file.seekg(0);
     file.read(buffer.data(), static_cast<std::streamsize>(fileSize));
@@ -249,7 +251,12 @@ std::vector<char> readFile(const std::string& filename)
     return buffer;
 }
 
-GraphicsPipelineDescriptor::GraphicsPipelineDescriptor()
+GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() :
+	inputAssembly({}),
+	rasterizer({}),
+	multisampling({}),
+	colorBlending({}),
+	colorAttachment({})
 {
     // Fill out structures with reasonable defaults for creating a graphics pipeline
 
@@ -301,6 +308,7 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor()
 
     // depth and stencil state to be added later
     VkPipelineColorBlendAttachmentState colorBlendAttachment;
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     colorBlendAttachment.blendEnable = VK_FALSE;
     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
@@ -334,10 +342,12 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor()
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 }
 
+// clang-tidy doesn't understand that Vulkan initializes several of the class members
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, const GraphicsPipelineDescriptor& descriptor) : m_device(device)
 {
     std::cout << "In GraphicsPipelineState constructor\n";
-    VkResult result;
+    VkResult result = VK_SUCCESS;
 
     auto vertShaderCode = readFile(descriptor.vertexShader[0]);
     auto fragShaderCode = readFile(descriptor.fragmentShader[0]);
@@ -347,6 +357,7 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, const GraphicsPip
     vertShaderCI.pNext = nullptr;
     vertShaderCI.flags = 0;
     vertShaderCI.codeSize = vertShaderCode.size();
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     vertShaderCI.pCode = reinterpret_cast<const uint32_t*>(vertShaderCode.data());
     result = vkCreateShaderModule(device, &vertShaderCI, nullptr, &vertShaderModule);
     if (result != VK_SUCCESS)
@@ -367,6 +378,7 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, const GraphicsPip
     fragShaderCI.pNext = nullptr;
     fragShaderCI.flags = 0;
     fragShaderCI.codeSize = fragShaderCode.size();
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     fragShaderCI.pCode = reinterpret_cast<const uint32_t*>(fragShaderCode.data());
     result = vkCreateShaderModule(device, &fragShaderCI, nullptr, &fragShaderModule);
     if (result != VK_SUCCESS)
@@ -486,14 +498,15 @@ GraphicsPipelineState::~GraphicsPipelineState()
     vkDestroyPipeline(m_device, graphicsPipeline, nullptr);
 }
 
-GraphicsPipelineState::GraphicsPipelineState(GraphicsPipelineState&& other) : m_device(other.m_device)
+GraphicsPipelineState::GraphicsPipelineState(GraphicsPipelineState&& other) noexcept :
+	m_device(other.m_device),
+	vertShaderModule(other.vertShaderModule),
+	fragShaderModule(other.fragShaderModule),
+	pipelineLayout(other.pipelineLayout),
+	renderPass(other.renderPass),
+	graphicsPipeline(other.graphicsPipeline)
 {
     std::cout << "In GraphicsPipelineState move constructor\n";
-    vertShaderModule = other.vertShaderModule;
-    fragShaderModule = other.fragShaderModule;
-    pipelineLayout = other.pipelineLayout;
-    renderPass = other.renderPass;
-    graphicsPipeline = other.graphicsPipeline;
 
     // Null out the object being moved from
     other.vertShaderModule = VK_NULL_HANDLE;
