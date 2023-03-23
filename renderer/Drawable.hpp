@@ -78,6 +78,7 @@ class Drawable
     VkCommandBuffer commandBuffer;
     std::vector<GraphicsPipelineDescriptor> pipelineDescriptors;
     std::vector<GraphicsPipelineState> pipelineStates;
+    std::vector<VkFramebuffer> framebuffers;
 };
 
 #endif /* RENDERER_DRAWABLE_HPP_ */

@@ -12,7 +12,7 @@ message("glslandValidator: ${glslangValidator_executable}")
 foreach(source IN LISTS SHADERS)
 	get_filename_component(FILENAME ${source} NAME_WE)
 	get_filename_component(EXTENSION ${source} EXT)
-	string(REPLACE "." "_" EXTENSION ${EXTENSION})
+	string(REPLACE "." "-" EXTENSION ${EXTENSION})
 	add_custom_command(
 		COMMAND
 			${glslangValidator_executable}

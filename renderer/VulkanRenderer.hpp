@@ -52,9 +52,7 @@ class VulkanRenderer
   private:
     std::vector<const char*> deviceExtensionNames =
         {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME
-        };
-
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 };
 
 #endif /* RENDERER_VULKANRENDERER_HPP_ */

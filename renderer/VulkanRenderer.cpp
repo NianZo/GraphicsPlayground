@@ -14,13 +14,12 @@
 #include <stdexcept>
 #include <vector>
 
-VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32_t index, uint32_t width, uint32_t height) :
-		rendererBase(base),
-		gpu(base.physicalDevices[index]),
-		device(VK_NULL_HANDLE),
-		combinedQueueFamily(FindCombinedQueueFamily(surface)),
-		combinedQueue(VK_NULL_HANDLE),
-		commandPool(VK_NULL_HANDLE)
+VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32_t index, uint32_t width, uint32_t height) : rendererBase(base),
+                                                                                                                             gpu(base.physicalDevices[index]),
+                                                                                                                             device(VK_NULL_HANDLE),
+                                                                                                                             combinedQueueFamily(FindCombinedQueueFamily(surface)),
+                                                                                                                             combinedQueue(VK_NULL_HANDLE),
+                                                                                                                             commandPool(VK_NULL_HANDLE)
 {
     std::array<float, 1> queuePriorities = {0.0F};
     VkDeviceQueueCreateInfo queueCI;
@@ -66,19 +65,18 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32
     display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
 }
 
-VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept :
-		rendererBase(other.rendererBase),
-		display(std::move(other.display)),
-		gpu(other.gpu),
-		device(other.device),
-		combinedQueueFamily(other.combinedQueueFamily),
-		combinedQueue(other.combinedQueue),
-		commandPool(other.commandPool)
+VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(other.rendererBase),
+                                                                  display(std::move(other.display)),
+                                                                  gpu(other.gpu),
+                                                                  device(other.device),
+                                                                  combinedQueueFamily(other.combinedQueueFamily),
+                                                                  combinedQueue(other.combinedQueue),
+                                                                  commandPool(other.commandPool)
 
 {
-	other.device = VK_NULL_HANDLE;
-	other.combinedQueue = VK_NULL_HANDLE;
-	other.commandPool = VK_NULL_HANDLE;
+    other.device = VK_NULL_HANDLE;
+    other.combinedQueue = VK_NULL_HANDLE;
+    other.commandPool = VK_NULL_HANDLE;
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -146,5 +144,3 @@ void VulkanRenderer::Resize(VkSurfaceKHR surface, [[maybe_unused]] uint32_t widt
 
     display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
 }
-
-

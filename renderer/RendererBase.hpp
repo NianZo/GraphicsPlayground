@@ -8,6 +8,7 @@
 #ifndef RENDERER_RENDERERBASE_HPP_
 #define RENDERER_RENDERERBASE_HPP_
 
+#include <filesystem>
 #include <vector>
 #include <vulkan/vulkan.h>
 
@@ -23,7 +24,7 @@ struct __attribute__((aligned(128))) PhysicalDeviceDescriptor
 class RendererBase
 {
   public:
-    explicit RendererBase(const char* applicationName);
+    explicit RendererBase(std::filesystem::path projectDirectory, const char* applicationName);
     RendererBase(const RendererBase&) = delete; // TODO(nic) I could actually implement these by just creating a new object with same parameters
     RendererBase& operator=(const RendererBase&) = delete;
     RendererBase(RendererBase&&) noexcept;
@@ -40,6 +41,7 @@ class RendererBase
     std::vector<PhysicalDeviceDescriptor> physicalDevices;
     VkDebugUtilsMessengerEXT debugMessenger;
     bool enableValidationLayers = true;
+    std::filesystem::path projectDirectory;
 
   private:
     VkResult setupDebugMessenger();

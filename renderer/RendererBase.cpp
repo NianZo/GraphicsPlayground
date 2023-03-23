@@ -10,7 +10,7 @@
 
 // clang-tidy doesn't understand that Vulkan initializes several of the class members
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-RendererBase::RendererBase(const char* const applicationName)
+RendererBase::RendererBase(std::filesystem::path directory, const char* const applicationName) : projectDirectory(std::move(directory))
 {
     std::vector<const char*> layers;
     std::vector<const char*> extensions = {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_xcb_surface"}; // TODO(nic) this is an issue and will come back to haunt me on cross-platform support
@@ -78,32 +78,31 @@ RendererBase::RendererBase(const char* const applicationName)
     }
 }
 
-RendererBase::RendererBase(RendererBase&& other) noexcept :
-		instance(other.instance),
-		physicalDevices(std::move(other.physicalDevices)),
-		debugMessenger(other.debugMessenger),
-		enableValidationLayers(other.enableValidationLayers)
+RendererBase::RendererBase(RendererBase&& other) noexcept : instance(other.instance),
+                                                            physicalDevices(std::move(other.physicalDevices)),
+                                                            debugMessenger(other.debugMessenger),
+                                                            enableValidationLayers(other.enableValidationLayers)
 {
-	other.instance = VK_NULL_HANDLE;
-	other.debugMessenger = VK_NULL_HANDLE;
+    other.instance = VK_NULL_HANDLE;
+    other.debugMessenger = VK_NULL_HANDLE;
 }
 
 RendererBase& RendererBase::operator=(RendererBase&& other) noexcept
 {
-	if (this == &other)
-	{
-		return *this;
-	}
+    if (this == &other)
+    {
+        return *this;
+    }
 
-	instance = other.instance;
-	physicalDevices = std::move(other.physicalDevices);
-	debugMessenger = other.debugMessenger;
-	enableValidationLayers = other.enableValidationLayers;
+    instance = other.instance;
+    physicalDevices = std::move(other.physicalDevices);
+    debugMessenger = other.debugMessenger;
+    enableValidationLayers = other.enableValidationLayers;
 
-	other.instance = VK_NULL_HANDLE;
-	other.debugMessenger = VK_NULL_HANDLE;
+    other.instance = VK_NULL_HANDLE;
+    other.debugMessenger = VK_NULL_HANDLE;
 
-	return *this;
+    return *this;
 }
 
 RendererBase::~RendererBase()
@@ -111,7 +110,7 @@ RendererBase::~RendererBase()
     if (enableValidationLayers)
     {
         auto vkDestroyDebugUtilsMessengerEXT =
-        	// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT"));
         if (vkDestroyDebugUtilsMessengerEXT == nullptr)
         {
@@ -148,7 +147,7 @@ VkResult RendererBase::setupDebugMessenger()
     const VkDebugUtilsMessengerCreateInfoEXT createInfo = populateDebugMessengerCreateInfo();
 
     auto vkCreateDebugUtilsMessengerEXT =
-    	// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
     if (vkCreateDebugUtilsMessengerEXT == nullptr)
     {

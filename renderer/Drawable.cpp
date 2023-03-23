@@ -9,6 +9,7 @@
 #include "VulkanRenderer.hpp"
 #include <algorithm>
 #include <array>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -68,6 +69,10 @@ Drawable::~Drawable()
     vkDestroySemaphore(m_renderer.device, imageAvailableSemaphore, nullptr);
     vkDestroySemaphore(m_renderer.device, renderFinishedSemaphore, nullptr);
     vkDestroyFence(m_renderer.device, inFlightFence, nullptr);
+    for (VkFramebuffer& framebuffer : framebuffers)
+    {
+        vkDestroyFramebuffer(m_renderer.device, framebuffer, nullptr);
+    }
 }
 
 void Drawable::ExecuteCommandBuffer()
@@ -159,9 +164,10 @@ void Drawable::RenderTriangle(uint32_t imageIndex)
     VkResult result = VK_SUCCESS;
 
     GraphicsPipelineDescriptor descriptor;
-
-    descriptor.vertexShader = {"DrawTriangle-vert.spv", "main"};
-    descriptor.fragmentShader = {"DrawTriangle-frag.spv", "main"};
+    const std::filesystem::path shaderDirectory = m_renderer.rendererBase.projectDirectory.parent_path() / "shaders";
+    std::cout << "Shader directory: " << shaderDirectory << "\n";
+    descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+    descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
 
     descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
     descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
@@ -186,7 +192,7 @@ void Drawable::RenderTriangle(uint32_t imageIndex)
     beginInfo.pInheritanceInfo = nullptr;
     vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-    std::vector<VkFramebuffer> framebuffers;
+    // std::vector<VkFramebuffer> framebuffers;
     framebuffers.resize(m_renderer.display->image->imageViews.size());
     for (size_t i = 0; i < m_renderer.display->image->imageViews.size(); i++)
     {
@@ -251,12 +257,11 @@ std::vector<char> readFile(const std::string& filename)
     return buffer;
 }
 
-GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() :
-	inputAssembly({}),
-	rasterizer({}),
-	multisampling({}),
-	colorBlending({}),
-	colorAttachment({})
+GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() : inputAssembly({}),
+                                                           rasterizer({}),
+                                                           multisampling({}),
+                                                           colorBlending({}),
+                                                           colorAttachment({})
 {
     // Fill out structures with reasonable defaults for creating a graphics pipeline
 
@@ -498,13 +503,12 @@ GraphicsPipelineState::~GraphicsPipelineState()
     vkDestroyPipeline(m_device, graphicsPipeline, nullptr);
 }
 
-GraphicsPipelineState::GraphicsPipelineState(GraphicsPipelineState&& other) noexcept :
-	m_device(other.m_device),
-	vertShaderModule(other.vertShaderModule),
-	fragShaderModule(other.fragShaderModule),
-	pipelineLayout(other.pipelineLayout),
-	renderPass(other.renderPass),
-	graphicsPipeline(other.graphicsPipeline)
+GraphicsPipelineState::GraphicsPipelineState(GraphicsPipelineState&& other) noexcept : m_device(other.m_device),
+                                                                                       vertShaderModule(other.vertShaderModule),
+                                                                                       fragShaderModule(other.fragShaderModule),
+                                                                                       pipelineLayout(other.pipelineLayout),
+                                                                                       renderPass(other.renderPass),
+                                                                                       graphicsPipeline(other.graphicsPipeline)
 {
     std::cout << "In GraphicsPipelineState move constructor\n";
 

@@ -14,10 +14,14 @@
 //   };
 // }
 
-MainWindow::MainWindow() : ui(new Ui::Form), rendererBase(RendererBase("Graphics Playground")) // appObj(VulkanApplication::GetInstance())
+MainWindow::MainWindow() : ui(new Ui::Form),
+                           rendererBase(RendererBase(std::filesystem::weakly_canonical(std::filesystem::path(QApplication::arguments()[0].toStdString())).parent_path(), "Graphics Playground")) // appObj(VulkanApplication::GetInstance())
 {
     std::cout << "started mainWindow constructor\n";
     // renderer = nullptr;
+    QStringList arguments = QApplication::arguments();
+    projectDirectory = std::filesystem::weakly_canonical(std::filesystem::path(arguments[0].toStdString())).parent_path();
+
     ui->setupUi(this);
 
     // appObj = VulkanApplication::GetInstance();

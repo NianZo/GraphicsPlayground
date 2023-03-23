@@ -44,20 +44,19 @@ VulkanImage::VulkanImage(VulkanDisplay& display) : m_display(display)
     }
 }
 
-VulkanImage::VulkanImage(VulkanImage&& other) noexcept :
-		m_display(other.m_display)
+VulkanImage::VulkanImage(VulkanImage&& other) noexcept : m_display(other.m_display)
 {
-	for (VkImage& image : other.images)
-	{
-		images.push_back(image);
-		image = VK_NULL_HANDLE;
-	}
+    for (VkImage& image : other.images)
+    {
+        images.push_back(image);
+        image = VK_NULL_HANDLE;
+    }
 
-	for (VkImageView& imageView : other.imageViews)
-	{
-		imageViews.push_back(imageView);
-		imageView = VK_NULL_HANDLE;
-	}
+    for (VkImageView& imageView : other.imageViews)
+    {
+        imageViews.push_back(imageView);
+        imageView = VK_NULL_HANDLE;
+    }
 }
 
 VulkanImage::~VulkanImage()

@@ -9,11 +9,14 @@
 
 #include "VulkanRenderer.hpp"
 
+//extern int g_argc;
+extern char** g_argv;
 
 TEST(RenderTestBasic, CreateRenderer)
 {
 	{
-		RendererBase rendererBase("RenderTestBasic");
+		std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(g_argv[0])).parent_path();
+		RendererBase rendererBase(pwd, "RenderTestBasic");
 		//VulkanRenderer2 renderer("RenderTestBasic");
 		EXPECT_NE(rendererBase.physicalDevices.size(), 0);
 

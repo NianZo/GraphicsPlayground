@@ -2,6 +2,7 @@
 #include <QVulkanInstance>
 #include <QWidget>
 #include <QWindow>
+#include <filesystem>
 #include <memory>
 #include "RendererBase.hpp"
 #include "VulkanRenderer.hpp"
@@ -46,7 +47,7 @@ private:
     //QTabWidget *m_infoTab;
     //QPlainTextEdit *m_info;
     //QLCDNumber *m_number;
-
+    std::filesystem::path projectDirectory;
     Ui::Form* ui;
 
     void gpuComboBoxSelection(int index);

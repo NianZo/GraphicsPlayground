@@ -52,7 +52,6 @@ class VulkanDisplay
     std::vector<VkSurfaceFormatKHR> surfaceFormats;
     std::unique_ptr<VulkanImage> image;
 
-
   private:
     // VkPhysicalDevice& gpu;
     // VkSurfaceKHR& surface;
