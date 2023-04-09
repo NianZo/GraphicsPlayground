@@ -17,14 +17,26 @@
 MainWindow::MainWindow() : ui(new Ui::Form),
                            rendererBase(RendererBase(std::filesystem::weakly_canonical(std::filesystem::path(QApplication::arguments()[0].toStdString())).parent_path(), "Graphics Playground")) // appObj(VulkanApplication::GetInstance())
 {
+	//menuBar()->setNativeMenuBar(false);
     std::cout << "started mainWindow constructor\n";
     // renderer = nullptr;
     QStringList arguments = QApplication::arguments();
     projectDirectory = std::filesystem::weakly_canonical(std::filesystem::path(arguments[0].toStdString())).parent_path();
+    std::cout << "centralWidget: " << this->centralWidget() << "\n";
+    ui->setupUi(&formWidget);
 
-    ui->setupUi(this);
+    this->setCentralWidget(&formWidget);
 
     // appObj = VulkanApplication::GetInstance();
+//    QMenu *menu = new QMenu("First menu");
+//    menu->addAction("item 1");
+//    menu->addAction("item 2");
+//    m_menuBar->addAction(menu->menuAction());
+//    viewMenu = menuBar()->addMenu(tr("View"));
+    toolBar = addToolBar(tr("File"));
+    QAction* graphicsDescriptorViewAction = new QAction("View");
+    connect(graphicsDescriptorViewAction, &QAction::triggered, this, &MainWindow::graphicsDescriptorView);
+    toolBar->addAction(graphicsDescriptorViewAction);
 
     if (rendererBase.instance == VK_NULL_HANDLE)
     // if (appObj->instanceObj.instance == nullptr)
@@ -100,6 +112,8 @@ void MainWindow::resizeEvent([[maybe_unused]] QResizeEvent* event)
 {
     std::cout << "calling resize event\n";
 
+    //ui->widget->setMinimumSize(this->size());
+
     if (renderer != nullptr)
     {
         surface = QVulkanInstance::surfaceForWindow(m_window.get());
@@ -142,6 +156,11 @@ void MainWindow::gpuComboBoxSelection(int index)
     }
 
     ui->label_3->setText(deviceFeatures);
+}
+
+void MainWindow::graphicsDescriptorView()
+{
+	std::cout << "graphicsDescriptorView()\n";
 }
 
 // constexpr std::array<const char*, 55> VulkanPhysicalDeviceFeatureWrapper::featureNames =

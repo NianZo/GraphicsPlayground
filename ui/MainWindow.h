@@ -1,7 +1,10 @@
 //#include "VulkanApplication.hpp"
+#include <QMainWindow>
 #include <QVulkanInstance>
 #include <QWidget>
 #include <QWindow>
+#include <QMenu>
+#include <QToolBar>
 #include <filesystem>
 #include <memory>
 #include "RendererBase.hpp"
@@ -18,7 +21,7 @@ namespace Ui
 	class Form;
 } // namespace Ui
 
-class MainWindow : public QWidget
+class MainWindow : public QMainWindow
 {
 //    Q_OBJECT
 
@@ -41,16 +44,20 @@ public:
 private:
 	VkSurfaceKHR surface;
     QWidget *m_windowWrapper;
+    QWidget formWidget;
     QVulkanInstance inst;
     std::unique_ptr<QWindow> m_window;
     //QWidget *wrapper;
     //QTabWidget *m_infoTab;
     //QPlainTextEdit *m_info;
     //QLCDNumber *m_number;
+    QMenu viewMenu;
+    QToolBar *toolBar;
     std::filesystem::path projectDirectory;
     Ui::Form* ui;
 
     void gpuComboBoxSelection(int index);
+    void graphicsDescriptorView();
 };
 
 class VulkanPhysicalDeviceFeatureWrapper

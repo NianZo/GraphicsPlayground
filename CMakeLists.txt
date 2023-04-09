@@ -14,10 +14,16 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_compile_options(--coverage -O0 -fprofile-instr-generate -fcoverage-mapping)
 endif()
 
+message("Compiler: ${CMAKE_CXX_COMPILER}")
+
 # Standard compiler warnings
 add_library(project_warnings INTERFACE)
 include(CompilerWarnings.cmake)
 set_project_warnings(project_warnings)
+
+# Set up clang-tidy
+#find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
+#set(CLANG_TIDY_COMMAND 
 
 add_subdirectory(renderer)
 add_subdirectory(ui)

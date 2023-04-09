@@ -8,7 +8,8 @@ Checks: '*,-fuchsia-*,-zircon-*,-abseil-*,-modernize-use-trailing-return-type,-l
     -misc-no-recursion,
     -altera-unroll-loops,
     -bugprone-easily-swappable-parameters,
-    -altera-id-dependent-backward-branch'
+    -altera-id-dependent-backward-branch,
+    -clang-diagnostic-unknown-warning-option'
 WarningsAsErrors: '.*'
 HeaderFilterRegex: ''
 FormatStyle: none
