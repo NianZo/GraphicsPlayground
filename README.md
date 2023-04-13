@@ -6,4 +6,7 @@
 GUI application to practice rendering techniques with Vulkan
 
 ## GUI Framework
-wxWidgets isn't going very well. Getting a cross platform application with Vulkan and wxWidgets is going to be a monumental effort. I think Qt is the way to go. I need to investigate further.
+This project uses Qt as its GUI framework. The Qt-Vulkan interop was a bit tricky to get right, especially since Qt has a very heavy-handed built in integration. I documented how I interfaced Qt with an 'external' Vulkan renderer here: https://www.niangames.com/articles/qt-vulkan-renderer
+
+## Cross Platform Support
+Qt does most of the heavy lifting when it comes to cross platform support of this application. There is one hiccup though. Vulkan seems to need a platform specific surface extension. For Linux, this is "VK_KHR_xcb_surface". For Windows, this would certainly be a win32 variant. Other than this quirk, the application SHOULD be completely platform agnostic. That being said, I haven't tested building or running on any platform other than Linux.
