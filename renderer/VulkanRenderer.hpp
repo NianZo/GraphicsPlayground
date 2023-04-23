@@ -10,6 +10,7 @@
 
 #include "RendererBase.hpp"
 #include "VulkanDisplay.hpp"
+#include "Drawable.hpp"
 #include <memory>
 #include <string>
 #include <vector>
@@ -38,6 +39,7 @@ class VulkanRenderer
     uint32_t FindCombinedQueueFamily(VkSurfaceKHR& surface);
 
     void Render();
+    void Render(const GraphicsPipelineDescriptor& pipelineDescriptor);
     void Resize(VkSurfaceKHR surface, uint32_t width, uint32_t height);
 
     RendererBase& rendererBase;

@@ -9,6 +9,7 @@
 #include <memory>
 #include "RendererBase.hpp"
 #include "VulkanRenderer.hpp"
+#include "Drawable.hpp"
 
 //QT_BEGIN_NAMESPACE
 class QTabWidget;
@@ -56,8 +57,12 @@ private:
     std::filesystem::path projectDirectory;
     Ui::Form* ui;
 
+    GraphicsPipelineDescriptor pipelineDescriptor;
+
     void gpuComboBoxSelection(int index);
+    void polygonModeComboBox(int index);
     void graphicsDescriptorView();
+    void setRenderView();
 };
 
 class VulkanPhysicalDeviceFeatureWrapper

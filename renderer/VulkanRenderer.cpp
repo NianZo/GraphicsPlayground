@@ -40,7 +40,9 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32
     deviceCI.ppEnabledLayerNames = nullptr;
     deviceCI.enabledExtensionCount = static_cast<uint32_t>(deviceExtensionNames.size());
     deviceCI.ppEnabledExtensionNames = deviceExtensionNames.data();
-    deviceCI.pEnabledFeatures = nullptr;
+    VkPhysicalDeviceFeatures features{};
+    features.fillModeNonSolid = VK_TRUE;
+    deviceCI.pEnabledFeatures = &features;
 
     VkResult result = vkCreateDevice(gpu.physicalDevice, &deviceCI, nullptr, &device);
     if (result != VK_SUCCESS)
@@ -114,6 +116,41 @@ void VulkanRenderer::Render()
     // drawable.ClearWindow(image);
 
     drawable.RenderTriangle(imageIndex);
+
+    drawable.ExecuteCommandBuffer();
+
+    std::array<VkSemaphore, 1> signalSemaphores = {drawable.renderFinishedSemaphore};
+
+    std::array<VkSwapchainKHR, 1> swapchains = {display->swapchain};
+    VkPresentInfoKHR presentInfo;
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.pNext = nullptr;
+    presentInfo.waitSemaphoreCount = signalSemaphores.size();
+    presentInfo.pWaitSemaphores = signalSemaphores.data();
+    presentInfo.swapchainCount = swapchains.size();
+    presentInfo.pSwapchains = swapchains.data();
+    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pResults = nullptr;
+
+    const VkResult result = vkQueuePresentKHR(combinedQueue, &presentInfo);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to present image\n");
+    }
+}
+
+void VulkanRenderer::Render(const GraphicsPipelineDescriptor& pipelineDescriptor)
+{
+    Drawable drawable(*this, commandPool);
+
+    uint32_t imageIndex = 0;
+    vkAcquireNextImageKHR(device, display->swapchain, UINT64_MAX, drawable.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+    // VkImage& image = display.get()->image.get()->images[imageIndex];
+    // drawable.ClearWindow(image);
+
+    //drawable.RenderTriangle(imageIndex);
+    drawable.Render(pipelineDescriptor, imageIndex);
 
     drawable.ExecuteCommandBuffer();
 

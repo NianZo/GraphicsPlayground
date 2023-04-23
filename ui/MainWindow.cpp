@@ -34,7 +34,10 @@ MainWindow::MainWindow() : ui(new Ui::Form),
 //    m_menuBar->addAction(menu->menuAction());
 //    viewMenu = menuBar()->addMenu(tr("View"));
     toolBar = addToolBar(tr("File"));
-    QAction* graphicsDescriptorViewAction = new QAction("View");
+    QAction* renderViewAction = new QAction("Render View");
+    connect(renderViewAction, &QAction::triggered, this, &MainWindow::setRenderView);
+    toolBar->addAction(renderViewAction);
+    QAction* graphicsDescriptorViewAction = new QAction("Graphics Pipeline");
     connect(graphicsDescriptorViewAction, &QAction::triggered, this, &MainWindow::graphicsDescriptorView);
     toolBar->addAction(graphicsDescriptorViewAction);
 
@@ -72,6 +75,10 @@ MainWindow::MainWindow() : ui(new Ui::Form),
         ui->comboBox->insertItem(ui->comboBox->count(), QString(std::string(deviceNameSpan.begin(), deviceNameSpan.end()).c_str()));
     }
 
+    ui->comboBox_2->addItem("FILL");
+    ui->comboBox_2->addItem("LINE");
+    ui->comboBox_2->addItem("POINT");
+
     gpuComboBoxSelection(ui->comboBox->currentIndex());
     connect(ui->comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index)
             { gpuComboBoxSelection(index); });
@@ -90,9 +97,13 @@ MainWindow::MainWindow() : ui(new Ui::Form),
     //  appObj->prepare();
     // renderer = VulkanRenderer2("Graphics Playground");
     // renderer.chooseGPU(surface, ui->comboBox->currentIndex());
+    connect(ui->comboBox_2, &QComboBox::currentIndexChanged, [this](int index) { polygonModeComboBox(index); });
+    //ui->comboBox_2->setCurrentIndex(0);
+    polygonModeComboBox(0); // Initialize
+
     renderer = std::make_unique<VulkanRenderer>(rendererBase, surface, ui->comboBox->currentIndex(), ui->widget->size().width(), ui->widget->size().height());
     // renderer(rendererBase, surface, ui->comboBox->currentIndex());
-    renderer->Render();
+    renderer->Render(pipelineDescriptor);
     // renderer->RenderTriangle();
     std::cout << "Finished MainWindow::MainWindow()\n";
 }
@@ -118,7 +129,7 @@ void MainWindow::resizeEvent([[maybe_unused]] QResizeEvent* event)
     {
         surface = QVulkanInstance::surfaceForWindow(m_window.get());
         renderer->Resize(surface, ui->widget->size().width(), ui->widget->size().height());
-        renderer->Render();
+        renderer->Render(pipelineDescriptor);
         // renderer->RenderTriangle();
     }
     m_windowWrapper->setMinimumSize(ui->widget->size());
@@ -161,6 +172,32 @@ void MainWindow::gpuComboBoxSelection(int index)
 void MainWindow::graphicsDescriptorView()
 {
 	std::cout << "graphicsDescriptorView()\n";
+	ui->stackedWidget->setCurrentIndex(1);
+}
+
+void MainWindow::setRenderView()
+{
+	ui->stackedWidget->setCurrentIndex(0);
+	renderer->Resize(surface, ui->widget->size().width(), ui->widget->size().height());
+	renderer->Render(pipelineDescriptor);
+}
+
+void MainWindow::polygonModeComboBox(int index)
+{
+	switch (index)
+	{
+	case 0:
+		pipelineDescriptor.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+		break;
+	case 1:
+		pipelineDescriptor.rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+		break;
+	case 2:
+		pipelineDescriptor.rasterizer.polygonMode = VK_POLYGON_MODE_POINT;
+		break;
+	}
+    //renderer->Resize(surface, ui->widget->size().width(), ui->widget->size().height());
+    //renderer->Render(pipelineDescriptor);
 }
 
 // constexpr std::array<const char*, 55> VulkanPhysicalDeviceFeatureWrapper::featureNames =

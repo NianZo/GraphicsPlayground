@@ -239,6 +239,87 @@ void Drawable::RenderTriangle(uint32_t imageIndex)
     vkEndCommandBuffer(commandBuffer);
 }
 
+void Drawable::Render(const GraphicsPipelineDescriptor& pipelineDescriptor, uint32_t imageIndex)
+{
+    VkResult result = VK_SUCCESS;
+
+    GraphicsPipelineDescriptor descriptor = pipelineDescriptor;
+    //descriptor.rasterizer.polygonMode = pipelineDescriptor.rasterizer.polygonMode;
+    const std::filesystem::path shaderDirectory = m_renderer.rendererBase.projectDirectory.parent_path() / "shaders";
+    std::cout << "Shader directory: " << shaderDirectory << "\n";
+    descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+    descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+
+    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
+    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
+
+    descriptor.viewports[0].width = static_cast<float>(m_renderer.display->swapchainExtent.width);
+    descriptor.viewports[0].height = static_cast<float>(m_renderer.display->swapchainExtent.height);
+
+    descriptor.scissors[0].extent = m_renderer.display->swapchainExtent;
+
+    descriptor.colorAttachment.format = m_renderer.display->swapchainImageFormat;
+
+    pipelineDescriptors.emplace_back(descriptor);
+
+    pipelineStates.emplace_back(m_renderer.device, descriptor);
+
+    vkResetCommandBuffer(commandBuffer, 0);
+
+    VkCommandBufferBeginInfo beginInfo;
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.pNext = nullptr;
+    beginInfo.flags = 0;
+    beginInfo.pInheritanceInfo = nullptr;
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    // std::vector<VkFramebuffer> framebuffers;
+    framebuffers.resize(m_renderer.display->image->imageViews.size());
+    for (size_t i = 0; i < m_renderer.display->image->imageViews.size(); i++)
+    {
+        std::array<VkImageView, 1> attachments = {m_renderer.display->image->imageViews[i]};
+        VkFramebufferCreateInfo framebufferCI;
+        framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferCI.pNext = nullptr;
+        framebufferCI.flags = 0;
+        framebufferCI.renderPass = pipelineStates[0].renderPass;
+        framebufferCI.attachmentCount = 1;
+        framebufferCI.pAttachments = attachments.data();
+        framebufferCI.width = m_renderer.display->swapchainExtent.width;
+        framebufferCI.height = m_renderer.display->swapchainExtent.height;
+        framebufferCI.layers = 1;
+        result = vkCreateFramebuffer(m_renderer.device, &framebufferCI, nullptr, &framebuffers[i]);
+        if (result != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create framebuffer");
+        }
+    }
+    // start renderpass, bind pipeline, set viewport/scissor, draw, end renderpass
+    VkRenderPassBeginInfo renderPassBI;
+    renderPassBI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBI.pNext = nullptr;
+    renderPassBI.renderPass = pipelineStates[0].renderPass;
+    renderPassBI.framebuffer = framebuffers[imageIndex];
+    renderPassBI.renderArea.offset = {0, 0};
+    renderPassBI.renderArea.extent = m_renderer.display->swapchainExtent;
+    const VkClearValue clearColor = {{{0.0F, 0.0F, 0.0F, 1.0F}}};
+    renderPassBI.clearValueCount = 1;
+    renderPassBI.pClearValues = &clearColor;
+    vkCmdBeginRenderPass(commandBuffer, &renderPassBI, VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineStates[0].graphicsPipeline);
+
+    vkCmdSetViewport(commandBuffer, 0, 1, descriptor.viewports.data());
+
+    vkCmdSetScissor(commandBuffer, 0, 1, descriptor.scissors.data());
+
+    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
+    vkCmdEndRenderPass(commandBuffer);
+
+    vkEndCommandBuffer(commandBuffer);
+}
+
 std::vector<char> readFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -292,7 +373,7 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() : inputAssembly({}),
     rasterizer.flags = 0;
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
-    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+    rasterizer.polygonMode = VK_POLYGON_MODE_LINE;//VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0F;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;

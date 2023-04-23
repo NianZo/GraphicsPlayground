@@ -68,6 +68,7 @@ class Drawable
     void ClearWindow(VkImage& image);
     void ExecuteCommandBuffer();
     void RenderTriangle(uint32_t imageIndex);
+    void Render(const GraphicsPipelineDescriptor& pipelineDescriptor, uint32_t imageIndex);
 
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
