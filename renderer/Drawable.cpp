@@ -246,9 +246,16 @@ void Drawable::Render(const GraphicsPipelineDescriptor& pipelineDescriptor, uint
     GraphicsPipelineDescriptor descriptor = pipelineDescriptor;
     //descriptor.rasterizer.polygonMode = pipelineDescriptor.rasterizer.polygonMode;
     const std::filesystem::path shaderDirectory = m_renderer.rendererBase.projectDirectory.parent_path() / "shaders";
-    std::cout << "Shader directory: " << shaderDirectory << "\n";
-    descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    if (descriptor.vertexShader[0] == "")
+    {
+        std::cout << "Shader directory: " << shaderDirectory << "\n";
+        descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+    }
+
+    if (descriptor.fragmentShader[0] == "")
+    {
+    	descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    }
 
     descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
     descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);

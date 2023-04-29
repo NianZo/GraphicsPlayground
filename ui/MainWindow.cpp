@@ -80,10 +80,12 @@ MainWindow::MainWindow() : ui(new Ui::Form),
     ui->comboBox_2->addItem("POINT");
 
     gpuComboBoxSelection(ui->comboBox->currentIndex());
-    connect(ui->comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index)
-            { gpuComboBoxSelection(index); });
+    connect(ui->comboBox, &QComboBox::currentIndexChanged, [this](int index) { gpuComboBoxSelection(index); });
     // connect(ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(gpuComboBoxSelection(int)));
     ui->comboBox->setCurrentIndex(1); // TODO(nic): this makes the tests pass. Device 0 on my machine is a NULL GPU that causes a seg fault on certain Vulkan calls
+
+    connect(ui->textEdit_vertexShader, &QTextEdit::textChanged, [this]() { vertexShaderTextChanged(); });
+    connect(ui->textEdit_fragmentShader, &QTextEdit::textChanged, [this]() { fragmentShaderTextChanged(); });
     //  sprintf(deviceProperties, "API Version: %d\nDriver Version: %d\nVendor ID: %d\nDevice ID: %d\nDevice Type: %d\nDevice Name: %s\nPipeline Cache UUID: %d\nLimits: \nSparse Properties: \n",
     //		  renderer.physicalDevices[0].properties.apiVersion,
     //		  renderer.physicalDevices[0].properties.driverVersion,
@@ -198,6 +200,33 @@ void MainWindow::polygonModeComboBox(int index)
 	}
     //renderer->Resize(surface, ui->widget->size().width(), ui->widget->size().height());
     //renderer->Render(pipelineDescriptor);
+}
+
+void MainWindow::vertexShaderTextChanged()
+{
+	std::cout << "vertexShaderTextChanged\n";
+	const std::filesystem::path shaderDirectory = projectDirectory.parent_path() / "shaders";
+	pipelineDescriptor.vertexShader = {std::string(shaderDirectory / ui->textEdit_vertexShader->toPlainText().toStdString()), "main"};
+	try
+	{
+		renderer->Render(pipelineDescriptor);
+	} catch(std::exception& e)
+	{
+		std::cout << "Failed to render: " << pipelineDescriptor.vertexShader[0] << "\n";
+	}
+}
+
+void MainWindow::fragmentShaderTextChanged()
+{
+	const std::filesystem::path shaderDirectory = projectDirectory.parent_path() / "shaders";
+	pipelineDescriptor.fragmentShader = {std::string(shaderDirectory / ui->textEdit_fragmentShader->toPlainText().toStdString()), "main"};
+	try
+	{
+		renderer->Render(pipelineDescriptor);
+	} catch(std::exception& e)
+	{
+		std::cout << "Failed to render: " << pipelineDescriptor.fragmentShader[0] << "\n";
+	}
 }
 
 // constexpr std::array<const char*, 55> VulkanPhysicalDeviceFeatureWrapper::featureNames =

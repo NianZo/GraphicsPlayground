@@ -61,6 +61,8 @@ private:
 
     void gpuComboBoxSelection(int index);
     void polygonModeComboBox(int index);
+    void vertexShaderTextChanged();
+    void fragmentShaderTextChanged();
     void graphicsDescriptorView();
     void setRenderView();
 };
