@@ -9,6 +9,7 @@
 #include <QVulkanInstance>
 #include <QVulkanWindow>
 #include <iostream>
+#include <span>
 #include <thread>
 
 // Q_LOGGING_CATEGORY(lcVk, "qt.vulkan")
@@ -26,6 +27,7 @@
 
 int main(int argc, char* argv[])
 {
+	const auto args = std::span(argv, static_cast<size_t>(argc));
     const QApplication app(argc, argv);
 
     const MainWindow mainWindow;

@@ -4,6 +4,7 @@
 #include <QString>
 #include <iostream>
 #include <span>
+#include <string>
 #include <thread>
 
 // void MainWindow::renderLoop(VulkanApplication* appObj)
