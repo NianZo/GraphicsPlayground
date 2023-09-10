@@ -47,6 +47,9 @@ struct __attribute__((aligned(64))) GraphicsPipelineState
     GraphicsPipelineState& operator=(const GraphicsPipelineState&) = delete;
     GraphicsPipelineState(GraphicsPipelineState&&) noexcept;
     GraphicsPipelineState& operator=(GraphicsPipelineState&&) = delete; // Can't do this because m_device can't be changed
+    // TODO (nic) actually I should be able to do this... https://stackoverflow.com/questions/33379327/default-move-constructor-and-reference-members
+    // I should be able to construct the reference within a move constructor
+    // Wait nevermind this is move assignment
 
     VkDevice& m_device;
     VkShaderModule vertShaderModule;
@@ -59,16 +62,16 @@ struct __attribute__((aligned(64))) GraphicsPipelineState
 class Drawable
 {
   public:
-    Drawable(VulkanRenderer& renderer, VkCommandPool& pool);
+    Drawable(VulkanRenderer& renderer, VkCommandPool& pool, const GraphicsPipelineDescriptor& pipelineDescriptor);
     ~Drawable();
     Drawable(const Drawable&) = delete;
     Drawable& operator=(const Drawable&) = delete;
-    Drawable(Drawable&&) noexcept;
+    Drawable(Drawable&&) = default;
     Drawable& operator=(Drawable&&) = delete;
     void ClearWindow(VkImage& image);
     void ExecuteCommandBuffer();
-    void RenderTriangle(uint32_t imageIndex);
-    void Render(const GraphicsPipelineDescriptor& pipelineDescriptor, uint32_t imageIndex);
+    //void RenderTriangle(uint32_t imageIndex);
+    void Render(uint32_t imageIndex); // TODO (nic) this isn't actually rendering because the command buffer still needs exec'ed
 
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
@@ -77,7 +80,8 @@ class Drawable
   private:
     VulkanRenderer& m_renderer;
     VkCommandBuffer commandBuffer;
-    std::vector<GraphicsPipelineDescriptor> pipelineDescriptors;
+    //std::vector<GraphicsPipelineDescriptor> pipelineDescriptors; // TODO (nic) use a vector eventually
+    GraphicsPipelineDescriptor pipelineDescriptors;
     std::vector<GraphicsPipelineState> pipelineStates;
     std::vector<VkFramebuffer> framebuffers;
 };

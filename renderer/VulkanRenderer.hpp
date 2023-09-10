@@ -39,7 +39,7 @@ class VulkanRenderer
     uint32_t FindCombinedQueueFamily(VkSurfaceKHR& surface);
 
     void Render();
-    void Render(const GraphicsPipelineDescriptor& pipelineDescriptor);
+    //void Render(const GraphicsPipelineDescriptor& pipelineDescriptor);
     void Resize(VkSurfaceKHR surface, uint32_t width, uint32_t height);
 
     RendererBase& rendererBase;
@@ -50,6 +50,8 @@ class VulkanRenderer
     VkQueue combinedQueue;
 
     VkCommandPool commandPool;
+
+    std::vector<Drawable> drawables;
 
   private:
     std::vector<const char*> deviceExtensionNames =

@@ -8,6 +8,7 @@
 #include "VulkanRenderer.hpp"
 #include "Drawable.hpp"
 #include "VulkanDisplay.hpp"
+#include <algorithm>
 #include <array>
 #include <fstream>
 #include <iostream>
@@ -107,54 +108,22 @@ uint32_t VulkanRenderer::FindCombinedQueueFamily(VkSurfaceKHR& surface)
 
 void VulkanRenderer::Render()
 {
-    Drawable drawable(*this, commandPool);
+    //Drawable drawable(*this, commandPool);
 
     uint32_t imageIndex = 0;
-    vkAcquireNextImageKHR(device, display->swapchain, UINT64_MAX, drawable.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
-
-    // VkImage& image = display.get()->image.get()->images[imageIndex];
-    // drawable.ClearWindow(image);
-
-    drawable.RenderTriangle(imageIndex);
-
-    drawable.ExecuteCommandBuffer();
-
-    std::array<VkSemaphore, 1> signalSemaphores = {drawable.renderFinishedSemaphore};
-
-    std::array<VkSwapchainKHR, 1> swapchains = {display->swapchain};
-    VkPresentInfoKHR presentInfo;
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.pNext = nullptr;
-    presentInfo.waitSemaphoreCount = signalSemaphores.size();
-    presentInfo.pWaitSemaphores = signalSemaphores.data();
-    presentInfo.swapchainCount = swapchains.size();
-    presentInfo.pSwapchains = swapchains.data();
-    presentInfo.pImageIndices = &imageIndex;
-    presentInfo.pResults = nullptr;
-
-    const VkResult result = vkQueuePresentKHR(combinedQueue, &presentInfo);
-    if (result != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to present image\n");
-    }
-}
-
-void VulkanRenderer::Render(const GraphicsPipelineDescriptor& pipelineDescriptor)
-{
-    Drawable drawable(*this, commandPool);
-
-    uint32_t imageIndex = 0;
-    vkAcquireNextImageKHR(device, display->swapchain, UINT64_MAX, drawable.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    vkAcquireNextImageKHR(device, display->swapchain, UINT64_MAX, drawables[0].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex); // TODO (nic) this is a hack to use the first drawable
 
     // VkImage& image = display.get()->image.get()->images[imageIndex];
     // drawable.ClearWindow(image);
 
     //drawable.RenderTriangle(imageIndex);
-    drawable.Render(pipelineDescriptor, imageIndex);
+    //std::for_each(drawables.begin(), drawables.end(), [this](Drawable& drawable){drawable.RenderTriangle(imageIndex);});
+    std::ranges::for_each(drawables, [imageIndex](Drawable& drawable){drawable.Render(imageIndex);});
 
-    drawable.ExecuteCommandBuffer();
+    //drawable.ExecuteCommandBuffer();
+    std::ranges::for_each(drawables, [](Drawable& drawable){drawable.ExecuteCommandBuffer();});
 
-    std::array<VkSemaphore, 1> signalSemaphores = {drawable.renderFinishedSemaphore};
+    std::array<VkSemaphore, 1> signalSemaphores = {drawables[0].renderFinishedSemaphore}; // TODO (nic) this is a hack to use the first drawable
 
     std::array<VkSwapchainKHR, 1> swapchains = {display->swapchain};
     VkPresentInfoKHR presentInfo;
@@ -173,6 +142,41 @@ void VulkanRenderer::Render(const GraphicsPipelineDescriptor& pipelineDescriptor
         throw std::runtime_error("Failed to present image\n");
     }
 }
+
+//void VulkanRenderer::Render(const GraphicsPipelineDescriptor& pipelineDescriptor)
+//{
+//    Drawable drawable(*this, commandPool);
+//
+//    uint32_t imageIndex = 0;
+//    vkAcquireNextImageKHR(device, display->swapchain, UINT64_MAX, drawable.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+//
+//    // VkImage& image = display.get()->image.get()->images[imageIndex];
+//    // drawable.ClearWindow(image);
+//
+//    //drawable.RenderTriangle(imageIndex);
+//    //drawable.Render(pipelineDescriptor, imageIndex);
+//
+//    drawable.ExecuteCommandBuffer();
+//
+//    std::array<VkSemaphore, 1> signalSemaphores = {drawable.renderFinishedSemaphore};
+//
+//    std::array<VkSwapchainKHR, 1> swapchains = {display->swapchain};
+//    VkPresentInfoKHR presentInfo;
+//    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+//    presentInfo.pNext = nullptr;
+//    presentInfo.waitSemaphoreCount = signalSemaphores.size();
+//    presentInfo.pWaitSemaphores = signalSemaphores.data();
+//    presentInfo.swapchainCount = swapchains.size();
+//    presentInfo.pSwapchains = swapchains.data();
+//    presentInfo.pImageIndices = &imageIndex;
+//    presentInfo.pResults = nullptr;
+//
+//    const VkResult result = vkQueuePresentKHR(combinedQueue, &presentInfo);
+//    if (result != VK_SUCCESS)
+//    {
+//        throw std::runtime_error("Failed to present image\n");
+//    }
+//}
 
 void VulkanRenderer::Resize(VkSurfaceKHR surface, [[maybe_unused]] uint32_t width, [[maybe_unused]] uint32_t height)
 {

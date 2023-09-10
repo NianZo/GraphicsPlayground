@@ -20,7 +20,7 @@ std::vector<char> readFile(const std::string& filename);
 
 // clang-tidy doesn't understand that Vulkan initializes several of the class members
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool) : m_renderer(renderer)
+Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const GraphicsPipelineDescriptor& pipelineDescriptor) : m_renderer(renderer), pipelineDescriptors(pipelineDescriptor)
 {
     VkCommandBufferAllocateInfo commandBufferAI;
     commandBufferAI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -61,6 +61,9 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool) : m_ren
     {
         throw std::runtime_error("Failed to create fence\n");
     }
+
+    //pipelineDescriptors.emplace_back(descriptor);
+    pipelineStates.emplace_back(m_renderer.device, pipelineDescriptor);
 }
 
 Drawable::~Drawable()
@@ -74,6 +77,25 @@ Drawable::~Drawable()
         vkDestroyFramebuffer(m_renderer.device, framebuffer, nullptr);
     }
 }
+
+//Drawable::Drawable(Drawable&& other) noexcept
+//{
+//	if (this == &other)
+//	{
+//		return *this;
+//	}
+//
+//	imageAvailableSemaphore = other.imageAvailableSemaphore;
+//	renderFinishedSemaphore = other.renderFinishedSemaphore;
+//	inFlightFence = other.inFlightFence;
+//	m_renderer = other.m_renderer;
+//	commandBuffer = other.commandBuffer;
+//	pipelineDescriptors = other.pipelineDescriptors;
+//	pipelineStates = std::move(other.pipelineStates);
+//	framebuffers = std::move(other.framebuffers);
+//
+//	return *this;
+//}
 
 void Drawable::ExecuteCommandBuffer()
 {
@@ -159,29 +181,95 @@ void Drawable::ClearWindow(VkImage& image)
 
     vkEndCommandBuffer(commandBuffer);
 }
-void Drawable::RenderTriangle(uint32_t imageIndex)
+//void Drawable::RenderTriangle(uint32_t imageIndex)
+//{
+//    VkResult result = VK_SUCCESS;
+//
+//    GraphicsPipelineDescriptor descriptor;
+//    const std::filesystem::path shaderDirectory = m_renderer.rendererBase.projectDirectory.parent_path() / "shaders";
+//    std::cout << "Shader directory: " << shaderDirectory << "\n";
+//    descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+//    descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+//
+//    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
+//    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
+//
+//    descriptor.viewports[0].width = static_cast<float>(m_renderer.display->swapchainExtent.width);
+//    descriptor.viewports[0].height = static_cast<float>(m_renderer.display->swapchainExtent.height);
+//
+//    descriptor.scissors[0].extent = m_renderer.display->swapchainExtent;
+//
+//    descriptor.colorAttachment.format = m_renderer.display->swapchainImageFormat;
+//
+//    pipelineDescriptors.emplace_back(descriptor);
+//
+//    pipelineStates.emplace_back(m_renderer.device, descriptor);
+//
+//    vkResetCommandBuffer(commandBuffer, 0);
+//
+//    VkCommandBufferBeginInfo beginInfo;
+//    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+//    beginInfo.pNext = nullptr;
+//    beginInfo.flags = 0;
+//    beginInfo.pInheritanceInfo = nullptr;
+//    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+//
+//    // std::vector<VkFramebuffer> framebuffers;
+//    framebuffers.resize(m_renderer.display->image->imageViews.size());
+//    for (size_t i = 0; i < m_renderer.display->image->imageViews.size(); i++)
+//    {
+//        std::array<VkImageView, 1> attachments = {m_renderer.display->image->imageViews[i]};
+//        VkFramebufferCreateInfo framebufferCI;
+//        framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+//        framebufferCI.pNext = nullptr;
+//        framebufferCI.flags = 0;
+//        framebufferCI.renderPass = pipelineStates[0].renderPass;
+//        framebufferCI.attachmentCount = 1;
+//        framebufferCI.pAttachments = attachments.data();
+//        framebufferCI.width = m_renderer.display->swapchainExtent.width;
+//        framebufferCI.height = m_renderer.display->swapchainExtent.height;
+//        framebufferCI.layers = 1;
+//        result = vkCreateFramebuffer(m_renderer.device, &framebufferCI, nullptr, &framebuffers[i]);
+//        if (result != VK_SUCCESS)
+//        {
+//            throw std::runtime_error("Failed to create framebuffer");
+//        }
+//    }
+//    // start renderpass, bind pipeline, set viewport/scissor, draw, end renderpass
+//    VkRenderPassBeginInfo renderPassBI;
+//    renderPassBI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+//    renderPassBI.pNext = nullptr;
+//    renderPassBI.renderPass = pipelineStates[0].renderPass;
+//    renderPassBI.framebuffer = framebuffers[imageIndex];
+//    renderPassBI.renderArea.offset = {0, 0};
+//    renderPassBI.renderArea.extent = m_renderer.display->swapchainExtent;
+//    const VkClearValue clearColor = {{{0.0F, 0.0F, 0.0F, 1.0F}}};
+//    renderPassBI.clearValueCount = 1;
+//    renderPassBI.pClearValues = &clearColor;
+//    vkCmdBeginRenderPass(commandBuffer, &renderPassBI, VK_SUBPASS_CONTENTS_INLINE);
+//
+//    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineStates[0].graphicsPipeline);
+//
+//    vkCmdSetViewport(commandBuffer, 0, 1, descriptor.viewports.data());
+//
+//    vkCmdSetScissor(commandBuffer, 0, 1, descriptor.scissors.data());
+//
+//    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+//
+//    vkCmdEndRenderPass(commandBuffer);
+//
+//    vkEndCommandBuffer(commandBuffer);
+//}
+
+void Drawable::Render(uint32_t imageIndex)
 {
     VkResult result = VK_SUCCESS;
 
-    GraphicsPipelineDescriptor descriptor;
-    const std::filesystem::path shaderDirectory = m_renderer.rendererBase.projectDirectory.parent_path() / "shaders";
-    std::cout << "Shader directory: " << shaderDirectory << "\n";
-    descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
 
-    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
-    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
 
-    descriptor.viewports[0].width = static_cast<float>(m_renderer.display->swapchainExtent.width);
-    descriptor.viewports[0].height = static_cast<float>(m_renderer.display->swapchainExtent.height);
 
-    descriptor.scissors[0].extent = m_renderer.display->swapchainExtent;
 
-    descriptor.colorAttachment.format = m_renderer.display->swapchainImageFormat;
 
-    pipelineDescriptors.emplace_back(descriptor);
-
-    pipelineStates.emplace_back(m_renderer.device, descriptor);
 
     vkResetCommandBuffer(commandBuffer, 0);
 
@@ -228,97 +316,9 @@ void Drawable::RenderTriangle(uint32_t imageIndex)
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineStates[0].graphicsPipeline);
 
-    vkCmdSetViewport(commandBuffer, 0, 1, descriptor.viewports.data());
+    vkCmdSetViewport(commandBuffer, 0, 1, pipelineDescriptors.viewports.data());
 
-    vkCmdSetScissor(commandBuffer, 0, 1, descriptor.scissors.data());
-
-    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-
-    vkCmdEndRenderPass(commandBuffer);
-
-    vkEndCommandBuffer(commandBuffer);
-}
-
-void Drawable::Render(const GraphicsPipelineDescriptor& pipelineDescriptor, uint32_t imageIndex)
-{
-    VkResult result = VK_SUCCESS;
-
-    GraphicsPipelineDescriptor descriptor = pipelineDescriptor;
-    //descriptor.rasterizer.polygonMode = pipelineDescriptor.rasterizer.polygonMode;
-    const std::filesystem::path shaderDirectory = m_renderer.rendererBase.projectDirectory.parent_path() / "shaders";
-    if (descriptor.vertexShader[0] == "")
-    {
-        std::cout << "Shader directory: " << shaderDirectory << "\n";
-        descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    }
-
-    if (descriptor.fragmentShader[0] == "")
-    {
-    	descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
-    }
-
-    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
-    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
-
-    descriptor.viewports[0].width = static_cast<float>(m_renderer.display->swapchainExtent.width);
-    descriptor.viewports[0].height = static_cast<float>(m_renderer.display->swapchainExtent.height);
-
-    descriptor.scissors[0].extent = m_renderer.display->swapchainExtent;
-
-    descriptor.colorAttachment.format = m_renderer.display->swapchainImageFormat;
-
-    pipelineDescriptors.emplace_back(descriptor);
-
-    pipelineStates.emplace_back(m_renderer.device, descriptor);
-
-    vkResetCommandBuffer(commandBuffer, 0);
-
-    VkCommandBufferBeginInfo beginInfo;
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.pNext = nullptr;
-    beginInfo.flags = 0;
-    beginInfo.pInheritanceInfo = nullptr;
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-    // std::vector<VkFramebuffer> framebuffers;
-    framebuffers.resize(m_renderer.display->image->imageViews.size());
-    for (size_t i = 0; i < m_renderer.display->image->imageViews.size(); i++)
-    {
-        std::array<VkImageView, 1> attachments = {m_renderer.display->image->imageViews[i]};
-        VkFramebufferCreateInfo framebufferCI;
-        framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferCI.pNext = nullptr;
-        framebufferCI.flags = 0;
-        framebufferCI.renderPass = pipelineStates[0].renderPass;
-        framebufferCI.attachmentCount = 1;
-        framebufferCI.pAttachments = attachments.data();
-        framebufferCI.width = m_renderer.display->swapchainExtent.width;
-        framebufferCI.height = m_renderer.display->swapchainExtent.height;
-        framebufferCI.layers = 1;
-        result = vkCreateFramebuffer(m_renderer.device, &framebufferCI, nullptr, &framebuffers[i]);
-        if (result != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create framebuffer");
-        }
-    }
-    // start renderpass, bind pipeline, set viewport/scissor, draw, end renderpass
-    VkRenderPassBeginInfo renderPassBI;
-    renderPassBI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassBI.pNext = nullptr;
-    renderPassBI.renderPass = pipelineStates[0].renderPass;
-    renderPassBI.framebuffer = framebuffers[imageIndex];
-    renderPassBI.renderArea.offset = {0, 0};
-    renderPassBI.renderArea.extent = m_renderer.display->swapchainExtent;
-    const VkClearValue clearColor = {{{0.0F, 0.0F, 0.0F, 1.0F}}};
-    renderPassBI.clearValueCount = 1;
-    renderPassBI.pClearValues = &clearColor;
-    vkCmdBeginRenderPass(commandBuffer, &renderPassBI, VK_SUBPASS_CONTENTS_INLINE);
-
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineStates[0].graphicsPipeline);
-
-    vkCmdSetViewport(commandBuffer, 0, 1, descriptor.viewports.data());
-
-    vkCmdSetScissor(commandBuffer, 0, 1, descriptor.scissors.data());
+    vkCmdSetScissor(commandBuffer, 0, 1, pipelineDescriptors.scissors.data());
 
     vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 

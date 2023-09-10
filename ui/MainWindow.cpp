@@ -106,7 +106,34 @@ MainWindow::MainWindow() : ui(new Ui::Form),
 
     renderer = std::make_unique<VulkanRenderer>(rendererBase, surface, ui->comboBox->currentIndex(), ui->widget->size().width(), ui->widget->size().height());
     // renderer(rendererBase, surface, ui->comboBox->currentIndex());
-    renderer->Render(pipelineDescriptor);
+    // TODO (nic) holy hell the separation of concerns is currently non-existent
+    GraphicsPipelineDescriptor descriptor;
+    //descriptor.rasterizer.polygonMode = pipelineDescriptor.rasterizer.polygonMode;
+    const std::filesystem::path shaderDirectory = renderer->rendererBase.projectDirectory.parent_path() / "shaders";
+    if (descriptor.vertexShader[0] == "")
+    {
+        std::cout << "Shader directory: " << shaderDirectory << "\n";
+        descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+    }
+
+    if (descriptor.fragmentShader[0] == "")
+    {
+    	descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    }
+
+    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
+    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
+
+    descriptor.viewports[0].width = static_cast<float>(renderer->display->swapchainExtent.width);
+    descriptor.viewports[0].height = static_cast<float>(renderer->display->swapchainExtent.height);
+
+    descriptor.scissors[0].extent = renderer->display->swapchainExtent;
+    descriptor.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+    descriptor.colorAttachment.format = renderer->display->swapchainImageFormat;
+    renderer->drawables.emplace_back(*renderer.get(), renderer->commandPool, descriptor);
+    //renderer->drawables.push_back(*renderer.get(), renderer->commandPool, descriptor);
+    //renderer->Render(pipelineDescriptor);
+    renderer->Render();
     // renderer->RenderTriangle();
     std::cout << "Finished MainWindow::MainWindow()\n";
 }
@@ -132,7 +159,8 @@ void MainWindow::resizeEvent([[maybe_unused]] QResizeEvent* event)
     {
         surface = QVulkanInstance::surfaceForWindow(m_window.get());
         renderer->Resize(surface, ui->widget->size().width(), ui->widget->size().height());
-        renderer->Render(pipelineDescriptor);
+        //renderer->Render(pipelineDescriptor);
+        renderer->Render();
         // renderer->RenderTriangle();
     }
     m_windowWrapper->setMinimumSize(ui->widget->size());
@@ -182,7 +210,7 @@ void MainWindow::setRenderView()
 {
 	ui->stackedWidget->setCurrentIndex(0);
 	renderer->Resize(surface, ui->widget->size().width(), ui->widget->size().height());
-	renderer->Render(pipelineDescriptor);
+	renderer->Render();
 }
 
 void MainWindow::polygonModeComboBox(int index)
@@ -210,7 +238,7 @@ void MainWindow::vertexShaderTextChanged()
 	pipelineDescriptor.vertexShader = {std::string(shaderDirectory / ui->textEdit_vertexShader->toPlainText().toStdString()), "main"};
 	try
 	{
-		renderer->Render(pipelineDescriptor);
+		renderer->Render();
 	} catch(std::exception& e)
 	{
 		std::cout << "Failed to render: " << pipelineDescriptor.vertexShader[0] << "\n";
@@ -223,7 +251,7 @@ void MainWindow::fragmentShaderTextChanged()
 	pipelineDescriptor.fragmentShader = {std::string(shaderDirectory / ui->textEdit_fragmentShader->toPlainText().toStdString()), "main"};
 	try
 	{
-		renderer->Render(pipelineDescriptor);
+		renderer->Render();
 	} catch(std::exception& e)
 	{
 		std::cout << "Failed to render: " << pipelineDescriptor.fragmentShader[0] << "\n";
