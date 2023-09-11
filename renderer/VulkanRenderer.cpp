@@ -87,6 +87,7 @@ VulkanRenderer::~VulkanRenderer()
     // delete display;
     vkDeviceWaitIdle(device);
     display.reset();
+    drawables.clear();
 
     vkDestroyCommandPool(device, commandPool, nullptr);
     vkDestroyDevice(device, nullptr);
