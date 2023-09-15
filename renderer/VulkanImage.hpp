@@ -11,12 +11,12 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-class VulkanDisplay;
+class VulkanRenderer;
 
 class VulkanImage
 {
   public:
-    explicit VulkanImage(VulkanDisplay& display);
+    explicit VulkanImage(VulkanRenderer& renderer);
     VulkanImage(const VulkanImage&) = delete;
     VulkanImage& operator=(const VulkanImage&) = delete;
     VulkanImage(VulkanImage&&) noexcept;
@@ -25,7 +25,7 @@ class VulkanImage
     std::vector<VkImage> images;
     std::vector<VkImageView> imageViews;
 
-    VulkanDisplay& m_display;
+    VulkanRenderer& renderer;
 };
 
 #endif /* RENDERER_VULKANIMAGE_HPP_ */

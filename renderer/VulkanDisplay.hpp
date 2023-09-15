@@ -8,6 +8,7 @@
 #ifndef RENDERER_VULKANDISPLAY_HPP_
 #define RENDERER_VULKANDISPLAY_HPP_
 
+#include "Camera.hpp"
 #include "VulkanImage.hpp"
 #include <memory>
 #include <vector>
@@ -50,7 +51,8 @@ class VulkanDisplay
     // std::vector<VkImage> swapchainImages;
 
     std::vector<VkSurfaceFormatKHR> surfaceFormats;
-    std::unique_ptr<VulkanImage> image;
+    //std::unique_ptr<VulkanImage> image;
+    //Camera& camera;
 
   private:
     // VkPhysicalDevice& gpu;

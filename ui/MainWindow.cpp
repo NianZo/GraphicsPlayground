@@ -130,10 +130,11 @@ MainWindow::MainWindow() : ui(new Ui::Form),
     descriptor.scissors[0].extent = renderer->display->swapchainExtent;
     descriptor.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     descriptor.colorAttachment.format = renderer->display->swapchainImageFormat;
-    renderer->drawables.emplace_back(*renderer.get(), renderer->commandPool, descriptor);
+    renderer->scenes.emplace_back(*renderer.get());
+    renderer->scenes[0].drawables.emplace_back(*renderer.get(), renderer->commandPool, descriptor);
     //renderer->drawables.push_back(*renderer.get(), renderer->commandPool, descriptor);
     //renderer->Render(pipelineDescriptor);
-    renderer->Render();
+    renderer->scenes[0].render();
     // renderer->RenderTriangle();
     std::cout << "Finished MainWindow::MainWindow()\n";
 }

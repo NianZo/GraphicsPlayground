@@ -78,7 +78,9 @@ VulkanDisplay::VulkanDisplay(VulkanRenderer& rendererIn, VkSurfaceKHR& displaySu
 
     vkCreateSwapchainKHR(renderer.device, &createInfo, nullptr, &swapchain);
 
-    image = std::make_unique<VulkanImage>(*this);
+    //image = std::make_unique<VulkanImage>(*this);
+    //renderer.cameras.emplace_back(*this);
+    //camera(renderer.cameras.back());
     //	fpGetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR) vkGetDeviceProcAddr(device, "vkGetSwapchainImagesKHR");
     //	fpAcquireNextImageKHR = (PFN_vkAcquireNextImageKHR) vkGetDeviceProcAddr(device, "vkAcquireNextImageKHR");
     //	fpQueuePresentKHR = (PFN_vkQueuePresentKHR) vkGetDeviceProcAddr(device, "vkQueuePresentKHR");
@@ -93,8 +95,9 @@ VulkanDisplay::VulkanDisplay(VulkanDisplay&& other) noexcept : renderer(other.re
                                                                preTransform(other.preTransform),
                                                                swapchainPresentMode(other.swapchainPresentMode),
                                                                swapchainImageFormat(other.swapchainImageFormat),
-                                                               surfaceFormats(other.surfaceFormats),
-                                                               image(std::move(other.image))
+                                                               surfaceFormats(other.surfaceFormats)
+                                                               //image(std::move(other.image)),
+															   //camera(other.camera)
 {
     other.swapchain = VK_NULL_HANDLE;
 }
@@ -102,6 +105,6 @@ VulkanDisplay::VulkanDisplay(VulkanDisplay&& other) noexcept : renderer(other.re
 VulkanDisplay::~VulkanDisplay()
 {
     std::cout << "Starting ~VulkanDisplay()\n";
-    image.reset();
+    //image.reset();
     vkDestroySwapchainKHR(renderer.device, swapchain, nullptr);
 }

@@ -10,13 +10,15 @@
 
 #include "RendererBase.hpp"
 #include "VulkanDisplay.hpp"
+#include "Camera.hpp"
 #include "Drawable.hpp"
+#include "Scene.hpp"
 #include <memory>
 #include <string>
 #include <vector>
 #include <vulkan/vulkan.h>
 // class VulkanDisplay;
-
+class Camera;
 // struct PhysicalDeviceDescriptor
 //{
 //	VkPhysicalDevice physicalDevice;
@@ -51,7 +53,10 @@ class VulkanRenderer
 
     VkCommandPool commandPool;
 
+    std::vector<Scene> scenes;
     std::vector<Drawable> drawables;
+    std::vector<Camera> cameras;
+    //Camera camera;
 
   private:
     std::vector<const char*> deviceExtensionNames =

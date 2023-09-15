@@ -281,10 +281,10 @@ void Drawable::Render(uint32_t imageIndex)
     vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
     // std::vector<VkFramebuffer> framebuffers;
-    framebuffers.resize(m_renderer.display->image->imageViews.size());
-    for (size_t i = 0; i < m_renderer.display->image->imageViews.size(); i++)
+    framebuffers.resize(m_renderer.cameras[0].image.imageViews.size());
+    for (size_t i = 0; i < m_renderer.cameras[0].image.imageViews.size(); i++)
     {
-        std::array<VkImageView, 1> attachments = {m_renderer.display->image->imageViews[i]};
+        std::array<VkImageView, 1> attachments = {m_renderer.cameras[0].image.imageViews[i]};
         VkFramebufferCreateInfo framebufferCI;
         framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferCI.pNext = nullptr;
