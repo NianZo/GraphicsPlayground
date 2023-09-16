@@ -5,6 +5,7 @@
  *      Author: nic
  */
 
+#include "Buffer.hpp"
 #include "Drawable.hpp"
 #include "VulkanRenderer.hpp"
 #include <algorithm>
@@ -20,7 +21,10 @@ std::vector<char> readFile(const std::string& filename);
 
 // clang-tidy doesn't understand that Vulkan initializes several of the class members
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const GraphicsPipelineDescriptor& pipelineDescriptor) : m_renderer(renderer), pipelineDescriptors(pipelineDescriptor)
+Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const GraphicsPipelineDescriptor& pipelineDescriptor) :
+		m_renderer(renderer),
+		pipelineDescriptors(pipelineDescriptor),
+		vertexBuffer(renderer, sizeof(Vertex) * 3)
 {
     VkCommandBufferAllocateInfo commandBufferAI;
     commandBufferAI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -281,10 +285,10 @@ void Drawable::Render(uint32_t imageIndex)
     vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
     // std::vector<VkFramebuffer> framebuffers;
-    framebuffers.resize(m_renderer.cameras[0].image.imageViews.size());
-    for (size_t i = 0; i < m_renderer.cameras[0].image.imageViews.size(); i++)
+    framebuffers.resize(m_renderer.scenes[0].cameras[0].image.imageViews.size());
+    for (size_t i = 0; i < m_renderer.scenes[0].cameras[0].image.imageViews.size(); i++)
     {
-        std::array<VkImageView, 1> attachments = {m_renderer.cameras[0].image.imageViews[i]};
+        std::array<VkImageView, 1> attachments = {m_renderer.scenes[0].cameras[0].image.imageViews[i]};
         VkFramebufferCreateInfo framebufferCI;
         framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferCI.pNext = nullptr;
@@ -315,6 +319,10 @@ void Drawable::Render(uint32_t imageIndex)
     vkCmdBeginRenderPass(commandBuffer, &renderPassBI, VK_SUBPASS_CONTENTS_INLINE);
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineStates[0].graphicsPipeline);
+
+    std::array<VkBuffer, 1> vertexBuffers = {vertexBuffer.buffer};
+    std::array<VkDeviceSize, 1> offsets = {0};
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers.data(), offsets.data());
 
     vkCmdSetViewport(commandBuffer, 0, 1, pipelineDescriptors.viewports.data());
 
@@ -489,14 +497,30 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, const GraphicsPip
 
     std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {vertShaderStageCI, fragShaderStageCI};
 
+    VkVertexInputBindingDescription vertexBinding;
+    vertexBinding.binding = 0;
+    vertexBinding.stride = sizeof(Vertex);
+    vertexBinding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    std::array<VkVertexInputAttributeDescription, 2> vertexAttributes {};
+    vertexAttributes[0].location = 0;
+    vertexAttributes[0].binding = 0;
+    vertexAttributes[0].format = VK_FORMAT_R32G32_SFLOAT;
+    vertexAttributes[0].offset = offsetof(Vertex, pos);
+
+    vertexAttributes[1].location = 1;
+    vertexAttributes[1].binding = 0;
+    vertexAttributes[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    vertexAttributes[1].offset = offsetof(Vertex, color);
+
     VkPipelineVertexInputStateCreateInfo vertexInput;
     vertexInput.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInput.pNext = nullptr;
     vertexInput.flags = 0;
-    vertexInput.vertexBindingDescriptionCount = 0;
-    vertexInput.pVertexBindingDescriptions = nullptr;
-    vertexInput.vertexAttributeDescriptionCount = 0;
-    vertexInput.pVertexAttributeDescriptions = nullptr;
+    vertexInput.vertexBindingDescriptionCount = 1;
+    vertexInput.pVertexBindingDescriptions = &vertexBinding;
+    vertexInput.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributes.size());
+    vertexInput.pVertexAttributeDescriptions = vertexAttributes.data();
 
     VkPipelineDynamicStateCreateInfo dynamicState;
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;

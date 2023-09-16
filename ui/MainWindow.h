@@ -65,6 +65,7 @@ private:
     void fragmentShaderTextChanged();
     void graphicsDescriptorView();
     void setRenderView();
+    void createRenderer();
 };
 
 class VulkanPhysicalDeviceFeatureWrapper

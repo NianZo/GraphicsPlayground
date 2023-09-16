@@ -104,34 +104,36 @@ MainWindow::MainWindow() : ui(new Ui::Form),
     //ui->comboBox_2->setCurrentIndex(0);
     polygonModeComboBox(0); // Initialize
 
-    renderer = std::make_unique<VulkanRenderer>(rendererBase, surface, ui->comboBox->currentIndex(), ui->widget->size().width(), ui->widget->size().height());
-    // renderer(rendererBase, surface, ui->comboBox->currentIndex());
-    // TODO (nic) holy hell the separation of concerns is currently non-existent
-    GraphicsPipelineDescriptor descriptor;
-    //descriptor.rasterizer.polygonMode = pipelineDescriptor.rasterizer.polygonMode;
-    const std::filesystem::path shaderDirectory = renderer->rendererBase.projectDirectory.parent_path() / "shaders";
-    if (descriptor.vertexShader[0] == "")
-    {
-        std::cout << "Shader directory: " << shaderDirectory << "\n";
-        descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    }
-
-    if (descriptor.fragmentShader[0] == "")
-    {
-    	descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
-    }
-
-    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
-    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
-
-    descriptor.viewports[0].width = static_cast<float>(renderer->display->swapchainExtent.width);
-    descriptor.viewports[0].height = static_cast<float>(renderer->display->swapchainExtent.height);
-
-    descriptor.scissors[0].extent = renderer->display->swapchainExtent;
-    descriptor.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    descriptor.colorAttachment.format = renderer->display->swapchainImageFormat;
-    renderer->scenes.emplace_back(*renderer.get());
-    renderer->scenes[0].drawables.emplace_back(*renderer.get(), renderer->commandPool, descriptor);
+    createRenderer();
+//    renderer = std::make_unique<VulkanRenderer>(rendererBase, surface, ui->comboBox->currentIndex(), ui->widget->size().width(), ui->widget->size().height());
+//    // renderer(rendererBase, surface, ui->comboBox->currentIndex());
+//    // TODO (nic) holy hell the separation of concerns is currently non-existent
+//    GraphicsPipelineDescriptor descriptor;
+//    //descriptor.rasterizer.polygonMode = pipelineDescriptor.rasterizer.polygonMode;
+//    const std::filesystem::path shaderDirectory = renderer->rendererBase.projectDirectory.parent_path() / "shaders";
+//    if (descriptor.vertexShader[0] == "")
+//    {
+//        std::cout << "Shader directory: " << shaderDirectory << "\n";
+//        descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+//    }
+//
+//    if (descriptor.fragmentShader[0] == "")
+//    {
+//    	descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+//    }
+//
+//    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
+//    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
+//
+//    descriptor.viewports[0].width = static_cast<float>(renderer->display->swapchainExtent.width);
+//    descriptor.viewports[0].height = static_cast<float>(renderer->display->swapchainExtent.height);
+//
+//    descriptor.scissors[0].extent = renderer->display->swapchainExtent;
+//    descriptor.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+//    descriptor.colorAttachment.format = renderer->display->swapchainImageFormat;
+//    renderer->scenes.emplace_back(*renderer.get());
+//    renderer->scenes[0].drawables.emplace_back(*renderer.get(), renderer->commandPool, descriptor);
+//    renderer->scenes[0].cameras.emplace_back(*renderer.get());
     //renderer->drawables.push_back(*renderer.get(), renderer->commandPool, descriptor);
     //renderer->Render(pipelineDescriptor);
     renderer->scenes[0].render();
@@ -159,9 +161,11 @@ void MainWindow::resizeEvent([[maybe_unused]] QResizeEvent* event)
     if (renderer != nullptr)
     {
         surface = QVulkanInstance::surfaceForWindow(m_window.get());
-        renderer->Resize(surface, ui->widget->size().width(), ui->widget->size().height());
+        //renderer->Resize(surface, ui->widget->size().width(), ui->widget->size().height());
+        renderer.reset();
+        createRenderer();
         //renderer->Render(pipelineDescriptor);
-        renderer->Render();
+        renderer->scenes[0].render();
         // renderer->RenderTriangle();
     }
     m_windowWrapper->setMinimumSize(ui->widget->size());
@@ -257,6 +261,39 @@ void MainWindow::fragmentShaderTextChanged()
 	{
 		std::cout << "Failed to render: " << pipelineDescriptor.fragmentShader[0] << "\n";
 	}
+}
+
+void MainWindow::createRenderer()
+{
+    renderer = std::make_unique<VulkanRenderer>(rendererBase, surface, ui->comboBox->currentIndex(), ui->widget->size().width(), ui->widget->size().height());
+    // renderer(rendererBase, surface, ui->comboBox->currentIndex());
+    // TODO (nic) holy hell the separation of concerns is currently non-existent
+    GraphicsPipelineDescriptor descriptor;
+    //descriptor.rasterizer.polygonMode = pipelineDescriptor.rasterizer.polygonMode;
+    const std::filesystem::path shaderDirectory = renderer->rendererBase.projectDirectory.parent_path() / "shaders";
+    if (descriptor.vertexShader[0] == "")
+    {
+        std::cout << "Shader directory: " << shaderDirectory << "\n";
+        descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+    }
+
+    if (descriptor.fragmentShader[0] == "")
+    {
+    	descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    }
+
+    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
+    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
+
+    descriptor.viewports[0].width = static_cast<float>(renderer->display->swapchainExtent.width);
+    descriptor.viewports[0].height = static_cast<float>(renderer->display->swapchainExtent.height);
+
+    descriptor.scissors[0].extent = renderer->display->swapchainExtent;
+    descriptor.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+    descriptor.colorAttachment.format = renderer->display->swapchainImageFormat;
+    renderer->scenes.emplace_back(*renderer.get());
+    renderer->scenes[0].drawables.emplace_back(*renderer.get(), renderer->commandPool, descriptor);
+    renderer->scenes[0].cameras.emplace_back(*renderer.get());
 }
 
 // constexpr std::array<const char*, 55> VulkanPhysicalDeviceFeatureWrapper::featureNames =

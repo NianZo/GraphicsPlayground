@@ -66,7 +66,8 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32
     }
 
     display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
-    cameras.emplace_back(*this);
+    //cameras.emplace_back(*this);
+
 }
 
 VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(other.rendererBase),
@@ -76,8 +77,7 @@ VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(o
                                                                   combinedQueueFamily(other.combinedQueueFamily),
                                                                   combinedQueue(other.combinedQueue),
                                                                   commandPool(other.commandPool),
-																  drawables(std::move(other.drawables)),
-																  cameras(std::move(other.cameras))
+																  scenes(std::move(other.scenes))
 
 {
     other.device = VK_NULL_HANDLE;
@@ -90,8 +90,6 @@ VulkanRenderer::~VulkanRenderer()
     // delete display;
     vkDeviceWaitIdle(device);
     display.reset();
-    drawables.clear();
-    cameras.clear();
     scenes.clear();
 
     vkDestroyCommandPool(device, commandPool, nullptr);

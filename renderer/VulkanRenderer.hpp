@@ -54,8 +54,8 @@ class VulkanRenderer
     VkCommandPool commandPool;
 
     std::vector<Scene> scenes;
-    std::vector<Drawable> drawables;
-    std::vector<Camera> cameras;
+    //std::vector<Drawable> drawables;
+    //std::vector<Camera> cameras;
     //Camera camera;
 
   private:
