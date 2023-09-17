@@ -7,18 +7,20 @@
 
 #include "Buffer.hpp"
 #include "VulkanRenderer.hpp"
-#include <cstring>
 #include <exception>
 
-Buffer::Buffer(VulkanRenderer& rendererIn, const std::vector<Vertex>& vertexData) : renderer(rendererIn), buffer(VK_NULL_HANDLE), bufferMemory(VK_NULL_HANDLE)
+Buffer::Buffer(VulkanRenderer& rendererIn, size_t sizeIn, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties) :
+	renderer(rendererIn),
+	size(sizeIn),
+	buffer(VK_NULL_HANDLE),
+	bufferMemory(VK_NULL_HANDLE)
 {
-	const size_t size = vertexData.size() * sizeof(Vertex);
 	VkBufferCreateInfo bufferCi;
 	bufferCi.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	bufferCi.pNext = nullptr;
 	bufferCi.flags = 0;
 	bufferCi.size = size;
-	bufferCi.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	bufferCi.usage = usage;
 	bufferCi.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	bufferCi.queueFamilyIndexCount = 0;
 	bufferCi.pQueueFamilyIndices = nullptr;
@@ -36,7 +38,7 @@ Buffer::Buffer(VulkanRenderer& rendererIn, const std::vector<Vertex>& vertexData
 	memoryAi.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	memoryAi.pNext = nullptr;
 	memoryAi.allocationSize = memRequirements.size;
-	memoryAi.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	memoryAi.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 	result = vkAllocateMemory(renderer.device, &memoryAi, nullptr, &bufferMemory);
 	if (result != VK_SUCCESS)
 	{
@@ -45,24 +47,70 @@ Buffer::Buffer(VulkanRenderer& rendererIn, const std::vector<Vertex>& vertexData
 
 	vkBindBufferMemory(renderer.device, buffer, bufferMemory, 0);
 
-	const std::vector<Vertex> vertices = {
-			{{0.0F, -0.5F}, {1.0F, 0.0F, 0.0F}},
-			{{0.5F, 0.5F}, {1.0F, 1.0F, 1.0F}},
-			{{-0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}}
-	};
 
-	// TODO (nic) this is a place that Vulkan and C++ butt heads
-	void* data = nullptr;
-	vkMapMemory(renderer.device, bufferMemory, 0, size, 0, &data);
-	//std::copy(vertices.begin(), vertices.end(), data);
-	std::memcpy(data, vertexData.data(), size);
-	vkUnmapMemory(renderer.device, bufferMemory);
 }
 
 Buffer::~Buffer()
 {
 	vkDestroyBuffer(renderer.device, buffer, nullptr);
 	vkFreeMemory(renderer.device, bufferMemory, nullptr);
+}
+
+void Buffer::copyTo(Buffer& other) const
+{
+	VkCommandBufferAllocateInfo allocInfo;
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.pNext = nullptr;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = renderer.commandPool; // TODO (nic) should use a separate pool with the one-time-use/transient flag
+	allocInfo.commandBufferCount = 1;
+
+	VkCommandBuffer copyBuffer = VK_NULL_HANDLE;
+	VkResult result = vkAllocateCommandBuffers(renderer.device, &allocInfo, &copyBuffer);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to allocate command buffer to copy buffer\n");
+	}
+
+	VkCommandBufferBeginInfo beginInfo;
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.pNext = nullptr;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	beginInfo.pInheritanceInfo = nullptr;
+
+	vkBeginCommandBuffer(copyBuffer, &beginInfo);
+
+	VkBufferCopy copyRegion;
+	copyRegion.srcOffset = 0;
+	copyRegion.dstOffset = 0;
+	copyRegion.size = size;
+	vkCmdCopyBuffer(copyBuffer, buffer, other.buffer, 1, &copyRegion);
+
+	vkEndCommandBuffer(copyBuffer);
+
+	VkSubmitInfo submitInfo;
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.pNext = nullptr;
+	submitInfo.waitSemaphoreCount = 0;
+	submitInfo.pWaitSemaphores = nullptr;
+	submitInfo.pWaitDstStageMask = nullptr;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &copyBuffer;
+	submitInfo.signalSemaphoreCount = 0;
+	submitInfo.pSignalSemaphores = nullptr;
+
+	result = vkQueueSubmit(renderer.combinedQueue, 1, &submitInfo, VK_NULL_HANDLE);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to submit copy command buffer for buffer creation\n");
+	}
+	result = vkQueueWaitIdle(renderer.combinedQueue);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to wait for queu to idle for buffer creation\n");
+	}
+
+	vkFreeCommandBuffers(renderer.device, renderer.commandPool, 1, &copyBuffer);
 }
 
 uint32_t Buffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)

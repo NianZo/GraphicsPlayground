@@ -8,7 +8,7 @@
 #ifndef RENDERER_DRAWABLE_HPP_
 #define RENDERER_DRAWABLE_HPP_
 
-#include "Buffer.hpp"
+#include "VertexBuffer.hpp"
 #include <array>
 #include <fstream>
 #include <vector>
@@ -86,7 +86,7 @@ class Drawable
     GraphicsPipelineDescriptor pipelineDescriptors;
     std::vector<GraphicsPipelineState> pipelineStates;
     std::vector<VkFramebuffer> framebuffers;
-    Buffer vertexBuffer;
+    VertexBuffer vertexBuffer;
 };
 
 #endif /* RENDERER_DRAWABLE_HPP_ */
