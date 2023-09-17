@@ -24,7 +24,7 @@ std::vector<char> readFile(const std::string& filename);
 Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const GraphicsPipelineDescriptor& pipelineDescriptor) :
 		m_renderer(renderer),
 		pipelineDescriptors(pipelineDescriptor),
-		vertexBuffer(renderer, sizeof(Vertex) * 3)
+		vertexBuffer(renderer, pipelineDescriptor.vertexData)
 {
     VkCommandBufferAllocateInfo commandBufferAI;
     commandBufferAI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;

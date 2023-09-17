@@ -10,8 +10,9 @@
 #include <cstring>
 #include <exception>
 
-Buffer::Buffer(VulkanRenderer& rendererIn, size_t size) : renderer(rendererIn), buffer(VK_NULL_HANDLE), bufferMemory(VK_NULL_HANDLE)
+Buffer::Buffer(VulkanRenderer& rendererIn, const std::vector<Vertex>& vertexData) : renderer(rendererIn), buffer(VK_NULL_HANDLE), bufferMemory(VK_NULL_HANDLE)
 {
+	const size_t size = vertexData.size() * sizeof(Vertex);
 	VkBufferCreateInfo bufferCi;
 	bufferCi.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	bufferCi.pNext = nullptr;
@@ -54,7 +55,7 @@ Buffer::Buffer(VulkanRenderer& rendererIn, size_t size) : renderer(rendererIn), 
 	void* data = nullptr;
 	vkMapMemory(renderer.device, bufferMemory, 0, size, 0, &data);
 	//std::copy(vertices.begin(), vertices.end(), data);
-	std::memcpy(data, vertices.data(), size);
+	std::memcpy(data, vertexData.data(), size);
 	vkUnmapMemory(renderer.device, bufferMemory);
 }
 

@@ -37,6 +37,7 @@ struct __attribute__((aligned(128))) GraphicsPipelineDescriptor
     VkPipelineColorBlendStateCreateInfo colorBlending;
     // VkPipelineLayoutCreateInfo pipelineLayoutCI; // Define setLayouts and pushConstantRanges instead of this
     VkAttachmentDescription colorAttachment;
+    std::vector<Vertex> vertexData;
 };
 
 // Build all objects using info from GraphicsPipelineDescriptor (and renderpass?)

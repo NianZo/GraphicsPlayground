@@ -291,6 +291,14 @@ void MainWindow::createRenderer()
     descriptor.scissors[0].extent = renderer->display->swapchainExtent;
     descriptor.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     descriptor.colorAttachment.format = renderer->display->swapchainImageFormat;
+
+	const std::vector<Vertex> vertices = {
+			{{0.0F, -0.5F}, {1.0F, 0.0F, 0.0F}},
+			{{0.5F, 0.5F}, {1.0F, 1.0F, 1.0F}},
+			{{-0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}}
+	};
+	descriptor.vertexData = vertices;
+
     renderer->scenes.emplace_back(*renderer.get());
     renderer->scenes[0].drawables.emplace_back(*renderer.get(), renderer->commandPool, descriptor);
     renderer->scenes[0].cameras.emplace_back(*renderer.get());

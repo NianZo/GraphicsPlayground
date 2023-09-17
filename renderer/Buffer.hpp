@@ -9,6 +9,7 @@
 #define RENDERER_BUFFER_HPP_
 
 #include <array>
+#include <vector>
 #include <vulkan/vulkan.h>
 
 class VulkanRenderer;
@@ -22,7 +23,7 @@ struct Vertex
 class Buffer
 {
 public:
-	Buffer(VulkanRenderer& renderer, size_t size);
+	Buffer(VulkanRenderer& renderer, const std::vector<Vertex>& vertexData);
 	Buffer(const Buffer&) = delete;
 	Buffer& operator=(const Buffer&) = delete;
 	Buffer(Buffer&&) noexcept = default;
