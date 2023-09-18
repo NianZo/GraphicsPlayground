@@ -24,7 +24,8 @@ std::vector<char> readFile(const std::string& filename);
 Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const GraphicsPipelineDescriptor& pipelineDescriptor) :
 		m_renderer(renderer),
 		pipelineDescriptors(pipelineDescriptor),
-		vertexBuffer(renderer, pipelineDescriptor.vertexData)
+		vertexBuffer(renderer, pipelineDescriptor.vertexData),
+		indexBuffer(renderer, pipelineDescriptor.indexData)
 {
     VkCommandBufferAllocateInfo commandBufferAI;
     commandBufferAI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -323,12 +324,14 @@ void Drawable::Render(uint32_t imageIndex)
     std::array<VkBuffer, 1> vertexBuffers = {vertexBuffer.buffer.buffer};
     std::array<VkDeviceSize, 1> offsets = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers.data(), offsets.data());
+    vkCmdBindIndexBuffer(commandBuffer, indexBuffer.buffer.buffer, 0, VK_INDEX_TYPE_UINT16);
 
     vkCmdSetViewport(commandBuffer, 0, 1, pipelineDescriptors.viewports.data());
 
     vkCmdSetScissor(commandBuffer, 0, 1, pipelineDescriptors.scissors.data());
 
-    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+    //vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indexBuffer.count), 1, 0, 0, 0);
 
     vkCmdEndRenderPass(commandBuffer);
 

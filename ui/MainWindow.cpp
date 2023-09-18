@@ -293,11 +293,16 @@ void MainWindow::createRenderer()
     descriptor.colorAttachment.format = renderer->display->swapchainImageFormat;
 
 	const std::vector<Vertex> vertices = {
-			{{0.0F, -0.5F}, {1.0F, 0.0F, 0.0F}},
-			{{0.5F, 0.5F}, {1.0F, 1.0F, 1.0F}},
-			{{-0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}}
+			{{-0.5F, -0.5F}, {1.0F, 0.0F, 0.0F}},
+			{{0.5F, -0.5F}, {0.0F, 1.0F, 0.0F}},
+			{{0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}},
+			{{-0.5F, 0.5F}, {1.0F, 1.0F, 0.0F}}
 	};
 	descriptor.vertexData = vertices;
+	const std::vector<uint16_t> indices = {
+			0, 1, 2, 2, 3, 0
+	};
+	descriptor.indexData = indices;
 
     renderer->scenes.emplace_back(*renderer.get());
     renderer->scenes[0].drawables.emplace_back(*renderer.get(), renderer->commandPool, descriptor);

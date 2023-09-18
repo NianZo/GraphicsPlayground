@@ -8,6 +8,7 @@
 #ifndef RENDERER_DRAWABLE_HPP_
 #define RENDERER_DRAWABLE_HPP_
 
+#include "IndexBuffer.hpp"
 #include "VertexBuffer.hpp"
 #include <array>
 #include <fstream>
@@ -38,6 +39,7 @@ struct __attribute__((aligned(128))) GraphicsPipelineDescriptor
     // VkPipelineLayoutCreateInfo pipelineLayoutCI; // Define setLayouts and pushConstantRanges instead of this
     VkAttachmentDescription colorAttachment;
     std::vector<Vertex> vertexData;
+    std::vector<uint16_t> indexData;
 };
 
 // Build all objects using info from GraphicsPipelineDescriptor (and renderpass?)
@@ -87,6 +89,7 @@ class Drawable
     std::vector<GraphicsPipelineState> pipelineStates;
     std::vector<VkFramebuffer> framebuffers;
     VertexBuffer vertexBuffer;
+    IndexBuffer indexBuffer;
 };
 
 #endif /* RENDERER_DRAWABLE_HPP_ */
