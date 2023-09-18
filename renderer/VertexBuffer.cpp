@@ -13,10 +13,9 @@
 VertexBuffer::VertexBuffer(VulkanRenderer& rendererIn, const std::vector<Vertex>& vertexData) :
 	size(vertexData.size() * sizeof(Vertex)),
 	buffer(rendererIn, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
-	tempBuffer(rendererIn, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT),
 	renderer(rendererIn)
 {
-	//Buffer tempBuffer(renderer, size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	Buffer tempBuffer(renderer, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 	// TODO (nic) this is a place that Vulkan and C++ butt heads
 	void* data = nullptr;

@@ -22,7 +22,6 @@ public:
 
 	size_t size;
 	Buffer buffer;
-	Buffer tempBuffer;
 private:
 	VulkanRenderer& renderer;
 };
