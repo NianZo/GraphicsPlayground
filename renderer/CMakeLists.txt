@@ -52,6 +52,11 @@ target_include_directories(${RENDERER_LIB} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${RENDERER_LIB} PUBLIC ${VULKAN_PATH}/include)
 target_link_libraries(${RENDERER_LIB} PRIVATE project_warnings)
 
+find_package(glm)
+message(STATUS "GLM includes ${GLM_INCLUDE_DIRS}")
+message(STATUS "GLM libraries ${GLM_LIBRARY_DIRS}")
+target_include_directories(${RENDERER_LIB} PUBLIC ${GLM_INCLUDE_DIRS})
+
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
 set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "-extra-arg=-Wno-unknown-warning-option")
 set_property(TARGET ${RENDERER_LIB} PROPERTY CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")

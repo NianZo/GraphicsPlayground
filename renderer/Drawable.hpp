@@ -12,11 +12,19 @@
 #include "VertexBuffer.hpp"
 #include <array>
 #include <fstream>
+#include <glm/glm.hpp>
 #include <vector>
 #include <vulkan/vulkan.h>
 // #include <set>
 
 class VulkanRenderer;
+
+struct UniformBufferObject
+{
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
+};
 
 // Fill out from UI / load from file / store to file
 struct __attribute__((aligned(128))) GraphicsPipelineDescriptor
@@ -80,6 +88,7 @@ class Drawable
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
     VkFence inFlightFence;
+    UniformBufferObject ubo;
 
   private:
     VulkanRenderer& m_renderer;

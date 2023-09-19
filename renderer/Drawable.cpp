@@ -5,6 +5,7 @@
  *      Author: nic
  */
 
+#define GLM_FORCE_RADIANS // TODO (nic) this probably shouldn't go in this file
 #include "Buffer.hpp"
 #include "Drawable.hpp"
 #include "VulkanRenderer.hpp"
