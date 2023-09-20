@@ -16,7 +16,7 @@ IndexBuffer::IndexBuffer(VulkanRenderer& rendererIn, const std::vector<uint16_t>
 	buffer(rendererIn, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
 	renderer(rendererIn)
 {
-	Buffer tempBuffer(renderer, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	const Buffer tempBuffer(renderer, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 	// TODO (nic) this is a place that Vulkan and C++ butt heads
 	void* data = nullptr;

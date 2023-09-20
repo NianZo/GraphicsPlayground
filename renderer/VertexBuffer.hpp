@@ -10,6 +10,12 @@
 
 #include "Buffer.hpp"
 
+struct Vertex
+{
+	glm::vec2 pos;
+	glm::vec3 color;
+};
+
 class VertexBuffer
 {
 public:

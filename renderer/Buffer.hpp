@@ -9,16 +9,11 @@
 #define RENDERER_BUFFER_HPP_
 
 #include <array>
+#include <glm/glm.hpp>
 #include <vector>
 #include <vulkan/vulkan.h>
 
 class VulkanRenderer;
-
-struct Vertex
-{
-	std::array<float, 2> pos;
-	std::array<float, 3> color;
-};
 
 class Buffer
 {
