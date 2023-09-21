@@ -26,7 +26,8 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
 		m_renderer(renderer),
 		pipelineDescriptors(pipelineDescriptor),
 		vertexBuffer(renderer, pipelineDescriptor.vertexData),
-		indexBuffer(renderer, pipelineDescriptor.indexData)
+		indexBuffer(renderer, pipelineDescriptor.indexData),
+		uniformBuffer(renderer, sizeof(UniformBufferObject))
 {
     VkCommandBufferAllocateInfo commandBufferAI;
     commandBufferAI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -544,12 +545,32 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, const GraphicsPip
     auto scissorDynamicState = std::find(descriptor.dynamicStates.begin(), descriptor.dynamicStates.end(), VK_DYNAMIC_STATE_SCISSOR);
     viewportState.pScissors = scissorDynamicState == descriptor.dynamicStates.end() ? nullptr : descriptor.scissors.data();
 
+    // TODO (nic) move the descriptors someplace else
+    VkDescriptorSetLayoutBinding uboLayoutBinding;
+    uboLayoutBinding.binding = 0;
+    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboLayoutBinding.descriptorCount = 1;
+    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    uboLayoutBinding.pImmutableSamplers = nullptr;
+
+    VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCi;
+    descriptorSetLayoutCi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorSetLayoutCi.pNext = nullptr;
+    descriptorSetLayoutCi.flags = 0;
+    descriptorSetLayoutCi.bindingCount = 1;
+    descriptorSetLayoutCi.pBindings = &uboLayoutBinding;
+    result = vkCreateDescriptorSetLayout(device, &descriptorSetLayoutCi, nullptr, &descriptorSetLayout);
+    if (result != VK_SUCCESS)
+    {
+    	throw std::runtime_error("Failed to create descriptor set layout\n");
+    }
+
     VkPipelineLayoutCreateInfo pipelineLayoutCI;
     pipelineLayoutCI.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutCI.pNext = nullptr;
     pipelineLayoutCI.flags = 0;
-    pipelineLayoutCI.setLayoutCount = 0;
-    pipelineLayoutCI.pSetLayouts = nullptr;
+    pipelineLayoutCI.setLayoutCount = 1;
+    pipelineLayoutCI.pSetLayouts = &descriptorSetLayout;
     pipelineLayoutCI.pushConstantRangeCount = 0;
     pipelineLayoutCI.pPushConstantRanges = nullptr;
     result = vkCreatePipelineLayout(device, &pipelineLayoutCI, nullptr, &pipelineLayout);
@@ -614,6 +635,7 @@ GraphicsPipelineState::~GraphicsPipelineState()
     std::cout << "In GraphicsPipelineState destructor\n";
     vkDestroyShaderModule(m_device, vertShaderModule, nullptr);
     vkDestroyShaderModule(m_device, fragShaderModule, nullptr);
+    vkDestroyDescriptorSetLayout(m_device, descriptorSetLayout, nullptr);
     vkDestroyPipelineLayout(m_device, pipelineLayout, nullptr);
     vkDestroyRenderPass(m_device, renderPass, nullptr);
     vkDestroyPipeline(m_device, graphicsPipeline, nullptr);
@@ -622,6 +644,7 @@ GraphicsPipelineState::~GraphicsPipelineState()
 GraphicsPipelineState::GraphicsPipelineState(GraphicsPipelineState&& other) noexcept : m_device(other.m_device),
                                                                                        vertShaderModule(other.vertShaderModule),
                                                                                        fragShaderModule(other.fragShaderModule),
+																					   descriptorSetLayout(other.descriptorSetLayout),
                                                                                        pipelineLayout(other.pipelineLayout),
                                                                                        renderPass(other.renderPass),
                                                                                        graphicsPipeline(other.graphicsPipeline)

@@ -9,6 +9,7 @@
 #define RENDERER_DRAWABLE_HPP_
 
 #include "IndexBuffer.hpp"
+#include "UniformBuffer.hpp"
 #include "VertexBuffer.hpp"
 #include <array>
 #include <fstream>
@@ -66,6 +67,7 @@ struct __attribute__((aligned(64))) GraphicsPipelineState
     VkDevice& m_device;
     VkShaderModule vertShaderModule;
     VkShaderModule fragShaderModule;
+    VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;
     VkRenderPass renderPass;
     VkPipeline graphicsPipeline;
@@ -99,6 +101,8 @@ class Drawable
     std::vector<VkFramebuffer> framebuffers;
     VertexBuffer vertexBuffer;
     IndexBuffer indexBuffer;
+    // TODO (nic) need one uniformBuffer per frame in flight, unsure how to do this properly
+    UniformBuffer uniformBuffer;
 };
 
 #endif /* RENDERER_DRAWABLE_HPP_ */
