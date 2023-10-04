@@ -21,7 +21,7 @@ public:
 	Buffer(VulkanRenderer& rendererIn, size_t size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 	Buffer(const Buffer&) = delete;
 	Buffer& operator=(const Buffer&) = delete;
-	Buffer(Buffer&&) noexcept = default;
+	Buffer(Buffer&&) noexcept; // TODO (nic) this is causing the validation errors + segfaults. The VK structs need to be nullified in this
 	Buffer& operator=(Buffer&&) = delete;
 	~Buffer();
 

@@ -8,6 +8,7 @@
 #include "Buffer.hpp"
 #include "VulkanRenderer.hpp"
 #include <exception>
+#include <iostream>
 
 Buffer::Buffer(VulkanRenderer& rendererIn, size_t sizeIn, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties) :
 	renderer(rendererIn),
@@ -25,6 +26,7 @@ Buffer::Buffer(VulkanRenderer& rendererIn, size_t sizeIn, VkBufferUsageFlags usa
 	bufferCi.queueFamilyIndexCount = 0;
 	bufferCi.pQueueFamilyIndices = nullptr;
 
+	std::cout << "creating buffer\n";
 	VkResult result = vkCreateBuffer(renderer.device, &bufferCi, nullptr, &buffer);
 	if (result != VK_SUCCESS)
 	{
@@ -47,13 +49,24 @@ Buffer::Buffer(VulkanRenderer& rendererIn, size_t sizeIn, VkBufferUsageFlags usa
 
 	vkBindBufferMemory(renderer.device, buffer, bufferMemory, 0);
 
-
+	std::cout << "buffer construction succeeded\n";
 }
 
 Buffer::~Buffer()
 {
+	std::cout << "buffer destructor\n";
 	vkDestroyBuffer(renderer.device, buffer, nullptr);
 	vkFreeMemory(renderer.device, bufferMemory, nullptr);
+}
+
+Buffer::Buffer(Buffer&& other) noexcept :
+		renderer(other.renderer),
+		size(other.size),
+		buffer(other.buffer),
+		bufferMemory(other.bufferMemory)
+{
+	other.buffer = VK_NULL_HANDLE;
+	other.bufferMemory = VK_NULL_HANDLE;
 }
 
 void Buffer::copyTo(Buffer& other) const

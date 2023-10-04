@@ -52,6 +52,7 @@ class VulkanRenderer
     VkQueue combinedQueue;
 
     VkCommandPool commandPool;
+    VkDescriptorPool descriptorPool;
 
     std::vector<Scene> scenes;
     //std::vector<Drawable> drawables;

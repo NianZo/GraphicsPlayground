@@ -28,7 +28,7 @@ void Scene::render()
     std::ranges::for_each(drawables, [imageIndex](Drawable& drawable){drawable.Render(imageIndex);});
 
     //drawable.ExecuteCommandBuffer();
-    std::ranges::for_each(drawables, [](Drawable& drawable){drawable.ExecuteCommandBuffer();});
+    std::ranges::for_each(drawables, [imageIndex](Drawable& drawable){drawable.ExecuteCommandBuffer(imageIndex);});
 
     std::array<VkSemaphore, 1> signalSemaphores = {drawables[0].renderFinishedSemaphore}; // TODO (nic) this is a hack to use the first drawable
 

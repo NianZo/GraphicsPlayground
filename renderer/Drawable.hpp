@@ -19,6 +19,7 @@
 // #include <set>
 
 class VulkanRenderer;
+class Drawable;
 
 struct UniformBufferObject
 {
@@ -54,7 +55,7 @@ struct __attribute__((aligned(128))) GraphicsPipelineDescriptor
 // Build all objects using info from GraphicsPipelineDescriptor (and renderpass?)
 struct __attribute__((aligned(64))) GraphicsPipelineState
 {
-    GraphicsPipelineState(VkDevice& device, const GraphicsPipelineDescriptor& descriptor);
+    GraphicsPipelineState(VkDevice& device, VulkanRenderer& renderer, Drawable& drawable, const GraphicsPipelineDescriptor& descriptor);
     ~GraphicsPipelineState();
     GraphicsPipelineState(const GraphicsPipelineState&) = delete;
     GraphicsPipelineState& operator=(const GraphicsPipelineState&) = delete;
@@ -68,6 +69,7 @@ struct __attribute__((aligned(64))) GraphicsPipelineState
     VkShaderModule vertShaderModule;
     VkShaderModule fragShaderModule;
     VkDescriptorSetLayout descriptorSetLayout;
+    std::vector<VkDescriptorSet> descriptorSets;
     VkPipelineLayout pipelineLayout;
     VkRenderPass renderPass;
     VkPipeline graphicsPipeline;
@@ -83,7 +85,7 @@ class Drawable
     Drawable(Drawable&&) = default;
     Drawable& operator=(Drawable&&) = delete;
     void ClearWindow(VkImage& image);
-    void ExecuteCommandBuffer();
+    void ExecuteCommandBuffer(uint32_t imageIndex);
     //void RenderTriangle(uint32_t imageIndex);
     void Render(uint32_t imageIndex); // TODO (nic) this isn't actually rendering because the command buffer still needs exec'ed
 
@@ -91,6 +93,8 @@ class Drawable
     VkSemaphore renderFinishedSemaphore;
     VkFence inFlightFence;
     UniformBufferObject ubo;
+
+    std::vector<UniformBuffer> uniformBuffers;
 
   private:
     VulkanRenderer& m_renderer;
@@ -102,7 +106,7 @@ class Drawable
     VertexBuffer vertexBuffer;
     IndexBuffer indexBuffer;
     // TODO (nic) need one uniformBuffer per frame in flight, unsure how to do this properly
-    UniformBuffer uniformBuffer;
+
 };
 
 #endif /* RENDERER_DRAWABLE_HPP_ */

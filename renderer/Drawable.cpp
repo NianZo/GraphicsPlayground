@@ -11,8 +11,10 @@
 #include "VulkanRenderer.hpp"
 #include <algorithm>
 #include <array>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -26,8 +28,7 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
 		m_renderer(renderer),
 		pipelineDescriptors(pipelineDescriptor),
 		vertexBuffer(renderer, pipelineDescriptor.vertexData),
-		indexBuffer(renderer, pipelineDescriptor.indexData),
-		uniformBuffer(renderer, sizeof(UniformBufferObject))
+		indexBuffer(renderer, pipelineDescriptor.indexData)
 {
     VkCommandBufferAllocateInfo commandBufferAI;
     commandBufferAI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -69,8 +70,17 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
         throw std::runtime_error("Failed to create fence\n");
     }
 
+    for (uint32_t i = 0; i < m_renderer.display->surfaceCapabilities.minImageCount; i++)
+    {
+    	std::cout << "creating uniform buffer " << i << "\n";
+    	uniformBuffers.emplace_back(m_renderer, sizeof(UniformBufferObject));
+    }
+
+    std::cout << "in drawable constructor, about to construct pipelineStates\n";
     //pipelineDescriptors.emplace_back(descriptor);
-    pipelineStates.emplace_back(m_renderer.device, pipelineDescriptor);
+    pipelineStates.emplace_back(m_renderer.device, m_renderer, *this, pipelineDescriptor);
+
+
 }
 
 Drawable::~Drawable()
@@ -104,12 +114,24 @@ Drawable::~Drawable()
 //	return *this;
 //}
 
-void Drawable::ExecuteCommandBuffer()
+void Drawable::ExecuteCommandBuffer(uint32_t imageIndex)
 {
     // Should the queue execution happen in renderer instead of drawable?
     // Drawable should own fences and semaphores, but renderer owns the queues that this will be submitted to
     vkWaitForFences(m_renderer.device, 1, &inFlightFence, VK_TRUE, UINT64_MAX); // TODO(nic) use a Drawable owned fence instead
     vkResetFences(m_renderer.device, 1, &inFlightFence);
+
+    // TODO (nic) I highly doubt this should be here...
+    static auto startTime = std::chrono::high_resolution_clock::now();
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    const float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+    //UniformBufferObject ubo;
+    ubo.model = glm::rotate(glm::mat4(1.0F), time * glm::radians(90.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+    ubo.view = glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+    ubo.proj = glm::perspective(glm::radians(45.0F), static_cast<float>(m_renderer.display->swapchainExtent.width) / static_cast<float>(m_renderer.display->swapchainExtent.height), 0.1F, 10.0F);
+    ubo.proj[1][1] *= -1;
+    std::memcpy(uniformBuffers[imageIndex].data, &ubo, sizeof(UniformBufferObject));
+
 
     // Submit command buffer
     std::array<VkSemaphore, 1> waitSemaphores = {imageAvailableSemaphore}; // TODO(nic) use Drawable's instead
@@ -275,7 +297,7 @@ void Drawable::Render(uint32_t imageIndex)
 
 
 
-
+    std::cout << "Recording command buffer with image index " << imageIndex << "\n";
 
 
     vkResetCommandBuffer(commandBuffer, 0);
@@ -332,6 +354,7 @@ void Drawable::Render(uint32_t imageIndex)
 
     vkCmdSetScissor(commandBuffer, 0, 1, pipelineDescriptors.scissors.data());
 
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineStates[0].pipelineLayout, 0, 1, &pipelineStates[0].descriptorSets[imageIndex], 0, nullptr);
     //vkCmdDraw(commandBuffer, 3, 1, 0, 0);
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indexBuffer.count), 1, 0, 0, 0);
 
@@ -396,7 +419,8 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() : inputAssembly({}),
     rasterizer.polygonMode = VK_POLYGON_MODE_LINE;//VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0F;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    //rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
     rasterizer.depthBiasConstantFactor = 0.0F;
     rasterizer.depthBiasClamp = 0.0F;
@@ -450,7 +474,7 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() : inputAssembly({}),
 
 // clang-tidy doesn't understand that Vulkan initializes several of the class members
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, const GraphicsPipelineDescriptor& descriptor) : m_device(device)
+GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& renderer, Drawable& drawable, const GraphicsPipelineDescriptor& descriptor) : m_device(device)
 {
     std::cout << "In GraphicsPipelineState constructor\n";
     VkResult result = VK_SUCCESS;
@@ -565,6 +589,43 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, const GraphicsPip
     	throw std::runtime_error("Failed to create descriptor set layout\n");
     }
 
+    std::vector<VkDescriptorSetLayout> layouts (renderer.display->surfaceCapabilities.minImageCount, descriptorSetLayout);
+    VkDescriptorSetAllocateInfo descriptorSetAi;
+    descriptorSetAi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptorSetAi.pNext = nullptr;
+    descriptorSetAi.descriptorPool = renderer.descriptorPool;
+    descriptorSetAi.descriptorSetCount = static_cast<uint32_t>(layouts.size());
+    descriptorSetAi.pSetLayouts = layouts.data();
+    descriptorSets.resize(layouts.size());
+    result = vkAllocateDescriptorSets(device, &descriptorSetAi, descriptorSets.data());
+    if (result != VK_SUCCESS)
+    {
+    	throw std::runtime_error("Failed to allocate descriptor sets\n");
+    }
+
+    std::cout << "number of uniform buffers: " << drawable.uniformBuffers.size() << "\n";
+    for (uint32_t i = 0; i < descriptorSets.size(); i++)
+    {
+    	VkDescriptorBufferInfo bufferInfo;
+    	bufferInfo.buffer = drawable.uniformBuffers[i].buffer.buffer; // TODO (nic) the naming here is atrocious
+    	bufferInfo.offset = 0;
+    	bufferInfo.range = sizeof(UniformBufferObject);
+
+    	VkWriteDescriptorSet descriptorWrite;
+    	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    	descriptorWrite.pNext = nullptr;
+    	descriptorWrite.dstSet = descriptorSets[i];
+    	descriptorWrite.dstBinding = 0;
+    	descriptorWrite.dstArrayElement = 0;
+    	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    	descriptorWrite.descriptorCount = 1;
+    	descriptorWrite.pBufferInfo = &bufferInfo;
+    	descriptorWrite.pImageInfo = nullptr;
+    	descriptorWrite.pTexelBufferView = nullptr;
+    	vkUpdateDescriptorSets(renderer.device, 1, &descriptorWrite, 0 , nullptr);
+    	std::cout << "updated descriptor set " << i << "\n";
+    }
+
     VkPipelineLayoutCreateInfo pipelineLayoutCI;
     pipelineLayoutCI.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutCI.pNext = nullptr;
@@ -578,6 +639,7 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, const GraphicsPip
     {
         throw std::runtime_error("Failed to create pipeline layout\n");
     }
+    std::cout << "created pipeline layout\n";
 
     VkAttachmentReference colorAttachmentRef;
     colorAttachmentRef.attachment = 0;

@@ -20,7 +20,8 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32
                                                                                                                              device(VK_NULL_HANDLE),
                                                                                                                              combinedQueueFamily(FindCombinedQueueFamily(surface)),
                                                                                                                              combinedQueue(VK_NULL_HANDLE),
-                                                                                                                             commandPool(VK_NULL_HANDLE)
+                                                                                                                             commandPool(VK_NULL_HANDLE),
+																															 descriptorPool(VK_NULL_HANDLE)
 {
     std::array<float, 1> queuePriorities = {0.0F};
     VkDeviceQueueCreateInfo queueCI;
@@ -68,6 +69,23 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32
     display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
     //cameras.emplace_back(*this);
 
+    // TODO (nic) this is sized based on all the drawables in a scene. A scene should own this.
+    VkDescriptorPoolSize poolSize;
+    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSize.descriptorCount = display->surfaceCapabilities.minImageCount;
+
+    VkDescriptorPoolCreateInfo poolCi;
+    poolCi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolCi.pNext = nullptr;
+    poolCi.flags = 0;
+    poolCi.poolSizeCount = 1;
+    poolCi.pPoolSizes = &poolSize;
+    poolCi.maxSets = poolSize.descriptorCount;
+    result = vkCreateDescriptorPool(device, &poolCi, nullptr, &descriptorPool);
+    if (result != VK_SUCCESS)
+    {
+    	throw std::runtime_error("Failed to create descriptor pool\n");
+    }
 }
 
 VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(other.rendererBase),
@@ -77,12 +95,14 @@ VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(o
                                                                   combinedQueueFamily(other.combinedQueueFamily),
                                                                   combinedQueue(other.combinedQueue),
                                                                   commandPool(other.commandPool),
+																  descriptorPool(other.descriptorPool),
 																  scenes(std::move(other.scenes))
 
 {
     other.device = VK_NULL_HANDLE;
     other.combinedQueue = VK_NULL_HANDLE;
     other.commandPool = VK_NULL_HANDLE;
+    other.descriptorPool = VK_NULL_HANDLE;
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -91,7 +111,7 @@ VulkanRenderer::~VulkanRenderer()
     vkDeviceWaitIdle(device);
     display.reset();
     scenes.clear();
-
+    vkDestroyDescriptorPool(device, descriptorPool, nullptr);
     vkDestroyCommandPool(device, commandPool, nullptr);
     vkDestroyDevice(device, nullptr);
 }
