@@ -136,7 +136,7 @@ MainWindow::MainWindow() : ui(new Ui::Form),
 //    renderer->scenes[0].cameras.emplace_back(*renderer.get());
     //renderer->drawables.push_back(*renderer.get(), renderer->commandPool, descriptor);
     //renderer->Render(pipelineDescriptor);
-    renderer->scenes[0].render();
+    //renderer->scenes[0].render();
     // renderer->RenderTriangle();
     std::cout << "Finished MainWindow::MainWindow()\n";
 }
@@ -162,14 +162,15 @@ void MainWindow::resizeEvent([[maybe_unused]] QResizeEvent* event)
     {
         surface = QVulkanInstance::surfaceForWindow(m_window.get());
         //renderer->Resize(surface, ui->widget->size().width(), ui->widget->size().height());
+        m_windowWrapper->setMinimumSize(ui->widget->size());
+        m_windowWrapper->setMaximumSize(ui->widget->size());
         renderer.reset();
         createRenderer();
         //renderer->Render(pipelineDescriptor);
-        renderer->scenes[0].render();
+        //renderer->scenes[0].render();
         // renderer->RenderTriangle();
     }
-    m_windowWrapper->setMinimumSize(ui->widget->size());
-    m_windowWrapper->setMaximumSize(ui->widget->size());
+
 }
 
 void MainWindow::gpuComboBoxSelection(int index)
@@ -304,9 +305,24 @@ void MainWindow::createRenderer()
 	};
 	descriptor.indexData = indices;
 
-    renderer->scenes.emplace_back(*renderer.get());
-    renderer->scenes[0].drawables.emplace_back(*renderer.get(), renderer->commandPool, descriptor);
-    renderer->scenes[0].cameras.emplace_back(*renderer.get());
+	{
+		std::cout << "About to try taking renderMutex\n";
+		std::scoped_lock lock(renderer->renderMutex);
+		std::cout << "Took renderMutex\n";
+	    renderer->scenes.emplace_back(*renderer.get());
+	    renderer->scenes[0].cameras.emplace_back(*renderer.get());
+	    renderer->scenes[0].drawables.emplace_back(*renderer.get(), renderer->commandPool, descriptor);
+
+//	    for (uint32_t imageIndex = 0; imageIndex < renderer->display->surfaceCapabilities.minImageCount; imageIndex++)
+//	    {
+//	    	std::ranges::for_each(renderer->scenes[0].drawables, [imageIndex](Drawable& drawable){drawable.Render(imageIndex);});
+//	    }
+
+
+	    //renderer->scenes[0].drawables[0].render()
+	    std::cout << "Set up scene successfully\n";
+	}
+
 }
 
 // constexpr std::array<const char*, 55> VulkanPhysicalDeviceFeatureWrapper::featureNames =

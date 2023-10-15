@@ -80,17 +80,41 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
     //pipelineDescriptors.emplace_back(descriptor);
     pipelineStates.emplace_back(m_renderer.device, m_renderer, *this, pipelineDescriptor);
 
-
+    std::cout << "About to create framebuffers\n";
+    framebuffers.resize(m_renderer.scenes[0].cameras[0].image.imageViews.size());
+    for (size_t i = 0; i < m_renderer.scenes[0].cameras[0].image.imageViews.size(); i++)
+    {
+        std::array<VkImageView, 1> attachments = {m_renderer.scenes[0].cameras[0].image.imageViews[i]};
+        VkFramebufferCreateInfo framebufferCI;
+        framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferCI.pNext = nullptr;
+        framebufferCI.flags = 0;
+        framebufferCI.renderPass = pipelineStates[0].renderPass;
+        framebufferCI.attachmentCount = 1;
+        framebufferCI.pAttachments = attachments.data();
+        framebufferCI.width = m_renderer.display->swapchainExtent.width;
+        framebufferCI.height = m_renderer.display->swapchainExtent.height;
+        framebufferCI.layers = 1;
+        std::cout << "About to create framebuffer\n";
+        result = vkCreateFramebuffer(m_renderer.device, &framebufferCI, nullptr, &framebuffers[i]);
+        if (result != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create framebuffer");
+        }
+        std::cout << "Created framebuffer\n";
+    }
 }
 
 Drawable::~Drawable()
 {
+	std::cout << "Running Drawable destructor\n";
     vkDeviceWaitIdle(m_renderer.device);
     vkDestroySemaphore(m_renderer.device, imageAvailableSemaphore, nullptr);
     vkDestroySemaphore(m_renderer.device, renderFinishedSemaphore, nullptr);
     vkDestroyFence(m_renderer.device, inFlightFence, nullptr);
     for (VkFramebuffer& framebuffer : framebuffers)
     {
+    	std::cout << "Destroying framebuffer " << framebuffer << "\n";
         vkDestroyFramebuffer(m_renderer.device, framebuffer, nullptr);
     }
 }
@@ -114,23 +138,23 @@ Drawable::~Drawable()
 //	return *this;
 //}
 
-void Drawable::ExecuteCommandBuffer(uint32_t imageIndex)
+void Drawable::ExecuteCommandBuffer([[maybe_unused]]uint32_t imageIndex)
 {
     // Should the queue execution happen in renderer instead of drawable?
     // Drawable should own fences and semaphores, but renderer owns the queues that this will be submitted to
-    vkWaitForFences(m_renderer.device, 1, &inFlightFence, VK_TRUE, UINT64_MAX); // TODO(nic) use a Drawable owned fence instead
-    vkResetFences(m_renderer.device, 1, &inFlightFence);
+//    vkWaitForFences(m_renderer.device, 1, &inFlightFence, VK_TRUE, UINT64_MAX); // TODO(nic) use a Drawable owned fence instead
+//    vkResetFences(m_renderer.device, 1, &inFlightFence);
 
     // TODO (nic) I highly doubt this should be here...
-    static auto startTime = std::chrono::high_resolution_clock::now();
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    const float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-    //UniformBufferObject ubo;
-    ubo.model = glm::rotate(glm::mat4(1.0F), time * glm::radians(90.0F), glm::vec3(0.0F, 0.0F, 1.0F));
-    ubo.view = glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
-    ubo.proj = glm::perspective(glm::radians(45.0F), static_cast<float>(m_renderer.display->swapchainExtent.width) / static_cast<float>(m_renderer.display->swapchainExtent.height), 0.1F, 10.0F);
-    ubo.proj[1][1] *= -1;
-    std::memcpy(uniformBuffers[imageIndex].data, &ubo, sizeof(UniformBufferObject));
+//    static auto startTime = std::chrono::high_resolution_clock::now();
+//    auto currentTime = std::chrono::high_resolution_clock::now();
+//    const float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+//    //UniformBufferObject ubo;
+//    ubo.model = glm::rotate(glm::mat4(1.0F), time * glm::radians(90.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+//    ubo.view = glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+//    ubo.proj = glm::perspective(glm::radians(45.0F), static_cast<float>(m_renderer.display->swapchainExtent.width) / static_cast<float>(m_renderer.display->swapchainExtent.height), 0.1F, 10.0F);
+//    ubo.proj[1][1] *= -1;
+//    std::memcpy(uniformBuffers[imageIndex].data, &ubo, sizeof(UniformBufferObject));
 
 
     // Submit command buffer
@@ -156,60 +180,62 @@ void Drawable::ExecuteCommandBuffer(uint32_t imageIndex)
     }
 }
 
-void Drawable::ClearWindow(VkImage& image)
-{
-    vkResetCommandBuffer(commandBuffer, 0);
-    VkCommandBufferBeginInfo beginInfo;
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.pNext = nullptr;
-    beginInfo.flags = 0;
-    beginInfo.pInheritanceInfo = nullptr;
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+//void Drawable::ClearWindow(VkImage& image)
+//{
+//    vkResetCommandBuffer(commandBuffer, 0);
+//    VkCommandBufferBeginInfo beginInfo;
+//    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+//    beginInfo.pNext = nullptr;
+//    beginInfo.flags = 0;
+//    beginInfo.pInheritanceInfo = nullptr;
+//    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+//
+//    VkImageSubresourceRange subresourceRange;
+//    subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+//    subresourceRange.baseMipLevel = 0;
+//    subresourceRange.levelCount = 1;
+//    subresourceRange.baseArrayLayer = 0;
+//    subresourceRange.layerCount = 1;
+//
+//    // Move the image into the correct layout
+//    // No? just use clearcolorimage
+//    VkImageMemoryBarrier generalToClearBarrier;
+//    generalToClearBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+//    generalToClearBarrier.pNext = nullptr;
+//    generalToClearBarrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+//    generalToClearBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+//    generalToClearBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+//    generalToClearBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+//    generalToClearBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+//    generalToClearBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+//    generalToClearBarrier.image = image;
+//    generalToClearBarrier.subresourceRange = subresourceRange;
+//
+//    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &generalToClearBarrier);
+//    // VK_PIPELINE_STAGE_TRANSFER_BIT
+//    //  Use this for now to clear the image to a specific color
+//    const VkClearColorValue clearColor = {{0.42F, 1.0F, 0.46F, 1.0F}};
+//
+//    vkCmdClearColorImage(commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearColor, 1, &subresourceRange);
+//
+//    VkImageMemoryBarrier clearToPresentBarrier;
+//    clearToPresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+//    clearToPresentBarrier.pNext = nullptr;
+//    clearToPresentBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+//    clearToPresentBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+//    clearToPresentBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+//    clearToPresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+//    clearToPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+//    clearToPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+//    clearToPresentBarrier.image = image;
+//    clearToPresentBarrier.subresourceRange = subresourceRange;
+//
+//    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearToPresentBarrier);
+//
+//    vkEndCommandBuffer(commandBuffer);
+//}
 
-    VkImageSubresourceRange subresourceRange;
-    subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    subresourceRange.baseMipLevel = 0;
-    subresourceRange.levelCount = 1;
-    subresourceRange.baseArrayLayer = 0;
-    subresourceRange.layerCount = 1;
 
-    // Move the image into the correct layout
-    // No? just use clearcolorimage
-    VkImageMemoryBarrier generalToClearBarrier;
-    generalToClearBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    generalToClearBarrier.pNext = nullptr;
-    generalToClearBarrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-    generalToClearBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    generalToClearBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    generalToClearBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    generalToClearBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    generalToClearBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    generalToClearBarrier.image = image;
-    generalToClearBarrier.subresourceRange = subresourceRange;
-
-    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &generalToClearBarrier);
-    // VK_PIPELINE_STAGE_TRANSFER_BIT
-    //  Use this for now to clear the image to a specific color
-    const VkClearColorValue clearColor = {{0.42F, 1.0F, 0.46F, 1.0F}};
-
-    vkCmdClearColorImage(commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearColor, 1, &subresourceRange);
-
-    VkImageMemoryBarrier clearToPresentBarrier;
-    clearToPresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    clearToPresentBarrier.pNext = nullptr;
-    clearToPresentBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    clearToPresentBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-    clearToPresentBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    clearToPresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    clearToPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    clearToPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    clearToPresentBarrier.image = image;
-    clearToPresentBarrier.subresourceRange = subresourceRange;
-
-    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearToPresentBarrier);
-
-    vkEndCommandBuffer(commandBuffer);
-}
 //void Drawable::RenderTriangle(uint32_t imageIndex)
 //{
 //    VkResult result = VK_SUCCESS;
@@ -292,13 +318,14 @@ void Drawable::ClearWindow(VkImage& image)
 
 void Drawable::Render(uint32_t imageIndex)
 {
-    VkResult result = VK_SUCCESS;
+    //VkResult result = VK_SUCCESS;
 
 
 
 
     std::cout << "Recording command buffer with image index " << imageIndex << "\n";
-
+//    vkWaitForFences(m_renderer.device, 1, &inFlightFence, VK_TRUE, UINT64_MAX); // TODO(nic) use a Drawable owned fence instead
+//    vkResetFences(m_renderer.device, 1, &inFlightFence);
 
     vkResetCommandBuffer(commandBuffer, 0);
 
@@ -310,26 +337,28 @@ void Drawable::Render(uint32_t imageIndex)
     vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
     // std::vector<VkFramebuffer> framebuffers;
-    framebuffers.resize(m_renderer.scenes[0].cameras[0].image.imageViews.size());
-    for (size_t i = 0; i < m_renderer.scenes[0].cameras[0].image.imageViews.size(); i++)
-    {
-        std::array<VkImageView, 1> attachments = {m_renderer.scenes[0].cameras[0].image.imageViews[i]};
-        VkFramebufferCreateInfo framebufferCI;
-        framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferCI.pNext = nullptr;
-        framebufferCI.flags = 0;
-        framebufferCI.renderPass = pipelineStates[0].renderPass;
-        framebufferCI.attachmentCount = 1;
-        framebufferCI.pAttachments = attachments.data();
-        framebufferCI.width = m_renderer.display->swapchainExtent.width;
-        framebufferCI.height = m_renderer.display->swapchainExtent.height;
-        framebufferCI.layers = 1;
-        result = vkCreateFramebuffer(m_renderer.device, &framebufferCI, nullptr, &framebuffers[i]);
-        if (result != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create framebuffer");
-        }
-    }
+    //framebuffers.resize(m_renderer.scenes[0].cameras[0].image.imageViews.size());
+//    for (size_t i = 0; i < m_renderer.scenes[0].cameras[0].image.imageViews.size(); i++)
+//    {
+//        std::array<VkImageView, 1> attachments = {m_renderer.scenes[0].cameras[0].image.imageViews[imageIndex]};
+//        VkFramebufferCreateInfo framebufferCI;
+//        framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+//        framebufferCI.pNext = nullptr;
+//        framebufferCI.flags = 0;
+//        framebufferCI.renderPass = pipelineStates[0].renderPass;
+//        framebufferCI.attachmentCount = 1;
+//        framebufferCI.pAttachments = attachments.data();
+//        framebufferCI.width = m_renderer.display->swapchainExtent.width;
+//        framebufferCI.height = m_renderer.display->swapchainExtent.height;
+//        framebufferCI.layers = 1;
+//        std::cout << "About to create framebuffer\n";
+//        result = vkCreateFramebuffer(m_renderer.device, &framebufferCI, nullptr, &framebuffers[imageIndex]);
+//        if (result != VK_SUCCESS)
+//        {
+//            throw std::runtime_error("Failed to create framebuffer");
+//        }
+//        std::cout << "Created framebuffer\n";
+//    }
     // start renderpass, bind pipeline, set viewport/scissor, draw, end renderpass
     VkRenderPassBeginInfo renderPassBI;
     renderPassBI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -361,6 +390,7 @@ void Drawable::Render(uint32_t imageIndex)
     vkCmdEndRenderPass(commandBuffer);
 
     vkEndCommandBuffer(commandBuffer);
+    std::cout << "Finished recording command buffer\n";
 }
 
 std::vector<char> readFile(const std::string& filename)
@@ -665,6 +695,7 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     {
         throw std::runtime_error("Failed to create render pass\n");
     }
+    std::cout << "Created renderpass\n";
 
     VkGraphicsPipelineCreateInfo pipelineCI{};
     pipelineCI.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -690,6 +721,7 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     {
         throw std::runtime_error("Failed to create graphics pipeline\n");
     }
+    std::cout << "created graphics pipeline\n";
 }
 
 GraphicsPipelineState::~GraphicsPipelineState()

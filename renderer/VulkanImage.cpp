@@ -9,6 +9,11 @@
 #include "VulkanDisplay.hpp"
 #include "VulkanRenderer.hpp"
 
+//VulkanImage::VulkanImage(VulkanRenderer& renderer, VkExtent2D extent, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
+//{
+//
+//}
+
 VulkanImage::VulkanImage(VulkanRenderer& rendererIn) : renderer(rendererIn)
 {
     uint32_t imageCount = 0;

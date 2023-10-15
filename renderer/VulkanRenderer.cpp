@@ -10,10 +10,14 @@
 #include "VulkanDisplay.hpp"
 #include <algorithm>
 #include <array>
+#include <cstring>
 #include <fstream>
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+
+void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer);
 
 VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32_t index, uint32_t width, uint32_t height) : rendererBase(base),
                                                                                                                              gpu(base.physicalDevices[index]),
@@ -86,6 +90,9 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32
     {
     	throw std::runtime_error("Failed to create descriptor pool\n");
     }
+    // TODO (nic) std::mutex, std::scoped_lock, std::stop_source, std::stop_token
+
+    renderThread = std::jthread(renderLoop, std::ref(*this));
 }
 
 VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(other.rendererBase),
@@ -107,10 +114,15 @@ VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(o
 
 VulkanRenderer::~VulkanRenderer()
 {
+	std::cout << "Started Renderer destructor\n";
+	renderThread.request_stop();
+	renderThread.join();
+	std::cout << "Successfully joined renderThread\n";
     // delete display;
     vkDeviceWaitIdle(device);
-    display.reset();
+
     scenes.clear();
+    display.reset();
     vkDestroyDescriptorPool(device, descriptorPool, nullptr);
     vkDestroyCommandPool(device, commandPool, nullptr);
     vkDestroyDevice(device, nullptr);
@@ -204,8 +216,53 @@ void VulkanRenderer::Render()
 
 void VulkanRenderer::Resize(VkSurfaceKHR surface, [[maybe_unused]] uint32_t width, [[maybe_unused]] uint32_t height)
 {
+	std::scoped_lock lock(renderMutex);
     vkDeviceWaitIdle(device);
     display.reset();
 
     display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
+
+//    std::ranges::for_each(scenes, [this](Scene& scene)
+//    		{
+//    			std::ranges::for_each(scene.cameras, [this](Camera& camera){camera = std::move(Camera(*this));});
+//    		});
+    std::cout << "Finished resize\n";
+}
+
+void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer)
+{
+	while (!stopToken.stop_requested())
+	{
+		std::cout << "Render loop " << "\n";
+		{
+			std::scoped_lock lock(renderer.renderMutex);
+			std::cout << "Acquired renderMutex\n";
+			if (!renderer.scenes.empty())
+			{
+			    vkWaitForFences(renderer.device, 1, &renderer.scenes[0].drawables[0].inFlightFence, VK_TRUE, UINT64_MAX); // TODO(nic) use a Drawable owned fence instead
+			    vkResetFences(renderer.device, 1, &renderer.scenes[0].drawables[0].inFlightFence); // TODO (nic) the fence shouldn't be owned by the drawable I think
+				uint32_t imageIndex;
+				vkAcquireNextImageKHR(renderer.device, renderer.display->swapchain, UINT64_MAX, renderer.scenes[0].drawables[0].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex); // TODO (nic) this is a hack to use the first drawable
+			    static auto startTime = std::chrono::high_resolution_clock::now();
+			    auto currentTime = std::chrono::high_resolution_clock::now();
+			    const float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+			    //UniformBufferObject ubo;
+			    UniformBufferObject& ubo = renderer.scenes[0].drawables[0].ubo;
+			    ubo.model = glm::rotate(glm::mat4(1.0F), time * glm::radians(90.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+			    ubo.view = glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+			    ubo.proj = glm::perspective(glm::radians(45.0F), static_cast<float>(renderer.display->swapchainExtent.width) / static_cast<float>(renderer.display->swapchainExtent.height), 0.1F, 10.0F);
+			    ubo.proj[1][1] *= -1;
+			    std::memcpy(renderer.scenes[0].drawables[0].uniformBuffers[imageIndex].data, &ubo, sizeof(UniformBufferObject));
+
+				if (!renderer.scenes[0].render(imageIndex))
+				{
+					// Render could not complete, stop attempting render
+					break;
+				}
+			}
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(16));
+	}
+	std::cout << "Ending renderLoop thread\n";
 }

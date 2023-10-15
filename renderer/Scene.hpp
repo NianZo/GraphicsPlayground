@@ -18,7 +18,7 @@ class Scene
 {
 public:
 	explicit Scene(VulkanRenderer& renderer);
-	void render();
+	bool render(uint32_t imageIndex);
 
 	VulkanRenderer& renderer;
 	std::vector<Camera> cameras;

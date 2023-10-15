@@ -13,7 +13,9 @@
 #include "Camera.hpp"
 #include "Drawable.hpp"
 #include "Scene.hpp"
+#include <thread>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 #include <vulkan/vulkan.h>
@@ -55,6 +57,9 @@ class VulkanRenderer
     VkDescriptorPool descriptorPool;
 
     std::vector<Scene> scenes;
+
+    std::jthread renderThread;
+    std::mutex renderMutex;
     //std::vector<Drawable> drawables;
     //std::vector<Camera> cameras;
     //Camera camera;
@@ -62,7 +67,10 @@ class VulkanRenderer
   private:
     std::vector<const char*> deviceExtensionNames =
         {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME
+        };
+
+    //static void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer);
 };
 
 #endif /* RENDERER_VULKANRENDERER_HPP_ */
