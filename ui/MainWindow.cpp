@@ -293,18 +293,63 @@ void MainWindow::createRenderer()
     descriptor.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     descriptor.colorAttachment.format = renderer->display->swapchainImageFormat;
 
+//	const std::vector<Vertex> vertices = {
+//			{{-0.5F, -0.5F, 0.0F}, {0.0F, 0.0F, 0.0F}},
+//			{{0.5F, -0.5F, 0.0F}, {0.0F, 1.0F, 0.0F}},
+//			{{0.5F, 0.5F, 0.0F}, {1.0F, 1.0F, 0.0F}},
+//			{{-0.5F, 0.5F, 0.0F}, {1.0F, 0.0F, 0.0F}}
+//	};
+//
+//	descriptor.vertexData = vertices;
+//	const std::vector<uint16_t> indices = {
+//			0, 1, 2, 2, 3, 0
+//	};
+//	descriptor.indexData = indices;
+
+//	const std::vector<Vertex> vertices = {
+//			{{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}},
+//			{{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}},
+//			{{-0.5F, 0.5F, -0.5F}, {0.0F, 1.0F, 0.0F}},
+//			{{-0.5F, 0.5F, 0.5F}, {0.0F, 1.0F, 1.0F}},
+//			{{0.5F, -0.5F, -0.5F}, {1.0F, 0.0F, 0.0F}},
+//			{{0.5F, -0.5F, 0.5F}, {1.0F, 0.0F, 1.0F}},
+//			{{0.5F, 0.5F, -0.5F}, {1.0F, 1.0F, 0.0F}},
+//			{{0.5F, 0.5F, 0.5F}, {1.0F, 1.0F, 1.0F}},
+//	};
+//
+//	const std::vector<uint16_t> indices =  {
+//			0, 1, 2,
+//			3, 2, 1,
+//			1, 5, 3,
+//			7, 3, 5,
+//			5, 4, 7,
+//			6, 7, 4,
+//			4, 0, 6,
+//			2, 6, 0,
+//			0, 4, 1,
+//			5, 1, 4,
+//			2, 3, 6,
+//			7, 6, 3
+//	};
+
 	const std::vector<Vertex> vertices = {
-			{{-0.5F, -0.5F}, {0.0F, 0.0F, 0.0F}},
-			{{0.5F, -0.5F}, {0.0F, 1.0F, 0.0F}},
-			{{0.5F, 0.5F}, {1.0F, 1.0F, 0.0F}},
-			{{-0.5F, 0.5F}, {1.0F, 0.0F, 0.0F}}
+	    {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+	    {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+	    {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+	    {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}},
+
+	    {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+	    {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+	    {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}},
+	    {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}}
+	};
+
+	const std::vector<uint16_t> indices = {
+	    0, 1, 2, 2, 3, 0,
+	    4, 5, 6, 6, 7, 4
 	};
 	descriptor.vertexData = vertices;
-	const std::vector<uint16_t> indices = {
-			0, 1, 2, 2, 3, 0
-	};
 	descriptor.indexData = indices;
-
 	{
 		std::cout << "About to try taking renderMutex\n";
 		std::scoped_lock lock(renderer->renderMutex);

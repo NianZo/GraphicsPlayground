@@ -564,7 +564,7 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     std::array<VkVertexInputAttributeDescription, 2> vertexAttributes {};
     vertexAttributes[0].location = 0;
     vertexAttributes[0].binding = 0;
-    vertexAttributes[0].format = VK_FORMAT_R32G32_SFLOAT;
+    vertexAttributes[0].format = VK_FORMAT_R32G32B32_SFLOAT;
     vertexAttributes[0].offset = offsetof(Vertex, pos);
 
     vertexAttributes[1].location = 1;
