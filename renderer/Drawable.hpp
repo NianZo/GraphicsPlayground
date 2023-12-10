@@ -11,6 +11,7 @@
 #include "IndexBuffer.hpp"
 #include "UniformBuffer.hpp"
 #include "VertexBuffer.hpp"
+#include "VulkanImage.hpp"
 #include <array>
 #include <fstream>
 #include <glm/glm.hpp>
@@ -43,11 +44,13 @@ struct __attribute__((aligned(128))) GraphicsPipelineDescriptor
     std::vector<VkRect2D> scissors;
     VkPipelineRasterizationStateCreateInfo rasterizer;
     VkPipelineMultisampleStateCreateInfo multisampling;
+    VkPipelineDepthStencilStateCreateInfo depthStencil;
     // depth and stencil state to be added later
     std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachments;
     VkPipelineColorBlendStateCreateInfo colorBlending;
     // VkPipelineLayoutCreateInfo pipelineLayoutCI; // Define setLayouts and pushConstantRanges instead of this
     VkAttachmentDescription colorAttachment;
+    VkAttachmentDescription depthAttachment;
     std::vector<Vertex> vertexData;
     std::vector<uint16_t> indexData;
 };
@@ -99,12 +102,14 @@ class Drawable
   private:
     VulkanRenderer& m_renderer;
     VkCommandBuffer commandBuffer;
+
     //std::vector<GraphicsPipelineDescriptor> pipelineDescriptors; // TODO (nic) use a vector eventually
     GraphicsPipelineDescriptor pipelineDescriptors;
     std::vector<GraphicsPipelineState> pipelineStates;
     std::vector<VkFramebuffer> framebuffers;
     VertexBuffer vertexBuffer;
     IndexBuffer indexBuffer;
+    VulkanImage depthImage;
     // TODO (nic) need one uniformBuffer per frame in flight, unsure how to do this properly
 
 };

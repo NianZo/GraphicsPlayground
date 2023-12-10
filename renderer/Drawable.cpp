@@ -28,7 +28,8 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
 		m_renderer(renderer),
 		pipelineDescriptors(pipelineDescriptor),
 		vertexBuffer(renderer, pipelineDescriptor.vertexData),
-		indexBuffer(renderer, pipelineDescriptor.indexData)
+		indexBuffer(renderer, pipelineDescriptor.indexData),
+		depthImage(renderer, renderer.display->swapchainExtent, VulkanImage::findDepthFormat(renderer.gpu.physicalDevice), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
 {
     VkCommandBufferAllocateInfo commandBufferAI;
     commandBufferAI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -84,13 +85,13 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
     framebuffers.resize(m_renderer.scenes[0].cameras[0].image.imageViews.size());
     for (size_t i = 0; i < m_renderer.scenes[0].cameras[0].image.imageViews.size(); i++)
     {
-        std::array<VkImageView, 1> attachments = {m_renderer.scenes[0].cameras[0].image.imageViews[i]};
+        std::array<VkImageView, 2> attachments = {m_renderer.scenes[0].cameras[0].image.imageViews[i], depthImage.imageViews[0]};
         VkFramebufferCreateInfo framebufferCI;
         framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferCI.pNext = nullptr;
         framebufferCI.flags = 0;
         framebufferCI.renderPass = pipelineStates[0].renderPass;
-        framebufferCI.attachmentCount = 1;
+        framebufferCI.attachmentCount = attachments.size();
         framebufferCI.pAttachments = attachments.data();
         framebufferCI.width = m_renderer.display->swapchainExtent.width;
         framebufferCI.height = m_renderer.display->swapchainExtent.height;
@@ -367,9 +368,11 @@ void Drawable::Render(uint32_t imageIndex)
     renderPassBI.framebuffer = framebuffers[imageIndex];
     renderPassBI.renderArea.offset = {0, 0};
     renderPassBI.renderArea.extent = m_renderer.display->swapchainExtent;
-    const VkClearValue clearColor = {{{0.0F, 0.0F, 0.0F, 1.0F}}};
-    renderPassBI.clearValueCount = 1;
-    renderPassBI.pClearValues = &clearColor;
+    std::array<VkClearValue, 2> clearColors;
+    clearColors[0].color = {{0.0F, 0.0F, 0.0F, 1.0F}};
+    clearColors[1].depthStencil = {1.0F, 0};
+    renderPassBI.clearValueCount = clearColors.size();
+    renderPassBI.pClearValues = clearColors.data();
     vkCmdBeginRenderPass(commandBuffer, &renderPassBI, VK_SUBPASS_CONTENTS_INLINE);
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineStates[0].graphicsPipeline);
@@ -415,7 +418,8 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() : inputAssembly({}),
                                                            rasterizer({}),
                                                            multisampling({}),
                                                            colorBlending({}),
-                                                           colorAttachment({})
+                                                           colorAttachment({}),
+														   depthAttachment({})
 {
     // Fill out structures with reasonable defaults for creating a graphics pipeline
 
@@ -466,6 +470,19 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() : inputAssembly({}),
     multisampling.alphaToCoverageEnable = VK_FALSE;
     multisampling.alphaToOneEnable = VK_FALSE;
 
+    depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencil.pNext = nullptr;
+    depthStencil.flags = 0;
+    depthStencil.depthTestEnable = VK_TRUE;
+    depthStencil.depthWriteEnable = VK_TRUE;
+    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+    depthStencil.depthBoundsTestEnable = VK_FALSE;
+    depthStencil.minDepthBounds = 0.0F;
+    depthStencil.maxDepthBounds = 1.0F;
+    depthStencil.stencilTestEnable = VK_FALSE;
+    depthStencil.front = {};
+    depthStencil.back = {};
+
     // depth and stencil state to be added later
     VkPipelineColorBlendAttachmentState colorBlendAttachment;
     // NOLINTNEXTLINE(hicpp-signed-bitwise)
@@ -500,6 +517,16 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() : inputAssembly({}),
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    depthAttachment.flags = 0;
+    depthAttachment.format = VK_FORMAT_UNDEFINED;
+    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 }
 
 // clang-tidy doesn't understand that Vulkan initializes several of the class members
@@ -675,19 +702,33 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+    VkAttachmentReference depthAttachmentRef;
+    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
     VkSubpassDescription subpass{}; // zero initialize - this is a big structure
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
+    VkSubpassDependency dependency{};
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    dependency.srcAccessMask = 0;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+    std::array<VkAttachmentDescription, 2> attachments = {descriptor.colorAttachment, descriptor.depthAttachment};
     VkRenderPassCreateInfo renderPassCI;
     renderPassCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassCI.pNext = nullptr;
     renderPassCI.flags = 0;
-    renderPassCI.dependencyCount = 0;
-    renderPassCI.pDependencies = nullptr;
-    renderPassCI.attachmentCount = 1;
-    renderPassCI.pAttachments = &descriptor.colorAttachment;
+    renderPassCI.dependencyCount = 1;
+    renderPassCI.pDependencies = &dependency;
+    renderPassCI.attachmentCount = attachments.size();
+    renderPassCI.pAttachments = attachments.data();
     renderPassCI.subpassCount = 1;
     renderPassCI.pSubpasses = &subpass;
     result = vkCreateRenderPass(device, &renderPassCI, nullptr, &renderPass);
@@ -708,7 +749,7 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     pipelineCI.pViewportState = &viewportState;
     pipelineCI.pRasterizationState = &descriptor.rasterizer;
     pipelineCI.pMultisampleState = &descriptor.multisampling;
-    pipelineCI.pDepthStencilState = nullptr;
+    pipelineCI.pDepthStencilState = &descriptor.depthStencil;
     pipelineCI.pColorBlendState = &descriptor.colorBlending;
     pipelineCI.pDynamicState = &dynamicState;
     pipelineCI.layout = pipelineLayout;

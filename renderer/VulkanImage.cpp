@@ -25,6 +25,7 @@ VulkanImage::VulkanImage(VulkanRenderer& rendererIn, VkExtent2D extent, VkFormat
 	imageCi.arrayLayers = 1;
 	imageCi.format = format;
 	imageCi.tiling = VK_IMAGE_TILING_OPTIMAL;
+	imageCi.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	imageCi.usage = usage;
 	imageCi.samples = VK_SAMPLE_COUNT_1_BIT;
 	imageCi.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -37,6 +38,7 @@ VulkanImage::VulkanImage(VulkanRenderer& rendererIn, VkExtent2D extent, VkFormat
 	VkMemoryRequirements memRequirements;
 	vkGetImageMemoryRequirements(renderer.device, images[0], &memRequirements);
 
+	imageMemory.resize(1);
 	VkMemoryAllocateInfo allocInfo;
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.pNext = nullptr;
@@ -136,6 +138,41 @@ VulkanImage::~VulkanImage()
     //	{
     //		vkDestroyImage(m_display.m_renderer->device, image, nullptr);
     //	}
+}
+
+VkFormat VulkanImage::findSupportedFormat(VkPhysicalDevice physicalDevice, const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+{
+	for (const VkFormat& format : candidates)
+	{
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
+
+		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+		{
+			return format;
+		}
+		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
+		{
+			return format;
+		}
+	}
+
+	throw std::runtime_error("Failed to find supported format\n");
+}
+
+VkFormat VulkanImage::findDepthFormat(VkPhysicalDevice physicalDevice)
+{
+	return findSupportedFormat(
+		physicalDevice,
+		{VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+		VK_IMAGE_TILING_OPTIMAL,
+		VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+	);
+}
+
+bool VulkanImage::hasStencilComponent(VkFormat format)
+{
+	return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
 uint32_t VulkanImage::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)

@@ -29,8 +29,12 @@ class VulkanImage
 
     VulkanRenderer& renderer;
 
+    static VkFormat findSupportedFormat(VkPhysicalDevice physicalDevice, const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+    static VkFormat findDepthFormat(VkPhysicalDevice physicalDevice);
+
   private:
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+    static bool hasStencilComponent(VkFormat format);
 };
 
 #endif /* RENDERER_VULKANIMAGE_HPP_ */

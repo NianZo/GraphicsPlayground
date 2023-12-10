@@ -292,6 +292,7 @@ void MainWindow::createRenderer()
     descriptor.scissors[0].extent = renderer->display->swapchainExtent;
     descriptor.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     descriptor.colorAttachment.format = renderer->display->swapchainImageFormat;
+    descriptor.depthAttachment.format = VulkanImage::findDepthFormat(renderer->gpu.physicalDevice);
 
 //	const std::vector<Vertex> vertices = {
 //			{{-0.5F, -0.5F, 0.0F}, {0.0F, 0.0F, 0.0F}},
