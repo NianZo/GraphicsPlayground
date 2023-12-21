@@ -283,6 +283,7 @@ void MainWindow::createRenderer()
     	descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
     }
 
+    // TODO (nic) I don't want the user to have to set the extents (unless they need to) so for a fullscreen render these shouldn't be dynamic states set here
     descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
     descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
 

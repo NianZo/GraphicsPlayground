@@ -49,7 +49,7 @@ struct __attribute__((aligned(128))) GraphicsPipelineDescriptor
     std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachments;
     VkPipelineColorBlendStateCreateInfo colorBlending;
     // VkPipelineLayoutCreateInfo pipelineLayoutCI; // Define setLayouts and pushConstantRanges instead of this
-    VkAttachmentDescription colorAttachment;
+    VkAttachmentDescription colorAttachment; // TODO (nic) should these be exposed here? These should be handled internally based on the camera used for rendering
     VkAttachmentDescription depthAttachment;
     std::vector<Vertex> vertexData;
     std::vector<uint16_t> indexData;
