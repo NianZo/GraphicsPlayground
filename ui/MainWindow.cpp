@@ -291,7 +291,10 @@ void MainWindow::createRenderer()
     descriptor.viewports[0].height = static_cast<float>(renderer->display->swapchainExtent.height);
 
     descriptor.scissors[0].extent = renderer->display->swapchainExtent;
+
     descriptor.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+
+    // TODO (nic) The user shouldn't need to set these (or be able to?) These depend on what is being rendered to, so should be populated based on the camera used
     descriptor.colorAttachment.format = renderer->display->swapchainImageFormat;
     descriptor.depthAttachment.format = VulkanImage::findDepthFormat(renderer->gpu.physicalDevice);
 
