@@ -27,7 +27,9 @@ class VulkanImage
     std::vector<VkImageView> imageViews;
     std::vector<VkDeviceMemory> imageMemory;
 
+
     VulkanRenderer& renderer;
+    bool isDisplayImage;
 
     static VkFormat findSupportedFormat(VkPhysicalDevice physicalDevice, const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
     static VkFormat findDepthFormat(VkPhysicalDevice physicalDevice);

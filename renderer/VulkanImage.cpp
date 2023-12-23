@@ -10,7 +10,8 @@
 #include "VulkanRenderer.hpp"
 
 VulkanImage::VulkanImage(VulkanRenderer& rendererIn, VkExtent2D extent, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties) :
-	renderer(rendererIn)
+	renderer(rendererIn),
+	isDisplayImage(false)
 {
 	images.resize(1);
 	VkImageCreateInfo imageCi;
@@ -76,7 +77,8 @@ VulkanImage::VulkanImage(VulkanRenderer& rendererIn, VkExtent2D extent, VkFormat
     }
 }
 
-VulkanImage::VulkanImage(VulkanRenderer& rendererIn) : renderer(rendererIn)
+VulkanImage::VulkanImage(VulkanRenderer& rendererIn) : renderer(rendererIn),
+													   isDisplayImage(true)
 {
     uint32_t imageCount = 0;
     vkGetSwapchainImagesKHR(renderer.device, renderer.display->swapchain, &imageCount, nullptr);
@@ -111,7 +113,8 @@ VulkanImage::VulkanImage(VulkanRenderer& rendererIn) : renderer(rendererIn)
     }
 }
 
-VulkanImage::VulkanImage(VulkanImage&& other) noexcept : renderer(other.renderer)
+VulkanImage::VulkanImage(VulkanImage&& other) noexcept : renderer(other.renderer),
+														 isDisplayImage(other.isDisplayImage)
 {
     for (VkImage& image : other.images)
     {
@@ -124,6 +127,12 @@ VulkanImage::VulkanImage(VulkanImage&& other) noexcept : renderer(other.renderer
         imageViews.push_back(imageView);
         imageView = VK_NULL_HANDLE;
     }
+
+    for (VkDeviceMemory& memory : other.imageMemory)
+    {
+    	imageMemory.push_back(memory);
+    	memory = VK_NULL_HANDLE;
+    }
 }
 
 VulkanImage::~VulkanImage()
@@ -133,11 +142,20 @@ VulkanImage::~VulkanImage()
         vkDestroyImageView(renderer.device, imageView, nullptr);
     }
 
+    if (!isDisplayImage)
+    {
+       	for (VkImage& image : images)
+       	{
+       		vkDestroyImage(renderer.device, image, nullptr);
+       	}
+
+       	for (VkDeviceMemory& memory : imageMemory)
+       	{
+       		vkFreeMemory(renderer.device, memory, nullptr);
+       	}
+    }
     // Images from swapchain are destroyed when swapchain is destroyed, do not destroy them manually
-    //	for (VkImage& image : images)
-    //	{
-    //		vkDestroyImage(m_display.m_renderer->device, image, nullptr);
-    //	}
+
 }
 
 VkFormat VulkanImage::findSupportedFormat(VkPhysicalDevice physicalDevice, const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
@@ -151,7 +169,7 @@ VkFormat VulkanImage::findSupportedFormat(VkPhysicalDevice physicalDevice, const
 		{
 			return format;
 		}
-		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
+		if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
 		{
 			return format;
 		}
