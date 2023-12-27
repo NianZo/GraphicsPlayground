@@ -9,40 +9,60 @@
 
 #include "VulkanRenderer.hpp"
 
+#include <optional>
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 //extern int g_argc;
 extern char** g_argv;
 
+std::optional<std::reference_wrapper<PhysicalDeviceDescriptor>> getValidPhysicalDevice(RendererBase& base)
+{
+	for (PhysicalDeviceDescriptor& gpuDescriptor : base.physicalDevices)
+	{
+		if (gpuDescriptor.properties.vendorID != 0)
+		{
+			return std::make_optional(std::ref(gpuDescriptor));
+		}
+	}
+	return std::nullopt;
+}
+
+TEST(RenderTestBasic, CreateRendererBase)
+{
+	std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(g_argv[0])).parent_path();
+	RendererBase rendererBase(pwd, "RenderTestBasic");
+	ASSERT_NE(rendererBase.physicalDevices.size(), 0);
+
+	// Verify that the structures describing the physical devices are filled out for at least one valid GPU
+	// Ignore GPUs with vendorID 0 since it can't be used
+	bool validGPUFound = false;
+	for (const PhysicalDeviceDescriptor& gpuDescriptor : rendererBase.physicalDevices)
+	{
+		if (gpuDescriptor.properties.vendorID != 0)
+		{
+			validGPUFound = true;
+			EXPECT_EQ(gpuDescriptor.features.geometryShader, VK_TRUE);
+			EXPECT_NE(gpuDescriptor.properties.apiVersion, 0);
+			EXPECT_NE(gpuDescriptor.memoryProperties.memoryTypeCount, 0);
+			EXPECT_NE(gpuDescriptor.memoryProperties.memoryHeapCount, 0);
+		}
+	}
+	EXPECT_TRUE(validGPUFound);
+}
+
 TEST(RenderTestBasic, CreateRenderer)
 {
 	{
 		std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(g_argv[0])).parent_path();
 		RendererBase rendererBase(pwd, "RenderTestBasic");
-		//VulkanRenderer2 renderer("RenderTestBasic");
-		EXPECT_NE(rendererBase.physicalDevices.size(), 0);
+		ASSERT_NE(rendererBase.physicalDevices.size(), 0);
 
-		// Verify that the structures describing the physical devices are filled out for at least one valid gpu
-		// Can't verify for all because I have a 'null'? gpu with vendor id 0 and no features
-		bool validGPUFound = false;
-		uint32_t gpuIndex = 1;
-		for (const PhysicalDeviceDescriptor& gpuDescriptor : rendererBase.physicalDevices)
-		{
-			if (gpuDescriptor.properties.vendorID != 0)
-			{
-				validGPUFound = true;
-				//gpuIndex =
-				EXPECT_EQ(gpuDescriptor.features.geometryShader, VK_TRUE);
-				EXPECT_NE(gpuDescriptor.properties.apiVersion, 0);
-				EXPECT_NE(gpuDescriptor.memoryProperties.memoryTypeCount, 0);
-				EXPECT_NE(gpuDescriptor.memoryProperties.memoryHeapCount, 0);
-			}
-		}
-		EXPECT_TRUE(validGPUFound);
+		auto gpuDescriptor = getValidPhysicalDevice(rendererBase);
+		ASSERT_TRUE(gpuDescriptor);
 
-	    VulkanRenderer renderer(rendererBase, rendererBase.physicalDevices[gpuIndex]);
-
+	    VulkanRenderer renderer(rendererBase, gpuDescriptor.value());
 	}
 }
 
@@ -51,26 +71,10 @@ TEST(RenderTestBasic, RendererWithSurface)
 	{
 		std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(g_argv[0])).parent_path();
 		RendererBase rendererBase(pwd, "RenderTestBasic");
-		//VulkanRenderer2 renderer("RenderTestBasic");
 		ASSERT_NE(rendererBase.physicalDevices.size(), 0);
 
-		// Verify that the structures describing the physical devices are filled out for at least one valid gpu
-		// Can't verify for all because I have a 'null'? gpu with vendor id 0 and no features
-		bool validGPUFound = false;
-		uint32_t gpuIndex = 1;
-		for (const PhysicalDeviceDescriptor& gpuDescriptor : rendererBase.physicalDevices)
-		{
-			if (gpuDescriptor.properties.vendorID != 0)
-			{
-				validGPUFound = true;
-				//gpuIndex =
-				EXPECT_EQ(gpuDescriptor.features.geometryShader, VK_TRUE);
-				EXPECT_NE(gpuDescriptor.properties.apiVersion, 0);
-				EXPECT_NE(gpuDescriptor.memoryProperties.memoryTypeCount, 0);
-				EXPECT_NE(gpuDescriptor.memoryProperties.memoryHeapCount, 0);
-			}
-		}
-		EXPECT_TRUE(validGPUFound);
+		auto gpuDescriptor = getValidPhysicalDevice(rendererBase);
+		ASSERT_TRUE(gpuDescriptor);
 
 	    glfwInit();
 	    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -81,7 +85,7 @@ TEST(RenderTestBasic, RendererWithSurface)
 	    }
 
 	    {
-	    	VulkanRenderer renderer(rendererBase, surface, gpuIndex, 800, 600);
+	    	VulkanRenderer renderer(rendererBase, surface, gpuDescriptor.value(), 800, 600);
 	    }
 	    vkDestroySurfaceKHR(rendererBase.instance, surface, nullptr);
 	}

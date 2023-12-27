@@ -19,8 +19,8 @@
 
 void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer);
 
-VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32_t index, uint32_t width, uint32_t height) : rendererBase(base),
-                                                                                                                             gpu(base.physicalDevices[index]),
+VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, PhysicalDeviceDescriptor& physicalDevice, uint32_t width, uint32_t height) : rendererBase(base),
+                                                                                                                             gpu(physicalDevice),
                                                                                                                              device(VK_NULL_HANDLE),
                                                                                                                              combinedQueueFamily(FindCombinedQueueFamily(surface)),
                                                                                                                              combinedQueue(VK_NULL_HANDLE),
