@@ -34,6 +34,7 @@ class VulkanRenderer
 {
   public:
     VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32_t index, uint32_t width, uint32_t height);
+    VulkanRenderer(RendererBase& base, PhysicalDeviceDescriptor& physicalDevice);
     VulkanRenderer(const VulkanRenderer&) = delete;
     VulkanRenderer& operator=(const VulkanRenderer&) = delete;
     VulkanRenderer(VulkanRenderer&&) noexcept;
@@ -41,6 +42,7 @@ class VulkanRenderer
     ~VulkanRenderer();
 
     uint32_t FindCombinedQueueFamily(VkSurfaceKHR& surface);
+    uint32_t FindCombinedQueueFamily();
 
     void Render();
     //void Render(const GraphicsPipelineDescriptor& pipelineDescriptor);

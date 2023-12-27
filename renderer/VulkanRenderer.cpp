@@ -95,6 +95,82 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, uint32
     renderThread = std::jthread(renderLoop, std::ref(*this));
 }
 
+VulkanRenderer::VulkanRenderer(RendererBase& base, PhysicalDeviceDescriptor& physicalDevice) :
+		rendererBase(base),
+		gpu(physicalDevice),
+		device(VK_NULL_HANDLE),
+		combinedQueueFamily(FindCombinedQueueFamily()),
+		combinedQueue(VK_NULL_HANDLE),
+		commandPool(VK_NULL_HANDLE),
+		descriptorPool(VK_NULL_HANDLE)
+{
+    std::array<float, 1> queuePriorities = {0.0F};
+    VkDeviceQueueCreateInfo queueCI;
+    queueCI.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCI.pNext = nullptr;
+    queueCI.flags = 0;
+    queueCI.queueFamilyIndex = combinedQueueFamily;
+    queueCI.queueCount = 1;
+    queueCI.pQueuePriorities = queuePriorities.data();
+
+    VkDeviceCreateInfo deviceCI;
+    deviceCI.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    deviceCI.pNext = nullptr;
+    deviceCI.flags = 0;
+    deviceCI.queueCreateInfoCount = 1;
+    deviceCI.pQueueCreateInfos = &queueCI;
+    deviceCI.enabledLayerCount = 0;
+    deviceCI.ppEnabledLayerNames = nullptr;
+    deviceCI.enabledExtensionCount = static_cast<uint32_t>(deviceExtensionNames.size());
+    deviceCI.ppEnabledExtensionNames = deviceExtensionNames.data();
+    VkPhysicalDeviceFeatures features{};
+    features.fillModeNonSolid = VK_TRUE;
+    deviceCI.pEnabledFeatures = &features;
+
+    VkResult result = vkCreateDevice(gpu.physicalDevice, &deviceCI, nullptr, &device);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create vulkan device\n");
+    }
+
+    vkGetDeviceQueue(device, combinedQueueFamily, 0, &combinedQueue);
+
+    VkCommandPoolCreateInfo commandPoolCI;
+    commandPoolCI.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    commandPoolCI.pNext = nullptr;
+    commandPoolCI.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    commandPoolCI.queueFamilyIndex = combinedQueueFamily;
+
+    result = vkCreateCommandPool(device, &commandPoolCI, nullptr, &commandPool);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create command pool for combined queue family\n");
+    }
+
+    //cameras.emplace_back(*this);
+
+    // TODO (nic) this is sized based on all the drawables in a scene. A scene should own this.
+    VkDescriptorPoolSize poolSize;
+    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSize.descriptorCount = 1;//display->surfaceCapabilities.minImageCount;
+
+    VkDescriptorPoolCreateInfo poolCi;
+    poolCi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolCi.pNext = nullptr;
+    poolCi.flags = 0;
+    poolCi.poolSizeCount = 1;
+    poolCi.pPoolSizes = &poolSize;
+    poolCi.maxSets = poolSize.descriptorCount;
+    result = vkCreateDescriptorPool(device, &poolCi, nullptr, &descriptorPool);
+    if (result != VK_SUCCESS)
+    {
+    	throw std::runtime_error("Failed to create descriptor pool\n");
+    }
+    // TODO (nic) std::mutex, std::scoped_lock, std::stop_source, std::stop_token
+
+    renderThread = std::jthread(renderLoop, std::ref(*this));
+}
+
 VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(other.rendererBase),
                                                                   display(std::move(other.display)),
                                                                   gpu(other.gpu),
@@ -135,6 +211,18 @@ uint32_t VulkanRenderer::FindCombinedQueueFamily(VkSurfaceKHR& surface)
         VkBool32 isSupported = VK_FALSE;
         vkGetPhysicalDeviceSurfaceSupportKHR(gpu.physicalDevice, i, surface, &isSupported);
         if (((gpu.queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0U) && isSupported != 0U)
+        {
+            return i;
+        }
+    }
+    throw std::runtime_error("No combined queue family found\n");
+}
+
+uint32_t VulkanRenderer::FindCombinedQueueFamily()
+{
+    for (uint32_t i = 0; i < gpu.queueFamilyProperties.size(); i++)
+    {
+        if (((gpu.queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0U))
         {
             return i;
         }
@@ -218,9 +306,13 @@ void VulkanRenderer::Resize(VkSurfaceKHR surface, [[maybe_unused]] uint32_t widt
 {
 	std::scoped_lock lock(renderMutex);
     vkDeviceWaitIdle(device);
-    display.reset();
 
-    display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
+    if (display.get())
+    {
+    	display.reset();
+    	display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
+    }
+
 
 //    std::ranges::for_each(scenes, [this](Scene& scene)
 //    		{
