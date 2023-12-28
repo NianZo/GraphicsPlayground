@@ -17,18 +17,6 @@
 //extern int g_argc;
 extern char** g_argv;
 
-std::optional<std::reference_wrapper<PhysicalDeviceDescriptor>> getValidPhysicalDevice(RendererBase& base)
-{
-	for (PhysicalDeviceDescriptor& gpuDescriptor : base.physicalDevices)
-	{
-		if (gpuDescriptor.properties.vendorID != 0)
-		{
-			return std::make_optional(std::ref(gpuDescriptor));
-		}
-	}
-	return std::nullopt;
-}
-
 TEST(RenderTestBasic, CreateRendererBase)
 {
 	std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(g_argv[0])).parent_path();
@@ -59,10 +47,12 @@ TEST(RenderTestBasic, CreateRenderer)
 		RendererBase rendererBase(pwd, "RenderTestBasic");
 		ASSERT_NE(rendererBase.physicalDevices.size(), 0);
 
-		auto gpuDescriptor = getValidPhysicalDevice(rendererBase);
-		ASSERT_TRUE(gpuDescriptor);
+		auto gpuDescriptor = std::ranges::find_if(rendererBase.physicalDevices, [](PhysicalDeviceDescriptor& pdd){return pdd.properties.vendorID != 0;});
+		ASSERT_NE(gpuDescriptor, rendererBase.physicalDevices.end());
+		//auto gpuDescriptor = getValidPhysicalDevice(rendererBase);
+		//ASSERT_TRUE(gpuDescriptor);
 
-	    VulkanRenderer renderer(rendererBase, gpuDescriptor.value());
+	    VulkanRenderer renderer(rendererBase, *gpuDescriptor);
 	}
 }
 
@@ -73,20 +63,22 @@ TEST(RenderTestBasic, RendererWithSurface)
 		RendererBase rendererBase(pwd, "RenderTestBasic");
 		ASSERT_NE(rendererBase.physicalDevices.size(), 0);
 
-		auto gpuDescriptor = getValidPhysicalDevice(rendererBase);
-		ASSERT_TRUE(gpuDescriptor);
+		auto gpuDescriptor = std::ranges::find_if(rendererBase.physicalDevices, [](PhysicalDeviceDescriptor& pdd){return pdd.properties.vendorID != 0;});
+		ASSERT_NE(gpuDescriptor, rendererBase.physicalDevices.end());
 
 	    glfwInit();
 	    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	    GLFWwindow* window = glfwCreateWindow(800, 600, "Vulkan window", nullptr, nullptr);
 		VkSurfaceKHR surface;
-	    if (glfwCreateWindowSurface(rendererBase.instance, window, nullptr, &surface) != VK_SUCCESS) {
+	    if (glfwCreateWindowSurface(rendererBase.instance, window, nullptr, &surface) != VK_SUCCESS)
+	    {
 	        throw std::runtime_error("failed to create window surface!");
 	    }
 
 	    {
-	    	VulkanRenderer renderer(rendererBase, surface, gpuDescriptor.value(), 800, 600);
+	    	VulkanRenderer renderer(rendererBase, surface, *gpuDescriptor, 800, 600);
 	    }
+
 	    vkDestroySurfaceKHR(rendererBase.instance, surface, nullptr);
 	}
 }
