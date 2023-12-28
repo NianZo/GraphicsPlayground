@@ -8,13 +8,13 @@
 #include "gtest/gtest.h"
 #include <QApplication>
 
-int g_argc;
-char** g_argv;
+
+std::vector<char*> args;
 
 int main(int argc, char** argv)
 {
-	g_argc = argc;
-	g_argv = argv;
+	args = std::vector<char*>(argv, std::next(argv, static_cast<std::ptrdiff_t>(argc)));
+
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }

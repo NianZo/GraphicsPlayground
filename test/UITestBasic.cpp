@@ -12,17 +12,14 @@
 #include <QPushButton>
 #include <filesystem>
 
-//int argc = 0;
-//char* argv = "UIUnitTests";
-extern int g_argc;
-extern char** g_argv;
+
+extern std::vector<char*> args;
 
 TEST(UIBasic, CreateUIForm)
 {
-	//char* testName = "UITest";
-	//int numArgs = 1;
 	std::cout << "Started CreateUIForm test\n";
-	QApplication app(g_argc, g_argv);
+	int numArgs = static_cast<int>(args.size());
+	QApplication app(numArgs, args.data());
 	{
 		MainWindow mainWindow;
 	}

@@ -14,12 +14,12 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-//extern int g_argc;
-extern char** g_argv;
+
+extern std::vector<char*> args;
 
 TEST(RenderTestBasic, CreateRendererBase)
 {
-	std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(g_argv[0])).parent_path();
+	std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(args[0])).parent_path();
 	RendererBase rendererBase(pwd, "RenderTestBasic");
 	ASSERT_NE(rendererBase.physicalDevices.size(), 0);
 
@@ -43,7 +43,7 @@ TEST(RenderTestBasic, CreateRendererBase)
 TEST(RenderTestBasic, CreateRenderer)
 {
 	{
-		std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(g_argv[0])).parent_path();
+		std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(args[0])).parent_path();
 		RendererBase rendererBase(pwd, "RenderTestBasic");
 		ASSERT_NE(rendererBase.physicalDevices.size(), 0);
 
@@ -59,7 +59,7 @@ TEST(RenderTestBasic, CreateRenderer)
 TEST(RenderTestBasic, RendererWithSurface)
 {
 	{
-		std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(g_argv[0])).parent_path();
+		std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(args[0])).parent_path();
 		RendererBase rendererBase(pwd, "RenderTestBasic");
 		ASSERT_NE(rendererBase.physicalDevices.size(), 0);
 
