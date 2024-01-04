@@ -83,29 +83,29 @@ TEST(RenderTestBasic, RendererWithSurface)
 	}
 }
 
-//TEST(RenderTestBasic, BasicCamera)
-//{
-//	std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(g_argv[0])).parent_path();
-//	RendererBase rendererBase(pwd, "RenderTestBasic");
-//	ASSERT_NE(rendererBase.physicalDevices.size(), 0);
-//
-//	uint32_t gpuIndex = 1;
-//	VulkanRenderer renderer(rendererBase, rendererBase.physicalDevices[gpuIndex]);
-//
-//	renderer.scenes.emplace_back(renderer);
-//	renderer.scenes[0].cameras.emplace_back(renderer, 800, 600);
-//
-//	renderer.scenes[0].cameras[0].clear();
-//	//EXPECT_FALSE(renderer.scenes[0].cameras[0].cpuDataAvailable);
-//	ImageData<800, 600>& cameraData = renderer.scenes[0].cameras[0].cpuData();
-//
-//	EXPECT_EQ(cameraData[0][0], 0);
-//	EXPECT_EQ(cmaeraData[0][599], 0);
-//	EXPECT_EQ(cameraData[799][0], 0);
-//	EXPECT_EQ(cameraData[799][599], 0);
-//	// Alternatively
+TEST(RenderTestBasic, BasicCamera)
+{
+	std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(args[0])).parent_path();
+	RendererBase rendererBase(pwd, "RenderTestBasic");
+	ASSERT_NE(rendererBase.physicalDevices.size(), 0);
+
+	uint32_t gpuIndex = 1;
+	VulkanRenderer renderer(rendererBase, rendererBase.physicalDevices[gpuIndex]);
+
+	renderer.scenes.emplace_back(renderer);
+	renderer.scenes[0].cameras.emplace_back(renderer, 800, 600);
+
+	renderer.scenes[0].cameras[0].clear();
+	//EXPECT_FALSE(renderer.scenes[0].cameras[0].cpuDataAvailable);
+	ImageData& cameraData = renderer.scenes[0].cameras[0].cpuData();
+
+	EXPECT_EQ(cameraData[0][0].r, 0);
+	EXPECT_EQ(cameraData[0][599].r, 0);
+	EXPECT_EQ(cameraData[799][0].r, 0);
+	EXPECT_EQ(cameraData[799][599].r, 0);
+	// Alternatively
 //	EXPECT_EQ(cameraData.front().front(), 0);
 //	EXPECT_EQ(cameraData.front().back(), 0);
 //	EXPECT_EQ(cameraData.back().front(), 0);
 //	EXPECT_EQ(cameraData.back().back(), 0);
-//}
+}
