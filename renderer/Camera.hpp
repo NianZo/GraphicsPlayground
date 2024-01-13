@@ -36,13 +36,27 @@ struct R8G8B8A8Texel
 
 class ImageData
 {
-	std::vector<R8G8B8A8Texel> data;
-	uint16_t width;
-	uint16_t height;
+
+	uint16_t m_width;
+	uint16_t m_height;
+
 public:
-	std::span<R8G8B8A8Texel> operator[](uint16_t index)
+	explicit ImageData(uint16_t width, uint16_t height) :
+	m_width(width),
+	m_height(height),
+	data(m_width * m_height)
 	{
-		return std::span<R8G8B8A8Texel>(data.begin() + width * index, width);
+
+	}
+
+	std::vector<R8G8B8A8Texel> data;
+//	std::span<R8G8B8A8Texel> operator[](uint16_t index)
+//	{
+//		return std::span<R8G8B8A8Texel>(data.begin() + width * index, width);
+//	}
+	R8G8B8A8Texel& index(uint16_t x, uint16_t y)
+	{
+		return data[static_cast<size_t>(m_width) * y + x];
 	}
 };
 // TODO (nic) for now I am assuming 1 camera per scene and that the camera is always 'drawable'
@@ -51,22 +65,21 @@ class Camera
 {
 public:
     explicit Camera(VulkanRenderer& rendererIn);
-    explicit Camera(VulkanRenderer& rendererIn, [[maybe_unused]]uint16_t width, [[maybe_unused]]uint16_t height) :
-    		renderer(rendererIn),
-			image(renderer)
-    {};
+    explicit Camera(VulkanRenderer& rendererIn, uint16_t width, uint16_t height);
     Camera(const Camera&) = delete;
     Camera& operator=(const Camera&) = delete;
     Camera(Camera&&) noexcept = default;
     Camera& operator=(Camera&&) = delete;
     ~Camera() = default;
 
-    void clear() {}
-    ImageData& cpuData() {return imageDataCpu;}
+    void clear(VkClearColorValue clearColor);
+    ImageData& cpuData();
 
     VulkanRenderer& renderer;
+    VkExtent2D extent;
 	VulkanImage image;
 	ImageData imageDataCpu;
+	VkCommandBuffer commandBuffer;
 	// Include a transformation matrix later to set camera position
 	// Probably need a reference/shared_ptr/weak_ptr to the scene that the camera is placed in
 };

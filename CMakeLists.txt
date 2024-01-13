@@ -8,10 +8,12 @@ project(${Recipe_Name})
 set(CMAKE_CXX_STANDARD 20)
 
 #set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
+set(CMAKE_BUILD_TYPE Debug)
+message("build type: ${CMAKE_BUILD_TYPE}")
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     message("Building in Debug")
-    add_compile_options(--coverage -O0 -fprofile-instr-generate -fcoverage-mapping)
+    add_compile_options(-O0 -g)
+#    add_compile_options(--coverage -O0 -fprofile-instr-generate -fcoverage-mapping)
 endif()
 
 message("Compiler: ${CMAKE_CXX_COMPILER}")

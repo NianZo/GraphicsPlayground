@@ -2,5 +2,7 @@
 
 .cproject
 .project
+*.profraw
 *.spv
 .settings/*
+/_build/

@@ -329,7 +329,7 @@ void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer)
 		{
 			std::scoped_lock lock(renderer.renderMutex);
 			std::cout << "Acquired renderMutex\n";
-			if (!renderer.scenes.empty())
+			if (!renderer.scenes.empty() && !renderer.scenes[0].drawables.empty())
 			{
 			    vkWaitForFences(renderer.device, 1, &renderer.scenes[0].drawables[0].inFlightFence, VK_TRUE, UINT64_MAX); // TODO(nic) use a Drawable owned fence instead
 			    vkResetFences(renderer.device, 1, &renderer.scenes[0].drawables[0].inFlightFence); // TODO (nic) the fence shouldn't be owned by the drawable I think
