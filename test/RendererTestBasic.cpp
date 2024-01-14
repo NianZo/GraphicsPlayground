@@ -92,13 +92,11 @@ TEST(RenderTestBasic, BasicCamera)
 	uint32_t gpuIndex = 1;
 	VulkanRenderer renderer(rendererBase, rendererBase.physicalDevices[gpuIndex]);
 
-	renderer.scenes.emplace_back(renderer);
+	renderer.scenes.emplace_back(renderer, 800, 600);
+	renderer.scenes[0].clearColor = {.uint32 = {42, 1, 2, 3}};
+	renderer.scenes[0].render();
+	ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
-	renderer.scenes[0].cameras.emplace_back(renderer, 800, 600);
-	const VkClearColorValue clearValue = {.uint32 = {42, 1, 2, 3}};
-	renderer.scenes[0].cameras[0].clear(clearValue);
-
-	ImageData& cameraData = renderer.scenes[0].cameras[0].cpuData();
 	EXPECT_EQ(cameraData.index(0, 0).r, 42);
 	EXPECT_EQ(cameraData.index(0, 599).r, 42);
 	EXPECT_EQ(cameraData.index(799, 0).r, 42);

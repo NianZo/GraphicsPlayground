@@ -11,7 +11,10 @@
 #include <algorithm>
 #include <iostream>
 
-Scene::Scene(VulkanRenderer& rendererIn) : renderer(rendererIn)
+Scene::Scene(VulkanRenderer& rendererIn, uint16_t cameraWidth, uint16_t cameraHeight) :
+	renderer(rendererIn),
+	camera(renderer, cameraWidth, cameraHeight),
+	clearColor({.uint32 = {0, 0, 0, 255}})
 {
 
 }
@@ -62,3 +65,14 @@ bool Scene::render(uint32_t imageIndex)
     }
     return true;
 }
+
+void Scene::render()
+{
+	camera.clear(clearColor);
+}
+
+ImageData& Scene::renderTargetCpuData()
+{
+	return camera.cpuData();
+}
+

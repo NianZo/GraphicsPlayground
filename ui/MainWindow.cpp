@@ -359,8 +359,8 @@ void MainWindow::createRenderer()
 		std::cout << "About to try taking renderMutex\n";
 		std::scoped_lock lock(renderer->renderMutex);
 		std::cout << "Took renderMutex\n";
-	    renderer->scenes.emplace_back(*renderer.get());
-	    renderer->scenes[0].cameras.emplace_back(*renderer.get());
+	    renderer->scenes.emplace_back(*renderer.get(), 800, 600);
+	    //renderer->scenes[0].cameras.emplace_back(*renderer.get());
 	    renderer->scenes[0].drawables.emplace_back(*renderer.get(), renderer->commandPool, descriptor);
 
 //	    for (uint32_t imageIndex = 0; imageIndex < renderer->display->surfaceCapabilities.minImageCount; imageIndex++)

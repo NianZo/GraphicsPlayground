@@ -82,10 +82,10 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
     pipelineStates.emplace_back(m_renderer.device, m_renderer, *this, pipelineDescriptor);
 
     std::cout << "About to create framebuffers\n";
-    framebuffers.resize(m_renderer.scenes[0].cameras[0].image.imageViews.size());
-    for (size_t i = 0; i < m_renderer.scenes[0].cameras[0].image.imageViews.size(); i++)
+    framebuffers.resize(m_renderer.scenes[0].camera.image.imageViews.size());
+    for (size_t i = 0; i < m_renderer.scenes[0].camera.image.imageViews.size(); i++)
     {
-        std::array<VkImageView, 2> attachments = {m_renderer.scenes[0].cameras[0].image.imageViews[i], depthImage.imageViews[0]};
+        std::array<VkImageView, 2> attachments = {m_renderer.scenes[0].camera.image.imageViews[i], depthImage.imageViews[0]};
         VkFramebufferCreateInfo framebufferCI;
         framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferCI.pNext = nullptr;
