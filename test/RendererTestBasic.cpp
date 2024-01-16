@@ -14,6 +14,8 @@
 #include <stb_image.h>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
+// Example of using stb_image to write out the rendered image. When run from eclipse this is put in home directory
+//const int ret = stbi_write_png("screenshot.png", 800, 600, 4, cameraData.data.data(), 800 * 4);
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -125,22 +127,6 @@ TEST(RenderTestBasic, BasicDrawable)
     descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
     descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
 
-
-    // TODO (nic) I don't want the user to have to set the extents (unless they need to) so for a fullscreen render these shouldn't be dynamic states set here
-//    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
-//    descriptor.dynamicStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
-//
-//    descriptor.viewports[0].width = static_cast<float>(renderer->display->swapchainExtent.width);
-//    descriptor.viewports[0].height = static_cast<float>(renderer->display->swapchainExtent.height);
-//
-//    descriptor.scissors[0].extent = renderer->display->swapchainExtent;
-//
-//    descriptor.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-
-    // TODO (nic) The user shouldn't need to set these (or be able to?) These depend on what is being rendered to, so should be populated based on the camera used
-    //descriptor.colorAttachment.format = renderer->display->swapchainImageFormat;
-    //descriptor.depthAttachment.format = VulkanImage::findDepthFormat(renderer->gpu.physicalDevice);
-
     // Fullscreen quad
 	const std::vector<Vertex> vertices = {
 			{{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
@@ -159,8 +145,6 @@ TEST(RenderTestBasic, BasicDrawable)
 	renderer.scenes[0].clearColor = {.uint32 = {42, 1, 2, 255}};
 	renderer.scenes[0].render();
 	ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
-
-	//const int ret = stbi_write_png("screenshot.png", 800, 600, 4, cameraData.data.data(), 800 * 4);
 
 	EXPECT_EQ(cameraData.index(0, 0).r, 255);
 	EXPECT_EQ(cameraData.index(0, 599).r, 255);
