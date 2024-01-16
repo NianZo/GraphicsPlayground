@@ -29,5 +29,4 @@ VertexBuffer::VertexBuffer(VulkanRenderer& rendererIn, const std::vector<Vertex>
 
 VertexBuffer::~VertexBuffer()
 {
-	std::cout << "VertexBuffer destructor\n";
 }

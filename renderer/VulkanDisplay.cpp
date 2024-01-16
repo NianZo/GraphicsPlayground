@@ -51,9 +51,9 @@ VulkanDisplay::VulkanDisplay(VulkanRenderer& rendererIn, VkSurfaceKHR& displaySu
         std::clamp(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height)};
     //    swapchainExtent.width = std::clamp(width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
     //    swapchainExtent.height = std::clamp(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
-    std::cout << "swapchainExtent: " << width << ", " << height << "\n";
-    std::cout << "minImageExtent: " << surfaceCapabilities.minImageExtent.width << ", " << surfaceCapabilities.minImageExtent.height << "\n";
-    std::cout << "maxImageExtent: " << surfaceCapabilities.maxImageExtent.width << ", " << surfaceCapabilities.maxImageExtent.height << "\n";
+    //std::cout << "swapchainExtent: " << width << ", " << height << "\n";
+    //std::cout << "minImageExtent: " << surfaceCapabilities.minImageExtent.width << ", " << surfaceCapabilities.minImageExtent.height << "\n";
+    //std::cout << "maxImageExtent: " << surfaceCapabilities.maxImageExtent.width << ", " << surfaceCapabilities.maxImageExtent.height << "\n";
     // VkExtent2D(width, height, 1);
 
     VkSwapchainCreateInfoKHR createInfo;
@@ -104,7 +104,6 @@ VulkanDisplay::VulkanDisplay(VulkanDisplay&& other) noexcept : renderer(other.re
 
 VulkanDisplay::~VulkanDisplay()
 {
-    std::cout << "Starting ~VulkanDisplay()\n";
     //image.reset();
     vkDestroySwapchainKHR(renderer.device, swapchain, nullptr);
 }

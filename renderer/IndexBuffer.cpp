@@ -30,7 +30,6 @@ IndexBuffer::IndexBuffer(VulkanRenderer& rendererIn, const std::vector<uint16_t>
 
 IndexBuffer::~IndexBuffer()
 {
-	std::cout << "VertexBuffer destructor\n";
 }
 
 

@@ -104,13 +104,11 @@ Drawable::Drawable(Scene& scene, GraphicsPipelineDescriptor& pipelineDescriptor)
 	    framebufferCI.width = m_scene.camera.extent.width;
 	    framebufferCI.height = m_scene.camera.extent.height;
 	    framebufferCI.layers = 1;
-	    std::cout << "About to create framebuffer\n";
 	    result = vkCreateFramebuffer(m_renderer.device, &framebufferCI, nullptr, &framebuffers[i]);
 	    if (result != VK_SUCCESS)
 	    {
 	        throw std::runtime_error("Failed to create framebuffer");
 	    }
-	    std::cout << "Created framebuffer\n";
 	}
 }
 
@@ -166,15 +164,11 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
 
     for (uint32_t i = 0; i < m_renderer.display->surfaceCapabilities.minImageCount; i++)
     {
-    	std::cout << "creating uniform buffer " << i << "\n";
     	uniformBuffers.emplace_back(m_renderer, sizeof(UniformBufferObject));
     }
 
-    std::cout << "in drawable constructor, about to construct pipelineStates\n";
-    //pipelineDescriptors.emplace_back(descriptor);
     pipelineStates.emplace_back(m_renderer.device, m_renderer, *this, pipelineDescriptor);
 
-    std::cout << "About to create framebuffers\n";
     framebuffers.resize(m_renderer.scenes[0].camera.image.imageViews.size());
     for (size_t i = 0; i < m_renderer.scenes[0].camera.image.imageViews.size(); i++)
     {
@@ -189,26 +183,22 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
         framebufferCI.width = m_renderer.display->swapchainExtent.width;
         framebufferCI.height = m_renderer.display->swapchainExtent.height;
         framebufferCI.layers = 1;
-        std::cout << "About to create framebuffer\n";
         result = vkCreateFramebuffer(m_renderer.device, &framebufferCI, nullptr, &framebuffers[i]);
         if (result != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create framebuffer");
         }
-        std::cout << "Created framebuffer\n";
     }
 }
 
 Drawable::~Drawable()
 {
-	std::cout << "Running Drawable destructor\n";
     vkDeviceWaitIdle(m_renderer.device);
     vkDestroySemaphore(m_renderer.device, imageAvailableSemaphore, nullptr);
     vkDestroySemaphore(m_renderer.device, renderFinishedSemaphore, nullptr);
     vkDestroyFence(m_renderer.device, inFlightFence, nullptr);
     for (VkFramebuffer& framebuffer : framebuffers)
     {
-    	std::cout << "Destroying framebuffer " << framebuffer << "\n";
         vkDestroyFramebuffer(m_renderer.device, framebuffer, nullptr);
     }
 }
@@ -417,7 +407,6 @@ void Drawable::Render(uint32_t imageIndex)
 
 
 
-    std::cout << "Recording command buffer with image index " << imageIndex << "\n";
 //    vkWaitForFences(m_renderer.device, 1, &inFlightFence, VK_TRUE, UINT64_MAX); // TODO(nic) use a Drawable owned fence instead
 //    vkResetFences(m_renderer.device, 1, &inFlightFence);
 
@@ -486,7 +475,6 @@ void Drawable::Render(uint32_t imageIndex)
     vkCmdEndRenderPass(commandBuffer);
 
     vkEndCommandBuffer(commandBuffer);
-    std::cout << "Finished recording command buffer\n";
 }
 
 void Drawable::render()
@@ -709,7 +697,6 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() : inputAssembly({}),
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& renderer, Drawable& drawable, const GraphicsPipelineDescriptor& descriptor) : m_device(device)
 {
-    std::cout << "In GraphicsPipelineState constructor\n";
     VkResult result = VK_SUCCESS;
 
     auto vertShaderCode = readFile(descriptor.vertexShader[0]);
@@ -849,7 +836,6 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     	throw std::runtime_error("Failed to allocate descriptor sets\n");
     }
 
-    std::cout << "number of uniform buffers: " << drawable.uniformBuffers.size() << "\n";
     for (uint32_t i = 0; i < descriptorSets.size(); i++)
     {
     	VkDescriptorBufferInfo bufferInfo;
@@ -869,7 +855,6 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     	descriptorWrite.pImageInfo = nullptr;
     	descriptorWrite.pTexelBufferView = nullptr;
     	vkUpdateDescriptorSets(renderer.device, 1, &descriptorWrite, 0 , nullptr);
-    	std::cout << "updated descriptor set " << i << "\n";
     }
 
     VkPipelineLayoutCreateInfo pipelineLayoutCI;
@@ -885,7 +870,6 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     {
         throw std::runtime_error("Failed to create pipeline layout\n");
     }
-    std::cout << "created pipeline layout\n";
 
     VkAttachmentReference colorAttachmentRef;
     colorAttachmentRef.attachment = 0;
@@ -925,7 +909,6 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     {
         throw std::runtime_error("Failed to create render pass\n");
     }
-    std::cout << "Created renderpass\n";
 
     VkGraphicsPipelineCreateInfo pipelineCI{};
     pipelineCI.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -951,12 +934,10 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     {
         throw std::runtime_error("Failed to create graphics pipeline\n");
     }
-    std::cout << "created graphics pipeline\n";
 }
 
 GraphicsPipelineState::~GraphicsPipelineState()
 {
-    std::cout << "In GraphicsPipelineState destructor\n";
     vkDestroyShaderModule(m_device, vertShaderModule, nullptr);
     vkDestroyShaderModule(m_device, fragShaderModule, nullptr);
     vkDestroyDescriptorSetLayout(m_device, descriptorSetLayout, nullptr);
@@ -973,7 +954,6 @@ GraphicsPipelineState::GraphicsPipelineState(GraphicsPipelineState&& other) noex
                                                                                        renderPass(other.renderPass),
                                                                                        graphicsPipeline(other.graphicsPipeline)
 {
-    std::cout << "In GraphicsPipelineState move constructor\n";
 
     // Null out the object being moved from
     other.vertShaderModule = VK_NULL_HANDLE;

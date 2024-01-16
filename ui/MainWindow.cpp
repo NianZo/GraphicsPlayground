@@ -19,11 +19,11 @@ MainWindow::MainWindow() : ui(new Ui::Form),
                            rendererBase(RendererBase(std::filesystem::weakly_canonical(std::filesystem::path(QApplication::arguments()[0].toStdString())).parent_path(), "Graphics Playground")) // appObj(VulkanApplication::GetInstance())
 {
 	//menuBar()->setNativeMenuBar(false);
-    std::cout << "started mainWindow constructor\n";
+    //std::cout << "started mainWindow constructor\n";
     // renderer = nullptr;
     QStringList arguments = QApplication::arguments();
     projectDirectory = std::filesystem::weakly_canonical(std::filesystem::path(arguments[0].toStdString())).parent_path();
-    std::cout << "centralWidget: " << this->centralWidget() << "\n";
+    //std::cout << "centralWidget: " << this->centralWidget() << "\n";
     ui->setupUi(&formWidget);
 
     this->setCentralWidget(&formWidget);
@@ -138,7 +138,7 @@ MainWindow::MainWindow() : ui(new Ui::Form),
     //renderer->Render(pipelineDescriptor);
     //renderer->scenes[0].render();
     // renderer->RenderTriangle();
-    std::cout << "Finished MainWindow::MainWindow()\n";
+    //std::cout << "Finished MainWindow::MainWindow()\n";
 }
 
 MainWindow::~MainWindow()
@@ -147,14 +147,14 @@ MainWindow::~MainWindow()
     renderer.reset();
     close(); // needed or there will be a segfault
     // delete m_window;
-    std::cout << "Called delete m_window\n";
+    //std::cout << "Called delete m_window\n";
     delete ui;
-    std::cout << "Finished running MainWindow::~MainWindow()\n";
+    //std::cout << "Finished running MainWindow::~MainWindow()\n";
 }
 
 void MainWindow::resizeEvent([[maybe_unused]] QResizeEvent* event)
 {
-    std::cout << "calling resize event\n";
+    //std::cout << "calling resize event\n";
 
     //ui->widget->setMinimumSize(this->size());
 
@@ -208,7 +208,7 @@ void MainWindow::gpuComboBoxSelection(int index)
 
 void MainWindow::graphicsDescriptorView()
 {
-	std::cout << "graphicsDescriptorView()\n";
+	//std::cout << "graphicsDescriptorView()\n";
 	ui->stackedWidget->setCurrentIndex(1);
 }
 
@@ -239,7 +239,7 @@ void MainWindow::polygonModeComboBox(int index)
 
 void MainWindow::vertexShaderTextChanged()
 {
-	std::cout << "vertexShaderTextChanged\n";
+	//std::cout << "vertexShaderTextChanged\n";
 	const std::filesystem::path shaderDirectory = projectDirectory.parent_path() / "shaders";
 	pipelineDescriptor.vertexShader = {std::string(shaderDirectory / ui->textEdit_vertexShader->toPlainText().toStdString()), "main"};
 	try
@@ -274,7 +274,7 @@ void MainWindow::createRenderer()
     const std::filesystem::path shaderDirectory = renderer->rendererBase.projectDirectory.parent_path() / "shaders";
     if (descriptor.vertexShader[0] == "")
     {
-        std::cout << "Shader directory: " << shaderDirectory << "\n";
+        //std::cout << "Shader directory: " << shaderDirectory << "\n";
         descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
     }
 
@@ -356,9 +356,9 @@ void MainWindow::createRenderer()
 	descriptor.vertexData = vertices;
 	descriptor.indexData = indices;
 	{
-		std::cout << "About to try taking renderMutex\n";
+		//std::cout << "About to try taking renderMutex\n";
 		std::scoped_lock lock(renderer->renderMutex);
-		std::cout << "Took renderMutex\n";
+		//std::cout << "Took renderMutex\n";
 	    renderer->scenes.emplace_back(*renderer.get(), 800, 600);
 	    //renderer->scenes[0].cameras.emplace_back(*renderer.get());
 	    renderer->scenes[0].drawables.emplace_back(*renderer.get(), renderer->commandPool, descriptor);
@@ -370,7 +370,7 @@ void MainWindow::createRenderer()
 
 
 	    //renderer->scenes[0].drawables[0].render()
-	    std::cout << "Set up scene successfully\n";
+	    //std::cout << "Set up scene successfully\n";
 	}
 
 }

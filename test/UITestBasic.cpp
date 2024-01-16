@@ -17,7 +17,7 @@ extern std::vector<char*> args;
 
 TEST(UIBasic, CreateUIForm)
 {
-	std::cout << "Started CreateUIForm test\n";
+	//std::cout << "Started CreateUIForm test\n";
 	int numArgs = static_cast<int>(args.size());
 	QApplication app(numArgs, args.data());
 	{

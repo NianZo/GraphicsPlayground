@@ -192,10 +192,8 @@ VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(o
 
 VulkanRenderer::~VulkanRenderer()
 {
-	std::cout << "Started Renderer destructor\n";
 	//renderThread.request_stop();
 	//renderThread.join();
-	std::cout << "Successfully joined renderThread\n";
     // delete display;
     vkDeviceWaitIdle(device);
 
@@ -320,17 +318,14 @@ void VulkanRenderer::Resize(VkSurfaceKHR surface, [[maybe_unused]] uint32_t widt
 //    		{
 //    			std::ranges::for_each(scene.cameras, [this](Camera& camera){camera = std::move(Camera(*this));});
 //    		});
-    std::cout << "Finished resize\n";
 }
 
 void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer)
 {
 	while (!stopToken.stop_requested())
 	{
-		std::cout << "Render loop " << "\n";
 		{
 			std::scoped_lock lock(renderer.renderMutex);
-			std::cout << "Acquired renderMutex\n";
 			if (!renderer.scenes.empty() && !renderer.scenes[0].drawables.empty())
 			{
 			    vkWaitForFences(renderer.device, 1, &renderer.scenes[0].drawables[0].inFlightFence, VK_TRUE, UINT64_MAX); // TODO(nic) use a Drawable owned fence instead
@@ -358,5 +353,4 @@ void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer)
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 	}
-	std::cout << "Ending renderLoop thread\n";
 }
