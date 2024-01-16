@@ -21,6 +21,7 @@
 
 class VulkanRenderer;
 class Drawable;
+class Scene;
 
 struct UniformBufferObject
 {
@@ -81,6 +82,7 @@ struct __attribute__((aligned(64))) GraphicsPipelineState
 class Drawable
 {
   public:
+	Drawable(Scene& scene, GraphicsPipelineDescriptor& pipelineDescriptor);
     Drawable(VulkanRenderer& renderer, VkCommandPool& pool, const GraphicsPipelineDescriptor& pipelineDescriptor);
     ~Drawable();
     Drawable(const Drawable&) = delete;
@@ -91,6 +93,7 @@ class Drawable
     void ExecuteCommandBuffer(uint32_t imageIndex);
     //void RenderTriangle(uint32_t imageIndex);
     void Render(uint32_t imageIndex); // TODO (nic) this isn't actually rendering because the command buffer still needs exec'ed
+    void render();
 
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
@@ -100,6 +103,8 @@ class Drawable
     std::vector<UniformBuffer> uniformBuffers;
 
   private:
+    void recordCommandBuffer();
+    void executeCommandBuffer();
     VulkanRenderer& m_renderer;
     VkCommandBuffer commandBuffer;
 
@@ -110,6 +115,7 @@ class Drawable
     VertexBuffer vertexBuffer;
     IndexBuffer indexBuffer;
     VulkanImage depthImage;
+    Scene& m_scene;
     // TODO (nic) need one uniformBuffer per frame in flight, unsure how to do this properly
 
 };

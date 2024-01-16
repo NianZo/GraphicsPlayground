@@ -92,7 +92,8 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, Physic
     }
     // TODO (nic) std::mutex, std::scoped_lock, std::stop_source, std::stop_token
 
-    renderThread = std::jthread(renderLoop, std::ref(*this));
+    // TODO (nic) the render loop should not automatically start, should have api start/stop hooks
+    //renderThread = std::jthread(renderLoop, std::ref(*this));
 }
 
 VulkanRenderer::VulkanRenderer(RendererBase& base, PhysicalDeviceDescriptor& physicalDevice) :
@@ -168,7 +169,8 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, PhysicalDeviceDescriptor& phy
     }
     // TODO (nic) std::mutex, std::scoped_lock, std::stop_source, std::stop_token
 
-    renderThread = std::jthread(renderLoop, std::ref(*this));
+    // TODO (nic) the render loop should not automatically start, should have api start/stop hooks
+    //renderThread = std::jthread(renderLoop, std::ref(*this));
 }
 
 VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(other.rendererBase),
@@ -191,8 +193,8 @@ VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(o
 VulkanRenderer::~VulkanRenderer()
 {
 	std::cout << "Started Renderer destructor\n";
-	renderThread.request_stop();
-	renderThread.join();
+	//renderThread.request_stop();
+	//renderThread.join();
 	std::cout << "Successfully joined renderThread\n";
     // delete display;
     vkDeviceWaitIdle(device);

@@ -26,7 +26,7 @@ class VulkanImage
     std::vector<VkImage> images;
     std::vector<VkImageView> imageViews;
     std::vector<VkDeviceMemory> imageMemory;
-
+    VkFormat m_format;
 
     VulkanRenderer& renderer;
     bool isDisplayImage;

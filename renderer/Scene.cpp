@@ -69,6 +69,8 @@ bool Scene::render(uint32_t imageIndex)
 void Scene::render()
 {
 	camera.clear(clearColor);
+
+	std::ranges::for_each(drawables, [](Drawable& drawable){drawable.render();});
 }
 
 ImageData& Scene::renderTargetCpuData()

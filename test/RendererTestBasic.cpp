@@ -10,6 +10,10 @@
 #include "VulkanRenderer.hpp"
 
 #include <optional>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -150,14 +154,17 @@ TEST(RenderTestBasic, BasicDrawable)
 
 	descriptor.vertexData = vertices;
 	descriptor.indexData = indices;
-	renderer.scenes[0].drawables.emplace_back(renderer, renderer.commandPool, descriptor);
+	renderer.scenes[0].drawables.emplace_back(renderer.scenes[0], descriptor);
 
-	renderer.scenes[0].clearColor = {.uint32 = {42, 1, 2, 3}};
+	renderer.scenes[0].clearColor = {.uint32 = {42, 1, 2, 255}};
 	renderer.scenes[0].render();
 	ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
+
+	//const int ret = stbi_write_png("screenshot.png", 800, 600, 4, cameraData.data.data(), 800 * 4);
 
 	EXPECT_EQ(cameraData.index(0, 0).r, 255);
 	EXPECT_EQ(cameraData.index(0, 599).r, 255);
 	EXPECT_EQ(cameraData.index(799, 0).r, 255);
 	EXPECT_EQ(cameraData.index(799, 599).r, 255);
+	EXPECT_EQ(cameraData.index(400, 300).r, 255);
 }

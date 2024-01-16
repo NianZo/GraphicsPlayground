@@ -10,6 +10,7 @@
 #include "VulkanRenderer.hpp"
 
 VulkanImage::VulkanImage(VulkanRenderer& rendererIn, VkExtent2D extent, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties) :
+	m_format(format),
 	renderer(rendererIn),
 	isDisplayImage(false)
 {
@@ -78,8 +79,10 @@ VulkanImage::VulkanImage(VulkanRenderer& rendererIn, VkExtent2D extent, VkFormat
     }
 }
 
-VulkanImage::VulkanImage(VulkanRenderer& rendererIn) : renderer(rendererIn),
-													   isDisplayImage(true)
+VulkanImage::VulkanImage(VulkanRenderer& rendererIn) :
+		m_format(rendererIn.display->swapchainImageFormat),
+		renderer(rendererIn),
+		isDisplayImage(true)
 {
     uint32_t imageCount = 0;
     vkGetSwapchainImagesKHR(renderer.device, renderer.display->swapchain, &imageCount, nullptr);

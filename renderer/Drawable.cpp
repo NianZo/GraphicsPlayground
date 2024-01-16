@@ -21,6 +21,98 @@
 #include <vector>
 
 std::vector<char> readFile(const std::string& filename);
+// clang-tidy doesn't understand that Vulkan initializes several of the class members
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+Drawable::Drawable(Scene& scene, GraphicsPipelineDescriptor& pipelineDescriptor) :
+		m_renderer(scene.renderer),
+		pipelineDescriptors(pipelineDescriptor),
+		vertexBuffer(m_renderer, pipelineDescriptor.vertexData),
+		indexBuffer(m_renderer, pipelineDescriptor.indexData),
+		depthImage(m_renderer, scene.camera.extent, VulkanImage::findDepthFormat(m_renderer.gpu.physicalDevice), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
+		m_scene(scene)
+{
+	pipelineDescriptors.colorAttachment.format = m_scene.camera.image.m_format;
+	pipelineDescriptors.depthAttachment.format = depthImage.m_format;
+
+	pipelineDescriptors.viewports[0].width = static_cast<float>(scene.camera.extent.width);
+	pipelineDescriptors.viewports[0].height = static_cast<float>(scene.camera.extent.height);
+
+	pipelineDescriptors.scissors[0].extent = scene.camera.extent;
+
+	VkCommandBufferAllocateInfo commandBufferAI;
+	commandBufferAI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	commandBufferAI.pNext = nullptr;
+	commandBufferAI.commandPool = m_renderer.commandPool;
+	commandBufferAI.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	commandBufferAI.commandBufferCount = 1;
+
+	VkResult result = vkAllocateCommandBuffers(m_renderer.device, &commandBufferAI, &commandBuffer);
+	if (result != VK_SUCCESS)
+	{
+	    throw std::runtime_error("Failed to allocate command buffer from combined queue family command pool\n");
+	}
+
+	VkSemaphoreCreateInfo semaphoreCI;
+	semaphoreCI.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	semaphoreCI.pNext = nullptr;
+	semaphoreCI.flags = 0;
+
+	result = vkCreateSemaphore(m_renderer.device, &semaphoreCI, nullptr, &imageAvailableSemaphore);
+	if (result != VK_SUCCESS)
+	{
+	    throw std::runtime_error("Failed to create vkSemaphore\n");
+	}
+	result = vkCreateSemaphore(m_renderer.device, &semaphoreCI, nullptr, &renderFinishedSemaphore);
+	if (result != VK_SUCCESS)
+	{
+	    throw std::runtime_error("Failed to create vkSemaphore\n");
+	}
+
+	VkFenceCreateInfo fenceCI;
+	fenceCI.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceCI.pNext = nullptr;
+	fenceCI.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	result = vkCreateFence(m_renderer.device, &fenceCI, nullptr, &inFlightFence);
+	if (result != VK_SUCCESS)
+	{
+	    throw std::runtime_error("Failed to create fence\n");
+	}
+
+	uniformBuffers.emplace_back(m_renderer, sizeof(UniformBufferObject));
+
+	pipelineStates.emplace_back(m_renderer.device, m_renderer, *this, pipelineDescriptors);
+
+    //UniformBufferObject& ubo = renderer.scenes[0].drawables[0].ubo;
+    ubo.model = glm::mat4(1.0F);//glm::rotate(glm::mat4(1.0F), time * glm::radians(90.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+    ubo.view = glm::mat4(1.0F);//glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+    ubo.proj = glm::mat4(1.0F);//glm::perspective(glm::radians(45.0F), static_cast<float>(renderer.display->swapchainExtent.width) / static_cast<float>(renderer.display->swapchainExtent.height), 0.1F, 10.0F);
+    ubo.proj[1][1] *= -1;
+    std::memcpy(uniformBuffers[0].data, &ubo, sizeof(UniformBufferObject));
+
+	framebuffers.resize(m_scene.camera.image.imageViews.size());
+	for (size_t i = 0; i < m_scene.camera.image.imageViews.size(); i++)
+	{
+	    std::array<VkImageView, 2> attachments = {m_scene.camera.image.imageViews[i], depthImage.imageViews[0]};
+	    VkFramebufferCreateInfo framebufferCI;
+	    framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	    framebufferCI.pNext = nullptr;
+	    framebufferCI.flags = 0;
+	    framebufferCI.renderPass = pipelineStates[0].renderPass;
+	    framebufferCI.attachmentCount = attachments.size();
+	    framebufferCI.pAttachments = attachments.data();
+	    framebufferCI.width = m_scene.camera.extent.width;
+	    framebufferCI.height = m_scene.camera.extent.height;
+	    framebufferCI.layers = 1;
+	    std::cout << "About to create framebuffer\n";
+	    result = vkCreateFramebuffer(m_renderer.device, &framebufferCI, nullptr, &framebuffers[i]);
+	    if (result != VK_SUCCESS)
+	    {
+	        throw std::runtime_error("Failed to create framebuffer");
+	    }
+	    std::cout << "Created framebuffer\n";
+	}
+}
 
 // clang-tidy doesn't understand that Vulkan initializes several of the class members
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
@@ -29,7 +121,8 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
 		pipelineDescriptors(pipelineDescriptor),
 		vertexBuffer(renderer, pipelineDescriptor.vertexData),
 		indexBuffer(renderer, pipelineDescriptor.indexData),
-		depthImage(renderer, renderer.display->swapchainExtent, VulkanImage::findDepthFormat(renderer.gpu.physicalDevice), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+		depthImage(renderer, renderer.display->swapchainExtent, VulkanImage::findDepthFormat(renderer.gpu.physicalDevice), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
+		m_scene(renderer.scenes[0])
 {
     VkCommandBufferAllocateInfo commandBufferAI;
     commandBufferAI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -396,6 +489,89 @@ void Drawable::Render(uint32_t imageIndex)
     std::cout << "Finished recording command buffer\n";
 }
 
+void Drawable::render()
+{
+	recordCommandBuffer();
+
+	executeCommandBuffer();
+}
+
+void Drawable::recordCommandBuffer()
+{
+    vkResetCommandBuffer(commandBuffer, 0);
+
+    VkCommandBufferBeginInfo beginInfo;
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.pNext = nullptr;
+    beginInfo.flags = 0;
+    beginInfo.pInheritanceInfo = nullptr;
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    // start renderpass, bind pipeline, set viewport/scissor, draw, end renderpass
+    VkRenderPassBeginInfo renderPassBI;
+    renderPassBI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBI.pNext = nullptr;
+    renderPassBI.renderPass = pipelineStates[0].renderPass;
+    renderPassBI.framebuffer = framebuffers[0];
+    renderPassBI.renderArea.offset = {0, 0};
+    //renderPassBI.renderArea.extent = m_renderer.display->swapchainExtent;
+    renderPassBI.renderArea.extent = m_scene.camera.extent;
+    std::array<VkClearValue, 2> clearColors;
+    clearColors[0].color = {{0.0F, 0.0F, 0.0F, 1.0F}};
+    clearColors[1].depthStencil = {1.0F, 0};
+    renderPassBI.clearValueCount = clearColors.size();
+    renderPassBI.pClearValues = clearColors.data();
+    vkCmdBeginRenderPass(commandBuffer, &renderPassBI, VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineStates[0].graphicsPipeline);
+
+    std::array<VkBuffer, 1> vertexBuffers = {vertexBuffer.buffer.buffer};
+    std::array<VkDeviceSize, 1> offsets = {0};
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers.data(), offsets.data());
+    vkCmdBindIndexBuffer(commandBuffer, indexBuffer.buffer.buffer, 0, VK_INDEX_TYPE_UINT16);
+
+    if (!pipelineDescriptors.dynamicStates.empty())
+    {
+        vkCmdSetViewport(commandBuffer, 0, 1, pipelineDescriptors.viewports.data());
+
+        vkCmdSetScissor(commandBuffer, 0, 1, pipelineDescriptors.scissors.data());
+    }
+
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineStates[0].pipelineLayout, 0, 1, &pipelineStates[0].descriptorSets[0], 0, nullptr);
+    //vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indexBuffer.count), 1, 0, 0, 0);
+
+    vkCmdEndRenderPass(commandBuffer);
+
+    vkEndCommandBuffer(commandBuffer);
+}
+
+void Drawable::executeCommandBuffer()
+{
+    // Submit command buffer
+//    std::array<VkSemaphore, 1> waitSemaphores = {imageAvailableSemaphore}; // TODO(nic) use Drawable's instead
+//    std::array<VkSemaphore, 1> signalSemaphores = {renderFinishedSemaphore};
+    std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_TRANSFER_BIT};
+
+    VkSubmitInfo submitInfo;
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pNext = nullptr;
+    submitInfo.waitSemaphoreCount = 0;//waitSemaphores.size();
+    submitInfo.pWaitSemaphores = nullptr;//waitSemaphores.data();
+    submitInfo.pWaitDstStageMask = waitStages.data();
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+    submitInfo.signalSemaphoreCount = 0;//signalSemaphores.size();
+    submitInfo.pSignalSemaphores = nullptr;//signalSemaphores.data();
+
+    const VkResult result = vkQueueSubmit(m_renderer.combinedQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to submit drawing buffer: \n" + std::to_string(result));
+    }
+    vkQueueWaitIdle(m_renderer.combinedQueue); // TODO (nic) this will have issues with other gpu jobs going
+}
+
 std::vector<char> readFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -450,7 +626,7 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() : inputAssembly({}),
     rasterizer.flags = 0;
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
-    rasterizer.polygonMode = VK_POLYGON_MODE_LINE;//VK_POLYGON_MODE_FILL;
+    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;//VK_POLYGON_MODE_LINE;
     rasterizer.lineWidth = 1.0F;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
     //rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
@@ -511,12 +687,12 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() : inputAssembly({}),
     colorAttachment.flags = 0;
     colorAttachment.format = VK_FORMAT_UNDEFINED;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
     depthAttachment.flags = 0;
     depthAttachment.format = VK_FORMAT_UNDEFINED;
@@ -621,10 +797,10 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     viewportState.flags = 0;
     viewportState.viewportCount = static_cast<uint32_t>(descriptor.viewports.size());
     auto viewportDynamicState = std::find(descriptor.dynamicStates.begin(), descriptor.dynamicStates.end(), VK_DYNAMIC_STATE_VIEWPORT);
-    viewportState.pViewports = viewportDynamicState == descriptor.dynamicStates.end() ? nullptr : descriptor.viewports.data();
+    viewportState.pViewports = viewportDynamicState == descriptor.dynamicStates.end() ? descriptor.viewports.data() : nullptr;
     viewportState.scissorCount = static_cast<uint32_t>(descriptor.scissors.size());
     auto scissorDynamicState = std::find(descriptor.dynamicStates.begin(), descriptor.dynamicStates.end(), VK_DYNAMIC_STATE_SCISSOR);
-    viewportState.pScissors = scissorDynamicState == descriptor.dynamicStates.end() ? nullptr : descriptor.scissors.data();
+    viewportState.pScissors = scissorDynamicState == descriptor.dynamicStates.end() ? descriptor.scissors.data() : nullptr;
 
     // TODO (nic) move the descriptors someplace else
     VkDescriptorSetLayoutBinding uboLayoutBinding;
@@ -646,14 +822,27 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     	throw std::runtime_error("Failed to create descriptor set layout\n");
     }
 
-    std::vector<VkDescriptorSetLayout> layouts (renderer.display->surfaceCapabilities.minImageCount, descriptorSetLayout);
+//    std::vector<VkDescriptorSetLayout> layouts (renderer.display->surfaceCapabilities.minImageCount, descriptorSetLayout);
+//    VkDescriptorSetAllocateInfo descriptorSetAi;
+//    descriptorSetAi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+//    descriptorSetAi.pNext = nullptr;
+//    descriptorSetAi.descriptorPool = renderer.descriptorPool;
+//    descriptorSetAi.descriptorSetCount = static_cast<uint32_t>(layouts.size());
+//    descriptorSetAi.pSetLayouts = layouts.data();
+//    descriptorSets.resize(layouts.size());
+//    result = vkAllocateDescriptorSets(device, &descriptorSetAi, descriptorSets.data());
+//    if (result != VK_SUCCESS)
+//    {
+//    	throw std::runtime_error("Failed to allocate descriptor sets\n");
+//    }
+    //std::vector<VkDescriptorSetLayout> layouts (renderer.display->surfaceCapabilities.minImageCount, descriptorSetLayout);
     VkDescriptorSetAllocateInfo descriptorSetAi;
     descriptorSetAi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     descriptorSetAi.pNext = nullptr;
     descriptorSetAi.descriptorPool = renderer.descriptorPool;
-    descriptorSetAi.descriptorSetCount = static_cast<uint32_t>(layouts.size());
-    descriptorSetAi.pSetLayouts = layouts.data();
-    descriptorSets.resize(layouts.size());
+    descriptorSetAi.descriptorSetCount = 1;
+    descriptorSetAi.pSetLayouts = &descriptorSetLayout;
+    descriptorSets.resize(1);
     result = vkAllocateDescriptorSets(device, &descriptorSetAi, descriptorSets.data());
     if (result != VK_SUCCESS)
     {
