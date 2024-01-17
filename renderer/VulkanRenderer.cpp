@@ -336,12 +336,12 @@ void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer)
 			    auto currentTime = std::chrono::high_resolution_clock::now();
 			    const float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 			    //UniformBufferObject ubo;
-			    UniformBufferObject& ubo = renderer.scenes[0].drawables[0].ubo;
-			    ubo.model = glm::rotate(glm::mat4(1.0F), time * glm::radians(90.0F), glm::vec3(0.0F, 0.0F, 1.0F));
-			    ubo.view = glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
-			    ubo.proj = glm::perspective(glm::radians(45.0F), static_cast<float>(renderer.display->swapchainExtent.width) / static_cast<float>(renderer.display->swapchainExtent.height), 0.1F, 10.0F);
-			    ubo.proj[1][1] *= -1;
-			    std::memcpy(renderer.scenes[0].drawables[0].uniformBuffers[imageIndex].data, &ubo, sizeof(UniformBufferObject));
+//			    UniformBufferObject& ubo = renderer.scenes[0].drawables[0].ubo;
+//			    ubo.model = glm::rotate(glm::mat4(1.0F), time * glm::radians(90.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+//			    ubo.view = glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+//			    ubo.proj = glm::perspective(glm::radians(45.0F), static_cast<float>(renderer.display->swapchainExtent.width) / static_cast<float>(renderer.display->swapchainExtent.height), 0.1F, 10.0F);
+//			    ubo.proj[1][1] *= -1;
+//			    std::memcpy(renderer.scenes[0].drawables[0].uniformBuffers[imageIndex].data, &ubo, sizeof(UniformBufferObject));
 
 				if (!renderer.scenes[0].render(imageIndex))
 				{

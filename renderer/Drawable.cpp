@@ -24,6 +24,7 @@ std::vector<char> readFile(const std::string& filename);
 // clang-tidy doesn't understand that Vulkan initializes several of the class members
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 Drawable::Drawable(Scene& scene, GraphicsPipelineDescriptor& pipelineDescriptor) :
+		transform(glm::mat4(1.0F)),
 		m_renderer(scene.renderer),
 		pipelineDescriptors(pipelineDescriptor),
 		vertexBuffer(m_renderer, pipelineDescriptor.vertexData),
@@ -84,11 +85,11 @@ Drawable::Drawable(Scene& scene, GraphicsPipelineDescriptor& pipelineDescriptor)
 	pipelineStates.emplace_back(m_renderer.device, m_renderer, *this, pipelineDescriptors);
 
     //UniformBufferObject& ubo = renderer.scenes[0].drawables[0].ubo;
-    ubo.model = glm::mat4(1.0F);//glm::rotate(glm::mat4(1.0F), time * glm::radians(90.0F), glm::vec3(0.0F, 0.0F, 1.0F));
-    ubo.view = glm::mat4(1.0F);//glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
-    ubo.proj = glm::mat4(1.0F);//glm::perspective(glm::radians(45.0F), static_cast<float>(renderer.display->swapchainExtent.width) / static_cast<float>(renderer.display->swapchainExtent.height), 0.1F, 10.0F);
-    ubo.proj[1][1] *= -1;
-    std::memcpy(uniformBuffers[0].data, &ubo, sizeof(UniformBufferObject));
+//    ubo.model = glm::mat4(1.0F);//glm::rotate(glm::mat4(1.0F), time * glm::radians(90.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+//    ubo.view = glm::mat4(1.0F);//glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+//    ubo.proj = glm::mat4(1.0F);//glm::perspective(glm::radians(45.0F), static_cast<float>(renderer.display->swapchainExtent.width) / static_cast<float>(renderer.display->swapchainExtent.height), 0.1F, 10.0F);
+//    ubo.proj[1][1] *= -1;
+//    std::memcpy(uniformBuffers[0].data, &ubo, sizeof(UniformBufferObject));
 
 	framebuffers.resize(m_scene.camera.image.imageViews.size());
 	for (size_t i = 0; i < m_scene.camera.image.imageViews.size(); i++)
@@ -536,6 +537,13 @@ void Drawable::recordCommandBuffer()
 
 void Drawable::executeCommandBuffer()
 {
+	// Update uniform data
+	UniformBufferObject ubo;
+    ubo.model = transform;
+    ubo.view = glm::mat4(1.0F);//glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+    ubo.proj = glm::mat4(1.0F);//glm::perspective(glm::radians(45.0F), static_cast<float>(renderer.display->swapchainExtent.width) / static_cast<float>(renderer.display->swapchainExtent.height), 0.1F, 10.0F);
+    ubo.proj[1][1] *= -1;
+    std::memcpy(uniformBuffers[0].data, &ubo, sizeof(UniformBufferObject));
     // Submit command buffer
 //    std::array<VkSemaphore, 1> waitSemaphores = {imageAvailableSemaphore}; // TODO(nic) use Drawable's instead
 //    std::array<VkSemaphore, 1> signalSemaphores = {renderFinishedSemaphore};

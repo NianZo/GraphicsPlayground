@@ -98,7 +98,8 @@ class Drawable
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
     VkFence inFlightFence;
-    UniformBufferObject ubo;
+    //UniformBufferObject ubo;
+    glm::mat4 transform;
 
     std::vector<UniformBuffer> uniformBuffers;
 
