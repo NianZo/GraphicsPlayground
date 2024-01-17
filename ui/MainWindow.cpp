@@ -104,7 +104,9 @@ MainWindow::MainWindow() : ui(new Ui::Form),
     //ui->comboBox_2->setCurrentIndex(0);
     polygonModeComboBox(0); // Initialize
 
-    createRenderer();
+    // For now don't do this until the interface is more fleshed out
+    //createRenderer();
+
 //    renderer = std::make_unique<VulkanRenderer>(rendererBase, surface, ui->comboBox->currentIndex(), ui->widget->size().width(), ui->widget->size().height());
 //    // renderer(rendererBase, surface, ui->comboBox->currentIndex());
 //    // TODO (nic) holy hell the separation of concerns is currently non-existent
