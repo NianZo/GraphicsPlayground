@@ -200,3 +200,63 @@ TEST(RenderTestBasic, DrawableWithTransform)
 	EXPECT_EQ(cameraData.index(399, 300).r, 255);
 	EXPECT_EQ(cameraData.index(400, 300).r, 42);
 }
+
+TEST(RenderTestBasic, CameraWithTransformAndPerspective)
+{
+	std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(args[0])).parent_path();
+	RendererBase rendererBase(pwd, "RenderTestBasic");
+	ASSERT_NE(rendererBase.physicalDevices.size(), 0);
+
+	auto gpuDescriptor = std::ranges::find_if(rendererBase.physicalDevices, [](PhysicalDeviceDescriptor& pdd){return pdd.properties.vendorID != 0;});
+	ASSERT_NE(gpuDescriptor, rendererBase.physicalDevices.end());
+
+    VulkanRenderer renderer(rendererBase, *gpuDescriptor);
+
+	renderer.scenes.emplace_back(renderer, 800, 600);
+
+	const std::filesystem::path shaderDirectory = renderer.rendererBase.projectDirectory.parent_path() / "shaders";
+    GraphicsPipelineDescriptor descriptor;
+    descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+    descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+
+    // Fullscreen quad
+	const std::vector<Vertex> vertices = {
+			{{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
+			{{1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
+			{{1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
+			{{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}
+	};
+	const std::vector<uint16_t> indices = {
+			0, 1, 2, 2, 3, 0
+	};
+
+	descriptor.vertexData = vertices;
+	descriptor.indexData = indices;
+	renderer.scenes[0].drawables.emplace_back(renderer.scenes[0], descriptor);
+	renderer.scenes[0].camera.transform = glm::lookAt(glm::vec3(-.25, 0, 4), glm::vec3(-.25, 0, 0), glm::vec3(0, 1, 0));
+	renderer.scenes[0].camera.perspective = glm::perspective(glm::radians(45.0F), static_cast<float>(800) / static_cast<float>(600), 0.1F, 10.0F);
+
+	renderer.scenes[0].clearColor = {.uint32 = {42, 1, 2, 255}};
+	renderer.scenes[0].render();
+	ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
+
+	// Top left corner
+	EXPECT_EQ(cameraData.index(264, 119).r, 255);
+	EXPECT_EQ(cameraData.index(263, 119).r, 42);
+	EXPECT_EQ(cameraData.index(264, 118).r, 42);
+
+	// Top right corner
+	EXPECT_EQ(cameraData.index(625, 119).r, 255);
+	EXPECT_EQ(cameraData.index(626, 119).r, 42);
+	EXPECT_EQ(cameraData.index(625, 118).r, 42);
+
+	// Bottom right corner
+	EXPECT_EQ(cameraData.index(625, 480).r, 255);
+	EXPECT_EQ(cameraData.index(626, 480).r, 42);
+	EXPECT_EQ(cameraData.index(625, 481).r, 42);
+
+	// Bottom left corner
+	EXPECT_EQ(cameraData.index(264, 480).r, 255);
+	EXPECT_EQ(cameraData.index(263, 480).r, 42);
+	EXPECT_EQ(cameraData.index(264, 481).r, 42);
+}

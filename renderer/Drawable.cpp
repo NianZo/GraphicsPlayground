@@ -540,8 +540,9 @@ void Drawable::executeCommandBuffer()
 	// Update uniform data
 	UniformBufferObject ubo;
     ubo.model = transform;
-    ubo.view = glm::mat4(1.0F);//glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
-    ubo.proj = glm::mat4(1.0F);//glm::perspective(glm::radians(45.0F), static_cast<float>(renderer.display->swapchainExtent.width) / static_cast<float>(renderer.display->swapchainExtent.height), 0.1F, 10.0F);
+    ubo.view = m_scene.camera.transform;//glm::mat4(1.0F);//glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+    ubo.proj = m_scene.camera.perspective;//glm::mat4(1.0F);//glm::perspective(glm::radians(45.0F), static_cast<float>(renderer.display->swapchainExtent.width) / static_cast<float>(renderer.display->swapchainExtent.height), 0.1F, 10.0F);
+    //ubo.proj = glm::perspective(glm::radians(45.0F), static_cast<float>(800) / static_cast<float>(600), 0.1F, 10.0F);
     ubo.proj[1][1] *= -1;
     std::memcpy(uniformBuffers[0].data, &ubo, sizeof(UniformBufferObject));
     // Submit command buffer

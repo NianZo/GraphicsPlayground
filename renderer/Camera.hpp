@@ -9,6 +9,7 @@
 #define RENDERER_CAMERA_HPP_
 
 #include "VulkanImage.hpp"
+#include <glm/glm.hpp>
 #include <span>
 //#include "VulkanRenderer.hpp"
 class VulkanRenderer;
@@ -80,6 +81,8 @@ public:
 	VulkanImage image;
 	ImageData imageDataCpu;
 	VkCommandBuffer commandBuffer;
+	glm::mat4 transform;
+	glm::mat4 perspective;
 	// Include a transformation matrix later to set camera position
 	// Probably need a reference/shared_ptr/weak_ptr to the scene that the camera is placed in
 };

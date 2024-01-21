@@ -15,7 +15,9 @@ Camera::Camera(VulkanRenderer& rendererIn) :
 			extent(0, 0),
 			image(renderer),
 			imageDataCpu(0, 0),
-			commandBuffer(VK_NULL_HANDLE)
+			commandBuffer(VK_NULL_HANDLE),
+			transform(glm::mat4(1.0F)),
+			perspective(glm::mat4(1.0F))
 {
 	//image(renderer);
 	//imageDataCpu(0, 0);
@@ -26,7 +28,9 @@ Camera::Camera(VulkanRenderer& rendererIn, uint16_t width, uint16_t height) :
 			extent(width, height),
 			image(renderer, extent, VK_FORMAT_R8G8B8A8_UINT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
 			imageDataCpu(width, height),
-			commandBuffer(VK_NULL_HANDLE)
+			commandBuffer(VK_NULL_HANDLE),
+			transform(glm::mat4(1.0F)),
+			perspective(glm::mat4(1.0F))
     {
         VkCommandBufferAllocateInfo commandBufferAI;
         commandBufferAI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
