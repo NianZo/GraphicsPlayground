@@ -167,45 +167,37 @@ TEST(RenderTestBasic, TwoDrawables)
 
     VulkanRenderer renderer(rendererBase, *gpuDescriptor);
 
-    renderer.scenes.emplace_back(renderer, 800, 600);
-
     const std::filesystem::path shaderDirectory = renderer.rendererBase.projectDirectory.parent_path() / "shaders";
-    GraphicsPipelineDescriptor descriptor;
-    descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
 
     // Quad covering left side of screen
-    const std::vector<Vertex> vertices = {
+    const std::vector<Vertex> verticesL = {
         {{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
         {{0.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
         {{0.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
         {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}
     };
-    const std::vector<uint16_t> indices = {
-        0, 1, 2, 2, 3, 0
-    };
-
-    descriptor.vertexData = vertices;
-    descriptor.indexData = indices;
-    renderer.scenes[0].drawables.emplace_back(renderer.scenes[0], descriptor);
-
     // Quad covering right side of screen
-    const std::vector<Vertex> vertices2 = {
+    const std::vector<Vertex> verticesR = {
         {{0.0F, -1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
         {{1.0F, -1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
         {{1.0F, 1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
         {{0.0F, 1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}}
     };
-    const std::vector<uint16_t> indices2 = {
+    const std::vector<uint16_t> indices = {
         0, 1, 2, 2, 3, 0
     };
 
-    GraphicsPipelineDescriptor descriptor2;
-    descriptor2.vertexData = vertices2;
-    descriptor2.indexData = indices2;
-    descriptor2.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    descriptor2.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
-    renderer.scenes[0].drawables.emplace_back(renderer.scenes[0], descriptor2);
+    std::array<GraphicsPipelineDescriptor, 2> descriptors;
+    descriptors[0].vertexData = verticesL;
+    descriptors[0].indexData = indices;
+    descriptors[0].vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+    descriptors[0].fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    descriptors[1].vertexData = verticesR;
+    descriptors[1].indexData = indices;
+    descriptors[1].vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+    descriptors[1].fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+
+    renderer.scenes.emplace_back(descriptors,renderer, 800, 600);
 
     renderer.scenes[0].clearColor = {.float32 = {0.5F, 0.1F, 0.1F, 1.0F}};
     renderer.scenes[0].render();

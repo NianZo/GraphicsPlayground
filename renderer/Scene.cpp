@@ -36,6 +36,33 @@ Scene::Scene(VulkanRenderer& rendererIn, uint16_t cameraWidth, uint16_t cameraHe
     }
 }
 
+Scene::Scene(std::span<GraphicsPipelineDescriptor> drawableDescriptors, VulkanRenderer& rendererIn, uint16_t cameraWidth, uint16_t cameraHeight) :
+    renderer(rendererIn),
+    camera(renderer, cameraWidth, cameraHeight),
+    clearColor({.float32 = {0.0F, 0.0F, 0.0F, 1.0F}})
+{
+    std::array<VkDescriptorPoolSize, 1> poolSizes =
+        {{{.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, .descriptorCount = static_cast<uint32_t>(drawableDescriptors.size())}}};
+    //poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    //poolSizes[0].descriptorCount = drawableDescriptors.size();
+    const VkDescriptorPoolCreateInfo poolCi =
+        {
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .maxSets = poolSizes[0].descriptorCount,
+            .poolSizeCount = poolSizes.size(),
+            .pPoolSizes = poolSizes.data()
+        };
+    VkResult result = vkCreateDescriptorPool(renderer.device, &poolCi, nullptr, &descriptorPool);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create descriptor pool\n");
+    }
+
+    std::ranges::for_each(drawableDescriptors, [this](GraphicsPipelineDescriptor& descriptor){drawables.emplace_back(*this,descriptor);});
+}
+
 Scene::~Scene()
 {
 	vkDestroyDescriptorPool(renderer.device, descriptorPool, nullptr);
