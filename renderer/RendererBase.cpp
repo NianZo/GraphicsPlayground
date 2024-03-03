@@ -10,10 +10,11 @@
 
 // clang-tidy doesn't understand that Vulkan initializes several of the class members
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-RendererBase::RendererBase(std::filesystem::path directory, const char* const applicationName) : projectDirectory(std::move(directory))
+RendererBase::RendererBase(std::filesystem::path directory, const char* const applicationName) :
+    projectDirectory(std::move(directory))
 {
     std::vector<const char*> layers;
-    std::vector<const char*> extensions = {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_xcb_surface"}; // TODO(nic) this is an issue and will come back to haunt me on cross-platform support
+    std::vector<const char*> extensions = { VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_xcb_surface" }; // TODO(nic) this is an issue and will come back to haunt me on cross-platform support
     if (enableValidationLayers)
     {
         // TODO(nic) check for validation layer availability here
@@ -78,10 +79,11 @@ RendererBase::RendererBase(std::filesystem::path directory, const char* const ap
     }
 }
 
-RendererBase::RendererBase(RendererBase&& other) noexcept : instance(other.instance),
-                                                            physicalDevices(std::move(other.physicalDevices)),
-                                                            debugMessenger(other.debugMessenger),
-                                                            enableValidationLayers(other.enableValidationLayers)
+RendererBase::RendererBase(RendererBase&& other) noexcept :
+    instance(other.instance),
+    physicalDevices(std::move(other.physicalDevices)),
+    debugMessenger(other.debugMessenger),
+    enableValidationLayers(other.enableValidationLayers)
 {
     other.instance = VK_NULL_HANDLE;
     other.debugMessenger = VK_NULL_HANDLE;

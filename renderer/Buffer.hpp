@@ -17,23 +17,23 @@ class VulkanRenderer;
 
 class Buffer
 {
-public:
-	Buffer(VulkanRenderer& rendererIn, size_t size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
-	Buffer(const Buffer&) = delete;
-	Buffer& operator=(const Buffer&) = delete;
-	Buffer(Buffer&&) noexcept; // TODO (nic) this is causing the validation errors + segfaults. The VK structs need to be nullified in this
-	Buffer& operator=(Buffer&&) = delete;
-	~Buffer();
+  public:
+    Buffer(VulkanRenderer& rendererIn, size_t size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+    Buffer(const Buffer&) = delete;
+    Buffer& operator=(const Buffer&) = delete;
+    Buffer(Buffer&&) noexcept; // TODO (nic) this is causing the validation errors + segfaults. The VK structs need to be nullified in this
+    Buffer& operator=(Buffer&&) = delete;
+    ~Buffer();
 
-	void copyTo(Buffer& other) const;
+    void copyTo(Buffer& other) const;
 
-	VulkanRenderer& renderer;
-	size_t size;
-	VkBuffer buffer;
-	VkDeviceMemory bufferMemory;
+    VulkanRenderer& renderer;
+    size_t size;
+    VkBuffer buffer;
+    VkDeviceMemory bufferMemory;
 
-private:
-	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+  private:
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 };
 
 #endif /* RENDERER_BUFFER_HPP_ */

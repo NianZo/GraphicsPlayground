@@ -12,24 +12,25 @@
 
 struct Vertex
 {
-	glm::vec3 pos;
-	glm::vec3 color;
+    glm::vec3 pos;
+    glm::vec3 color;
 };
 
 class VertexBuffer
 {
-public:
-	VertexBuffer(VulkanRenderer& renderer, const std::vector<Vertex>& vertexData);
-	VertexBuffer(const VertexBuffer&) = delete;
-	VertexBuffer& operator=(const VertexBuffer&) = delete;
-	VertexBuffer(VertexBuffer&&) noexcept = default;
-	VertexBuffer& operator=(VertexBuffer&&) = delete;
-	~VertexBuffer();
+  public:
+    VertexBuffer(VulkanRenderer& renderer, const std::vector<Vertex>& vertexData);
+    VertexBuffer(const VertexBuffer&) = delete;
+    VertexBuffer& operator=(const VertexBuffer&) = delete;
+    VertexBuffer(VertexBuffer&&) noexcept = default;
+    VertexBuffer& operator=(VertexBuffer&&) = delete;
+    ~VertexBuffer();
 
-	size_t size;
-	Buffer buffer;
-private:
-	VulkanRenderer& renderer;
+    size_t size;
+    Buffer buffer;
+
+  private:
+    VulkanRenderer& renderer;
 };
 
 #endif /* RENDERER_VERTEXBUFFER_HPP_ */

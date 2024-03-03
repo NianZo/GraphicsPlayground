@@ -14,11 +14,12 @@
 
 // clang-tidy doesn't understand that Vulkan initializes several of the class members
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-VulkanDisplay::VulkanDisplay(VulkanRenderer& rendererIn, VkSurfaceKHR& displaySurface, uint32_t width, uint32_t height) : renderer(rendererIn),
-                                                                                                                          surface(displaySurface),
-                                                                                                                          swapchain(VK_NULL_HANDLE),
-                                                                                                                          swapchainPresentMode(VK_PRESENT_MODE_FIFO_KHR),
-                                                                                                                          swapchainImageFormat(VK_FORMAT_B8G8R8A8_SRGB)
+VulkanDisplay::VulkanDisplay(VulkanRenderer& rendererIn, VkSurfaceKHR& displaySurface, uint32_t width, uint32_t height) :
+    renderer(rendererIn),
+    surface(displaySurface),
+    swapchain(VK_NULL_HANDLE),
+    swapchainPresentMode(VK_PRESENT_MODE_FIFO_KHR),
+    swapchainImageFormat(VK_FORMAT_B8G8R8A8_SRGB)
 {
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(renderer.gpu.physicalDevice, surface, &surfaceCapabilities);
@@ -48,12 +49,13 @@ VulkanDisplay::VulkanDisplay(VulkanRenderer& rendererIn, VkSurfaceKHR& displaySu
     //	}
     swapchainExtent = {
         std::clamp(width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width),
-        std::clamp(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height)};
+        std::clamp(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height)
+    };
     //    swapchainExtent.width = std::clamp(width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
     //    swapchainExtent.height = std::clamp(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
-    //std::cout << "swapchainExtent: " << width << ", " << height << "\n";
-    //std::cout << "minImageExtent: " << surfaceCapabilities.minImageExtent.width << ", " << surfaceCapabilities.minImageExtent.height << "\n";
-    //std::cout << "maxImageExtent: " << surfaceCapabilities.maxImageExtent.width << ", " << surfaceCapabilities.maxImageExtent.height << "\n";
+    // std::cout << "swapchainExtent: " << width << ", " << height << "\n";
+    // std::cout << "minImageExtent: " << surfaceCapabilities.minImageExtent.width << ", " << surfaceCapabilities.minImageExtent.height << "\n";
+    // std::cout << "maxImageExtent: " << surfaceCapabilities.maxImageExtent.width << ", " << surfaceCapabilities.maxImageExtent.height << "\n";
     // VkExtent2D(width, height, 1);
 
     VkSwapchainCreateInfoKHR createInfo;
@@ -78,32 +80,33 @@ VulkanDisplay::VulkanDisplay(VulkanRenderer& rendererIn, VkSurfaceKHR& displaySu
 
     vkCreateSwapchainKHR(renderer.device, &createInfo, nullptr, &swapchain);
 
-    //image = std::make_unique<VulkanImage>(*this);
-    //renderer.cameras.emplace_back(*this);
-    //camera(renderer.cameras.back());
+    // image = std::make_unique<VulkanImage>(*this);
+    // renderer.cameras.emplace_back(*this);
+    // camera(renderer.cameras.back());
     //	fpGetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR) vkGetDeviceProcAddr(device, "vkGetSwapchainImagesKHR");
     //	fpAcquireNextImageKHR = (PFN_vkAcquireNextImageKHR) vkGetDeviceProcAddr(device, "vkAcquireNextImageKHR");
     //	fpQueuePresentKHR = (PFN_vkQueuePresentKHR) vkGetDeviceProcAddr(device, "vkQueuePresentKHR");
 }
 
-VulkanDisplay::VulkanDisplay(VulkanDisplay&& other) noexcept : renderer(other.renderer),
-                                                               surface(other.surface),
-                                                               swapchain(other.swapchain),
-                                                               surfaceCapabilities(other.surfaceCapabilities),
-                                                               presentModes(other.presentModes),
-                                                               swapchainExtent(other.swapchainExtent),
-                                                               preTransform(other.preTransform),
-                                                               swapchainPresentMode(other.swapchainPresentMode),
-                                                               swapchainImageFormat(other.swapchainImageFormat),
-                                                               surfaceFormats(other.surfaceFormats)
-                                                               //image(std::move(other.image)),
-															   //camera(other.camera)
+VulkanDisplay::VulkanDisplay(VulkanDisplay&& other) noexcept :
+    renderer(other.renderer),
+    surface(other.surface),
+    swapchain(other.swapchain),
+    surfaceCapabilities(other.surfaceCapabilities),
+    presentModes(other.presentModes),
+    swapchainExtent(other.swapchainExtent),
+    preTransform(other.preTransform),
+    swapchainPresentMode(other.swapchainPresentMode),
+    swapchainImageFormat(other.swapchainImageFormat),
+    surfaceFormats(other.surfaceFormats)
+// image(std::move(other.image)),
+// camera(other.camera)
 {
     other.swapchain = VK_NULL_HANDLE;
 }
 
 VulkanDisplay::~VulkanDisplay()
 {
-    //image.reset();
+    // image.reset();
     vkDestroySwapchainKHR(renderer.device, swapchain, nullptr);
 }

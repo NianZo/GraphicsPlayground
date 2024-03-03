@@ -16,7 +16,7 @@ class VulkanRenderer;
 class VulkanImage
 {
   public:
-	VulkanImage(VulkanRenderer& renderer, VkExtent2D extent, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
+    VulkanImage(VulkanRenderer& renderer, VkExtent2D extent, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
     explicit VulkanImage(VulkanRenderer& renderer);
     VulkanImage(const VulkanImage&) = delete;
     VulkanImage& operator=(const VulkanImage&) = delete;

@@ -27,7 +27,7 @@
 
 int main(int argc, char* argv[])
 {
-	//const auto args = std::span(argv, static_cast<size_t>(argc));
+    // const auto args = std::span(argv, static_cast<size_t>(argc));
     const QApplication app(argc, argv);
 
     const MainWindow mainWindow;

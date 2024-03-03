@@ -18,7 +18,7 @@ if (AUTO_LOCATE_VULKAN)
     if (NOT ${Vulkan_INCLUDE_DIRS} STREQUAL "")
         set(VULKAN_PATH ${Vulkan_INCLUDE_DIRS})
         STRING(REGEX REPLACE "/Include" "" VULKAN_PATH ${VULKAN_PATH})
-    endif()
+    endif ()
 
     if (NOT Vulkan_FOUND)
         # CMake may fail to locate the libraries but could be able to
@@ -29,13 +29,13 @@ if (AUTO_LOCATE_VULKAN)
         # Check if Vulkan path is valid, if not switch to manual mode
         if (EXISTS "${VULKAN_PATH}")
             message(STATUS "Successfully located the Vulkan SDK: ${VULKAN_PATH}")
-        else()
+        else ()
             message(ERROR " Unable to locate VulkanSDK. Please turn off auto locate option by specifying 'AUTO_LOCATE_VULKAN' as 'OFF'")
             message(ERROR " and specify manual path using 'VULKAN_SDK' and 'VULKAN_VERSION' variables in CMakeLists.txt")
             return()
-        endif()
-    endif()
-endif()
+        endif ()
+    endif ()
+endif ()
 
 set(RENDERER_LIB "VulkanRenderer")
 
@@ -62,9 +62,9 @@ find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
 set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "-extra-arg=-Wno-unknown-warning-option")
 set_property(TARGET ${RENDERER_LIB} PROPERTY CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-#    target_link_libraries(${RENDERER_LIB} PRIVATE --coverage -fprofile-instr-generate -fcoverage-mapping)
-endif()
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+    #    target_link_libraries(${RENDERER_LIB} PRIVATE --coverage -fprofile-instr-generate -fcoverage-mapping)
+endif ()
 
 
 

@@ -8,15 +8,15 @@
 #ifndef RENDERER_VULKANRENDERER_HPP_
 #define RENDERER_VULKANRENDERER_HPP_
 
-#include "RendererBase.hpp"
-#include "VulkanDisplay.hpp"
 #include "Camera.hpp"
 #include "Drawable.hpp"
+#include "RendererBase.hpp"
 #include "Scene.hpp"
-#include <thread>
+#include "VulkanDisplay.hpp"
 #include <memory>
 #include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 #include <vulkan/vulkan.h>
 // class VulkanDisplay;
@@ -45,7 +45,7 @@ class VulkanRenderer
     uint32_t FindCombinedQueueFamily();
 
     void Render();
-    //void Render(const GraphicsPipelineDescriptor& pipelineDescriptor);
+    // void Render(const GraphicsPipelineDescriptor& pipelineDescriptor);
     void Resize(VkSurfaceKHR surface, uint32_t width, uint32_t height);
 
     RendererBase& rendererBase;
@@ -61,17 +61,16 @@ class VulkanRenderer
 
     std::jthread renderThread;
     std::mutex renderMutex;
-    //std::vector<Drawable> drawables;
-    //std::vector<Camera> cameras;
-    //Camera camera;
+    // std::vector<Drawable> drawables;
+    // std::vector<Camera> cameras;
+    // Camera camera;
 
   private:
-    std::vector<const char*> deviceExtensionNames =
-        {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME
-        };
+    std::vector<const char*> deviceExtensionNames = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
 
-    //static void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer);
+    // static void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer);
 };
 
 #endif /* RENDERER_VULKANRENDERER_HPP_ */

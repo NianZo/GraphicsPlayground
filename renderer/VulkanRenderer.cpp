@@ -20,14 +20,14 @@
 void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer);
 
 VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, PhysicalDeviceDescriptor& physicalDevice, uint32_t width, uint32_t height) :
-		rendererBase(base),
-        gpu(physicalDevice),
-        device(VK_NULL_HANDLE),
-        combinedQueueFamily(FindCombinedQueueFamily(surface)),
-        combinedQueue(VK_NULL_HANDLE),
-        commandPool(VK_NULL_HANDLE)
+    rendererBase(base),
+    gpu(physicalDevice),
+    device(VK_NULL_HANDLE),
+    combinedQueueFamily(FindCombinedQueueFamily(surface)),
+    combinedQueue(VK_NULL_HANDLE),
+    commandPool(VK_NULL_HANDLE)
 {
-    std::array<float, 1> queuePriorities = {0.0F};
+    std::array<float, 1> queuePriorities = { 0.0F };
     VkDeviceQueueCreateInfo queueCI;
     queueCI.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queueCI.pNext = nullptr;
@@ -71,24 +71,23 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, Physic
     }
 
     display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
-    //cameras.emplace_back(*this);
-
+    // cameras.emplace_back(*this);
 
     // TODO (nic) std::mutex, std::scoped_lock, std::stop_source, std::stop_token
 
     // TODO (nic) the render loop should not automatically start, should have api start/stop hooks
-    //renderThread = std::jthread(renderLoop, std::ref(*this));
+    // renderThread = std::jthread(renderLoop, std::ref(*this));
 }
 
 VulkanRenderer::VulkanRenderer(RendererBase& base, PhysicalDeviceDescriptor& physicalDevice) :
-		rendererBase(base),
-		gpu(physicalDevice),
-		device(VK_NULL_HANDLE),
-		combinedQueueFamily(FindCombinedQueueFamily()),
-		combinedQueue(VK_NULL_HANDLE),
-		commandPool(VK_NULL_HANDLE)
+    rendererBase(base),
+    gpu(physicalDevice),
+    device(VK_NULL_HANDLE),
+    combinedQueueFamily(FindCombinedQueueFamily()),
+    combinedQueue(VK_NULL_HANDLE),
+    commandPool(VK_NULL_HANDLE)
 {
-    std::array<float, 1> queuePriorities = {0.0F};
+    std::array<float, 1> queuePriorities = { 0.0F };
     VkDeviceQueueCreateInfo queueCI;
     queueCI.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queueCI.pNext = nullptr;
@@ -131,39 +130,40 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, PhysicalDeviceDescriptor& phy
         throw std::runtime_error("Failed to create command pool for combined queue family\n");
     }
 
-    //cameras.emplace_back(*this);
+    // cameras.emplace_back(*this);
 
-//    // TODO (nic) this is sized based on all the drawables in a scene. A scene should own this.
-//    VkDescriptorPoolSize poolSize;
-//    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-//    poolSize.descriptorCount = 1;//display->surfaceCapabilities.minImageCount;
-//
-//    VkDescriptorPoolCreateInfo poolCi;
-//    poolCi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-//    poolCi.pNext = nullptr;
-//    poolCi.flags = 0;
-//    poolCi.poolSizeCount = 1;
-//    poolCi.pPoolSizes = &poolSize;
-//    poolCi.maxSets = poolSize.descriptorCount;
-//    result = vkCreateDescriptorPool(device, &poolCi, nullptr, &descriptorPool);
-//    if (result != VK_SUCCESS)
-//    {
-//    	throw std::runtime_error("Failed to create descriptor pool\n");
-//    }
+    //    // TODO (nic) this is sized based on all the drawables in a scene. A scene should own this.
+    //    VkDescriptorPoolSize poolSize;
+    //    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    //    poolSize.descriptorCount = 1;//display->surfaceCapabilities.minImageCount;
+    //
+    //    VkDescriptorPoolCreateInfo poolCi;
+    //    poolCi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    //    poolCi.pNext = nullptr;
+    //    poolCi.flags = 0;
+    //    poolCi.poolSizeCount = 1;
+    //    poolCi.pPoolSizes = &poolSize;
+    //    poolCi.maxSets = poolSize.descriptorCount;
+    //    result = vkCreateDescriptorPool(device, &poolCi, nullptr, &descriptorPool);
+    //    if (result != VK_SUCCESS)
+    //    {
+    //    	throw std::runtime_error("Failed to create descriptor pool\n");
+    //    }
     // TODO (nic) std::mutex, std::scoped_lock, std::stop_source, std::stop_token
 
     // TODO (nic) the render loop should not automatically start, should have api start/stop hooks
-    //renderThread = std::jthread(renderLoop, std::ref(*this));
+    // renderThread = std::jthread(renderLoop, std::ref(*this));
 }
 
-VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(other.rendererBase),
-                                                                  display(std::move(other.display)),
-                                                                  gpu(other.gpu),
-                                                                  device(other.device),
-                                                                  combinedQueueFamily(other.combinedQueueFamily),
-                                                                  combinedQueue(other.combinedQueue),
-                                                                  commandPool(other.commandPool),
-																  scenes(std::move(other.scenes))
+VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept :
+    rendererBase(other.rendererBase),
+    display(std::move(other.display)),
+    gpu(other.gpu),
+    device(other.device),
+    combinedQueueFamily(other.combinedQueueFamily),
+    combinedQueue(other.combinedQueue),
+    commandPool(other.commandPool),
+    scenes(std::move(other.scenes))
 
 {
     other.device = VK_NULL_HANDLE;
@@ -173,8 +173,8 @@ VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(o
 
 VulkanRenderer::~VulkanRenderer()
 {
-	//renderThread.request_stop();
-	//renderThread.join();
+    // renderThread.request_stop();
+    // renderThread.join();
     // delete display;
     vkDeviceWaitIdle(device);
 
@@ -213,125 +213,124 @@ uint32_t VulkanRenderer::FindCombinedQueueFamily()
 
 void VulkanRenderer::Render()
 {
-    //Drawable drawable(*this, commandPool);
+    // Drawable drawable(*this, commandPool);
 
-//    uint32_t imageIndex = 0;
-//    vkAcquireNextImageKHR(device, display->swapchain, UINT64_MAX, drawables[0].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex); // TODO (nic) this is a hack to use the first drawable
-//
-//    // VkImage& image = display.get()->image.get()->images[imageIndex];
-//    // drawable.ClearWindow(image);
-//
-//    //drawable.RenderTriangle(imageIndex);
-//    //std::for_each(drawables.begin(), drawables.end(), [this](Drawable& drawable){drawable.RenderTriangle(imageIndex);});
-//    std::ranges::for_each(drawables, [imageIndex](Drawable& drawable){drawable.Render(imageIndex);});
-//
-//    //drawable.ExecuteCommandBuffer();
-//    std::ranges::for_each(drawables, [](Drawable& drawable){drawable.ExecuteCommandBuffer();});
-//
-//    std::array<VkSemaphore, 1> signalSemaphores = {drawables[0].renderFinishedSemaphore}; // TODO (nic) this is a hack to use the first drawable
-//
-//    std::array<VkSwapchainKHR, 1> swapchains = {display->swapchain};
-//    VkPresentInfoKHR presentInfo;
-//    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-//    presentInfo.pNext = nullptr;
-//    presentInfo.waitSemaphoreCount = signalSemaphores.size();
-//    presentInfo.pWaitSemaphores = signalSemaphores.data();
-//    presentInfo.swapchainCount = swapchains.size();
-//    presentInfo.pSwapchains = swapchains.data();
-//    presentInfo.pImageIndices = &imageIndex;
-//    presentInfo.pResults = nullptr;
-//
-//    const VkResult result = vkQueuePresentKHR(combinedQueue, &presentInfo);
-//    if (result != VK_SUCCESS)
-//    {
-//        throw std::runtime_error("Failed to present image\n");
-//    }
+    //    uint32_t imageIndex = 0;
+    //    vkAcquireNextImageKHR(device, display->swapchain, UINT64_MAX, drawables[0].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex); // TODO (nic) this is a hack to use the first drawable
+    //
+    //    // VkImage& image = display.get()->image.get()->images[imageIndex];
+    //    // drawable.ClearWindow(image);
+    //
+    //    //drawable.RenderTriangle(imageIndex);
+    //    //std::for_each(drawables.begin(), drawables.end(), [this](Drawable& drawable){drawable.RenderTriangle(imageIndex);});
+    //    std::ranges::for_each(drawables, [imageIndex](Drawable& drawable){drawable.Render(imageIndex);});
+    //
+    //    //drawable.ExecuteCommandBuffer();
+    //    std::ranges::for_each(drawables, [](Drawable& drawable){drawable.ExecuteCommandBuffer();});
+    //
+    //    std::array<VkSemaphore, 1> signalSemaphores = {drawables[0].renderFinishedSemaphore}; // TODO (nic) this is a hack to use the first drawable
+    //
+    //    std::array<VkSwapchainKHR, 1> swapchains = {display->swapchain};
+    //    VkPresentInfoKHR presentInfo;
+    //    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    //    presentInfo.pNext = nullptr;
+    //    presentInfo.waitSemaphoreCount = signalSemaphores.size();
+    //    presentInfo.pWaitSemaphores = signalSemaphores.data();
+    //    presentInfo.swapchainCount = swapchains.size();
+    //    presentInfo.pSwapchains = swapchains.data();
+    //    presentInfo.pImageIndices = &imageIndex;
+    //    presentInfo.pResults = nullptr;
+    //
+    //    const VkResult result = vkQueuePresentKHR(combinedQueue, &presentInfo);
+    //    if (result != VK_SUCCESS)
+    //    {
+    //        throw std::runtime_error("Failed to present image\n");
+    //    }
 }
 
-//void VulkanRenderer::Render(const GraphicsPipelineDescriptor& pipelineDescriptor)
+// void VulkanRenderer::Render(const GraphicsPipelineDescriptor& pipelineDescriptor)
 //{
-//    Drawable drawable(*this, commandPool);
+//     Drawable drawable(*this, commandPool);
 //
-//    uint32_t imageIndex = 0;
-//    vkAcquireNextImageKHR(device, display->swapchain, UINT64_MAX, drawable.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+//     uint32_t imageIndex = 0;
+//     vkAcquireNextImageKHR(device, display->swapchain, UINT64_MAX, drawable.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 //
-//    // VkImage& image = display.get()->image.get()->images[imageIndex];
-//    // drawable.ClearWindow(image);
+//     // VkImage& image = display.get()->image.get()->images[imageIndex];
+//     // drawable.ClearWindow(image);
 //
-//    //drawable.RenderTriangle(imageIndex);
-//    //drawable.Render(pipelineDescriptor, imageIndex);
+//     //drawable.RenderTriangle(imageIndex);
+//     //drawable.Render(pipelineDescriptor, imageIndex);
 //
-//    drawable.ExecuteCommandBuffer();
+//     drawable.ExecuteCommandBuffer();
 //
-//    std::array<VkSemaphore, 1> signalSemaphores = {drawable.renderFinishedSemaphore};
+//     std::array<VkSemaphore, 1> signalSemaphores = {drawable.renderFinishedSemaphore};
 //
-//    std::array<VkSwapchainKHR, 1> swapchains = {display->swapchain};
-//    VkPresentInfoKHR presentInfo;
-//    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-//    presentInfo.pNext = nullptr;
-//    presentInfo.waitSemaphoreCount = signalSemaphores.size();
-//    presentInfo.pWaitSemaphores = signalSemaphores.data();
-//    presentInfo.swapchainCount = swapchains.size();
-//    presentInfo.pSwapchains = swapchains.data();
-//    presentInfo.pImageIndices = &imageIndex;
-//    presentInfo.pResults = nullptr;
+//     std::array<VkSwapchainKHR, 1> swapchains = {display->swapchain};
+//     VkPresentInfoKHR presentInfo;
+//     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+//     presentInfo.pNext = nullptr;
+//     presentInfo.waitSemaphoreCount = signalSemaphores.size();
+//     presentInfo.pWaitSemaphores = signalSemaphores.data();
+//     presentInfo.swapchainCount = swapchains.size();
+//     presentInfo.pSwapchains = swapchains.data();
+//     presentInfo.pImageIndices = &imageIndex;
+//     presentInfo.pResults = nullptr;
 //
-//    const VkResult result = vkQueuePresentKHR(combinedQueue, &presentInfo);
-//    if (result != VK_SUCCESS)
-//    {
-//        throw std::runtime_error("Failed to present image\n");
-//    }
-//}
+//     const VkResult result = vkQueuePresentKHR(combinedQueue, &presentInfo);
+//     if (result != VK_SUCCESS)
+//     {
+//         throw std::runtime_error("Failed to present image\n");
+//     }
+// }
 
 void VulkanRenderer::Resize(VkSurfaceKHR surface, [[maybe_unused]] uint32_t width, [[maybe_unused]] uint32_t height)
 {
-	std::scoped_lock lock(renderMutex);
+    std::scoped_lock lock(renderMutex);
     vkDeviceWaitIdle(device);
 
     if (display.get())
     {
-    	display.reset();
-    	display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
+        display.reset();
+        display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
     }
 
-
-//    std::ranges::for_each(scenes, [this](Scene& scene)
-//    		{
-//    			std::ranges::for_each(scene.cameras, [this](Camera& camera){camera = std::move(Camera(*this));});
-//    		});
+    //    std::ranges::for_each(scenes, [this](Scene& scene)
+    //    		{
+    //    			std::ranges::for_each(scene.cameras, [this](Camera& camera){camera = std::move(Camera(*this));});
+    //    		});
 }
 
 void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer)
 {
-	while (!stopToken.stop_requested())
-	{
-		{
-			std::scoped_lock lock(renderer.renderMutex);
-			if (!renderer.scenes.empty() && !renderer.scenes[0].drawables.empty())
-			{
-			    vkWaitForFences(renderer.device, 1, &renderer.scenes[0].drawables[0].inFlightFence, VK_TRUE, UINT64_MAX); // TODO(nic) use a Drawable owned fence instead
-			    vkResetFences(renderer.device, 1, &renderer.scenes[0].drawables[0].inFlightFence); // TODO (nic) the fence shouldn't be owned by the drawable I think
-				uint32_t imageIndex;
-				vkAcquireNextImageKHR(renderer.device, renderer.display->swapchain, UINT64_MAX, renderer.scenes[0].drawables[0].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex); // TODO (nic) this is a hack to use the first drawable
-			    static auto startTime = std::chrono::high_resolution_clock::now();
-			    auto currentTime = std::chrono::high_resolution_clock::now();
-			    const float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-			    //UniformBufferObject ubo;
-//			    UniformBufferObject& ubo = renderer.scenes[0].drawables[0].ubo;
-//			    ubo.model = glm::rotate(glm::mat4(1.0F), time * glm::radians(90.0F), glm::vec3(0.0F, 0.0F, 1.0F));
-//			    ubo.view = glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
-//			    ubo.proj = glm::perspective(glm::radians(45.0F), static_cast<float>(renderer.display->swapchainExtent.width) / static_cast<float>(renderer.display->swapchainExtent.height), 0.1F, 10.0F);
-//			    ubo.proj[1][1] *= -1;
-//			    std::memcpy(renderer.scenes[0].drawables[0].uniformBuffers[imageIndex].data, &ubo, sizeof(UniformBufferObject));
+    while (!stopToken.stop_requested())
+    {
+        {
+            std::scoped_lock lock(renderer.renderMutex);
+            if (!renderer.scenes.empty() && !renderer.scenes[0].drawables.empty())
+            {
+                vkWaitForFences(renderer.device, 1, &renderer.scenes[0].drawables[0].inFlightFence, VK_TRUE, UINT64_MAX); // TODO(nic) use a Drawable owned fence instead
+                vkResetFences(renderer.device, 1, &renderer.scenes[0].drawables[0].inFlightFence);                        // TODO (nic) the fence shouldn't be owned by the drawable I think
+                uint32_t imageIndex;
+                vkAcquireNextImageKHR(renderer.device, renderer.display->swapchain, UINT64_MAX, renderer.scenes[0].drawables[0].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex); // TODO (nic) this is a hack to use the first drawable
+                static auto startTime = std::chrono::high_resolution_clock::now();
+                auto currentTime = std::chrono::high_resolution_clock::now();
+                const float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+                // UniformBufferObject ubo;
+                //			    UniformBufferObject& ubo = renderer.scenes[0].drawables[0].ubo;
+                //			    ubo.model = glm::rotate(glm::mat4(1.0F), time * glm::radians(90.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+                //			    ubo.view = glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+                //			    ubo.proj = glm::perspective(glm::radians(45.0F), static_cast<float>(renderer.display->swapchainExtent.width) / static_cast<float>(renderer.display->swapchainExtent.height), 0.1F, 10.0F);
+                //			    ubo.proj[1][1] *= -1;
+                //			    std::memcpy(renderer.scenes[0].drawables[0].uniformBuffers[imageIndex].data, &ubo, sizeof(UniformBufferObject));
 
-				if (!renderer.scenes[0].render(imageIndex))
-				{
-					// Render could not complete, stop attempting render
-					break;
-				}
-			}
-		}
+                if (!renderer.scenes[0].render(imageIndex))
+                {
+                    // Render could not complete, stop attempting render
+                    break;
+                }
+            }
+        }
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(16));
-	}
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+    }
 }

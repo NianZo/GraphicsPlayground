@@ -29,9 +29,9 @@ message(WARNING "QT_INCLUDES: ${Qt6Widgets_INCLUDE_DIRS}")
 target_link_libraries(${UI_LIB} PRIVATE Qt6::Core Qt6::Widgets)
 target_link_libraries(${UI_LIB} PUBLIC "VulkanRenderer")
 
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-#    target_link_libraries(${UI_LIB} PRIVATE --coverage -fprofile-instr-generate -fcoverage-mapping)
-endif()
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+    #    target_link_libraries(${UI_LIB} PRIVATE --coverage -fprofile-instr-generate -fcoverage-mapping)
+endif ()
 
 add_executable(${MAIN_BINARY} main.cpp)#${CPP_FILES} ${HPP_FILES})
 set_property(TARGET ${MAIN_BINARY} PROPERTY CXX_STANDARD 20)

@@ -25,9 +25,9 @@ class Scene;
 
 struct UniformBufferObject
 {
-	glm::mat4 model;
-	glm::mat4 view;
-	glm::mat4 proj;
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
 };
 
 // Fill out from UI / load from file / store to file
@@ -82,7 +82,7 @@ struct __attribute__((aligned(64))) GraphicsPipelineState
 class Drawable
 {
   public:
-	Drawable(Scene& scene, GraphicsPipelineDescriptor& pipelineDescriptor);
+    Drawable(Scene& scene, GraphicsPipelineDescriptor& pipelineDescriptor);
     Drawable(VulkanRenderer& renderer, VkCommandPool& pool, const GraphicsPipelineDescriptor& pipelineDescriptor);
     ~Drawable();
     Drawable(const Drawable&) = delete;
@@ -91,14 +91,14 @@ class Drawable
     Drawable& operator=(Drawable&&) = delete;
     void ClearWindow(VkImage& image);
     void ExecuteCommandBuffer(uint32_t imageIndex);
-    //void RenderTriangle(uint32_t imageIndex);
+    // void RenderTriangle(uint32_t imageIndex);
     void Render(uint32_t imageIndex); // TODO (nic) this isn't actually rendering because the command buffer still needs exec'ed
     void render();
 
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
     VkFence inFlightFence;
-    //UniformBufferObject ubo;
+    // UniformBufferObject ubo;
     glm::mat4 transform;
 
     std::vector<UniformBuffer> uniformBuffers;
@@ -111,16 +111,15 @@ class Drawable
     VulkanRenderer& m_renderer;
     VkCommandBuffer commandBuffer;
 
-    //std::vector<GraphicsPipelineDescriptor> pipelineDescriptors; // TODO (nic) use a vector eventually
+    // std::vector<GraphicsPipelineDescriptor> pipelineDescriptors; // TODO (nic) use a vector eventually
     GraphicsPipelineDescriptor pipelineDescriptors;
     std::vector<GraphicsPipelineState> pipelineStates;
     std::vector<VkFramebuffer> framebuffers;
     VertexBuffer vertexBuffer;
     IndexBuffer indexBuffer;
-    //VulkanImage depthImage;
+    // VulkanImage depthImage;
 
     // TODO (nic) need one uniformBuffer per frame in flight, unsure how to do this properly
-
 };
 
 #endif /* RENDERER_DRAWABLE_HPP_ */

@@ -5,17 +5,16 @@
  *      Author: nic
  */
 
-#include "gtest/gtest.h"
 #include "MainWindow.h"
+#include "gtest/gtest.h"
 #include <QApplication>
-#include <thread>
 #include <QPushButton>
 #include <filesystem>
-
+#include <thread>
 
 extern std::vector<char*> args;
 
-//TEST(UIBasic, CreateUIForm)
+// TEST(UIBasic, CreateUIForm)
 //{
 //	//std::cout << "Started CreateUIForm test\n";
 //	int numArgs = static_cast<int>(args.size());
@@ -38,6 +37,3 @@ extern std::vector<char*> args;
 //	//t1.join();
 //*/
 //}
-
-
-

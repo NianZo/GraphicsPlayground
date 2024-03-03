@@ -51,8 +51,8 @@ class VulkanDisplay
     // std::vector<VkImage> swapchainImages;
 
     std::vector<VkSurfaceFormatKHR> surfaceFormats;
-    //std::unique_ptr<VulkanImage> image;
-    //Camera& camera;
+    // std::unique_ptr<VulkanImage> image;
+    // Camera& camera;
 
   private:
     // VkPhysicalDevice& gpu;
