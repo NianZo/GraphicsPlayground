@@ -19,6 +19,8 @@ class Scene
 {
 public:
 	explicit Scene(VulkanRenderer& renderer, uint16_t cameraWidth, uint16_t cameraHeight);
+	~Scene();
+        Scene(Scene&& scene) noexcept;
 	bool render(uint32_t imageIndex);
 
 	void render();
@@ -30,6 +32,8 @@ public:
 	VkClearColorValue clearColor;
 	std::vector<Drawable> drawables;
 	// Lights as well eventually
+
+	VkDescriptorPool descriptorPool;
 };
 
 

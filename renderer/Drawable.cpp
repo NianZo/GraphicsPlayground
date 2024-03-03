@@ -835,7 +835,7 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     VkDescriptorSetAllocateInfo descriptorSetAi;
     descriptorSetAi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     descriptorSetAi.pNext = nullptr;
-    descriptorSetAi.descriptorPool = renderer.descriptorPool;
+    descriptorSetAi.descriptorPool = drawable.m_scene.descriptorPool;
     descriptorSetAi.descriptorSetCount = 1;
     descriptorSetAi.pSetLayouts = &descriptorSetLayout;
     descriptorSets.resize(1);

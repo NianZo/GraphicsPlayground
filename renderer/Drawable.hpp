@@ -103,6 +103,8 @@ class Drawable
 
     std::vector<UniformBuffer> uniformBuffers;
 
+    Scene& m_scene;
+
   private:
     void recordCommandBuffer();
     void executeCommandBuffer();
@@ -116,7 +118,7 @@ class Drawable
     VertexBuffer vertexBuffer;
     IndexBuffer indexBuffer;
     VulkanImage depthImage;
-    Scene& m_scene;
+
     // TODO (nic) need one uniformBuffer per frame in flight, unsure how to do this properly
 
 };

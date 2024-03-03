@@ -19,13 +19,13 @@
 
 void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer);
 
-VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, PhysicalDeviceDescriptor& physicalDevice, uint32_t width, uint32_t height) : rendererBase(base),
-                                                                                                                             gpu(physicalDevice),
-                                                                                                                             device(VK_NULL_HANDLE),
-                                                                                                                             combinedQueueFamily(FindCombinedQueueFamily(surface)),
-                                                                                                                             combinedQueue(VK_NULL_HANDLE),
-                                                                                                                             commandPool(VK_NULL_HANDLE),
-																															 descriptorPool(VK_NULL_HANDLE)
+VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, PhysicalDeviceDescriptor& physicalDevice, uint32_t width, uint32_t height) :
+		rendererBase(base),
+        gpu(physicalDevice),
+        device(VK_NULL_HANDLE),
+        combinedQueueFamily(FindCombinedQueueFamily(surface)),
+        combinedQueue(VK_NULL_HANDLE),
+        commandPool(VK_NULL_HANDLE)
 {
     std::array<float, 1> queuePriorities = {0.0F};
     VkDeviceQueueCreateInfo queueCI;
@@ -73,23 +73,7 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, Physic
     display = std::make_unique<VulkanDisplay>(*this, surface, width, height);
     //cameras.emplace_back(*this);
 
-    // TODO (nic) this is sized based on all the drawables in a scene. A scene should own this.
-    VkDescriptorPoolSize poolSize;
-    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSize.descriptorCount = display->surfaceCapabilities.minImageCount;
 
-    VkDescriptorPoolCreateInfo poolCi;
-    poolCi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolCi.pNext = nullptr;
-    poolCi.flags = 0;
-    poolCi.poolSizeCount = 1;
-    poolCi.pPoolSizes = &poolSize;
-    poolCi.maxSets = poolSize.descriptorCount;
-    result = vkCreateDescriptorPool(device, &poolCi, nullptr, &descriptorPool);
-    if (result != VK_SUCCESS)
-    {
-    	throw std::runtime_error("Failed to create descriptor pool\n");
-    }
     // TODO (nic) std::mutex, std::scoped_lock, std::stop_source, std::stop_token
 
     // TODO (nic) the render loop should not automatically start, should have api start/stop hooks
@@ -102,8 +86,7 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, PhysicalDeviceDescriptor& phy
 		device(VK_NULL_HANDLE),
 		combinedQueueFamily(FindCombinedQueueFamily()),
 		combinedQueue(VK_NULL_HANDLE),
-		commandPool(VK_NULL_HANDLE),
-		descriptorPool(VK_NULL_HANDLE)
+		commandPool(VK_NULL_HANDLE)
 {
     std::array<float, 1> queuePriorities = {0.0F};
     VkDeviceQueueCreateInfo queueCI;
@@ -150,23 +133,23 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, PhysicalDeviceDescriptor& phy
 
     //cameras.emplace_back(*this);
 
-    // TODO (nic) this is sized based on all the drawables in a scene. A scene should own this.
-    VkDescriptorPoolSize poolSize;
-    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSize.descriptorCount = 1;//display->surfaceCapabilities.minImageCount;
-
-    VkDescriptorPoolCreateInfo poolCi;
-    poolCi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolCi.pNext = nullptr;
-    poolCi.flags = 0;
-    poolCi.poolSizeCount = 1;
-    poolCi.pPoolSizes = &poolSize;
-    poolCi.maxSets = poolSize.descriptorCount;
-    result = vkCreateDescriptorPool(device, &poolCi, nullptr, &descriptorPool);
-    if (result != VK_SUCCESS)
-    {
-    	throw std::runtime_error("Failed to create descriptor pool\n");
-    }
+//    // TODO (nic) this is sized based on all the drawables in a scene. A scene should own this.
+//    VkDescriptorPoolSize poolSize;
+//    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//    poolSize.descriptorCount = 1;//display->surfaceCapabilities.minImageCount;
+//
+//    VkDescriptorPoolCreateInfo poolCi;
+//    poolCi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+//    poolCi.pNext = nullptr;
+//    poolCi.flags = 0;
+//    poolCi.poolSizeCount = 1;
+//    poolCi.pPoolSizes = &poolSize;
+//    poolCi.maxSets = poolSize.descriptorCount;
+//    result = vkCreateDescriptorPool(device, &poolCi, nullptr, &descriptorPool);
+//    if (result != VK_SUCCESS)
+//    {
+//    	throw std::runtime_error("Failed to create descriptor pool\n");
+//    }
     // TODO (nic) std::mutex, std::scoped_lock, std::stop_source, std::stop_token
 
     // TODO (nic) the render loop should not automatically start, should have api start/stop hooks
@@ -180,14 +163,12 @@ VulkanRenderer::VulkanRenderer(VulkanRenderer&& other) noexcept : rendererBase(o
                                                                   combinedQueueFamily(other.combinedQueueFamily),
                                                                   combinedQueue(other.combinedQueue),
                                                                   commandPool(other.commandPool),
-																  descriptorPool(other.descriptorPool),
 																  scenes(std::move(other.scenes))
 
 {
     other.device = VK_NULL_HANDLE;
     other.combinedQueue = VK_NULL_HANDLE;
     other.commandPool = VK_NULL_HANDLE;
-    other.descriptorPool = VK_NULL_HANDLE;
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -199,7 +180,7 @@ VulkanRenderer::~VulkanRenderer()
 
     scenes.clear();
     display.reset();
-    vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+
     vkDestroyCommandPool(device, commandPool, nullptr);
     vkDestroyDevice(device, nullptr);
 }

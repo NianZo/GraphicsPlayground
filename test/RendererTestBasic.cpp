@@ -100,14 +100,16 @@ TEST(RenderTestBasic, BasicCamera)
     VulkanRenderer renderer(rendererBase, *gpuDescriptor);
 
 	renderer.scenes.emplace_back(renderer, 800, 600);
-	renderer.scenes[0].clearColor = {.uint32 = {42, 1, 2, 3}};
+	renderer.scenes[0].clearColor = {.float32 = {0.5F, 0.1F, 0.1F, 1.0F}};
 	renderer.scenes[0].render();
 	ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
-	EXPECT_EQ(cameraData.index(0, 0).r, 42);
-	EXPECT_EQ(cameraData.index(0, 599).r, 42);
-	EXPECT_EQ(cameraData.index(799, 0).r, 42);
-	EXPECT_EQ(cameraData.index(799, 599).r, 42);
+        const int ret = stbi_write_png("screenshot.png", 800, 600, 4, cameraData.data.data(), 800 * 4);
+
+	EXPECT_EQ(cameraData.index(0, 0).r, 127);
+	EXPECT_EQ(cameraData.index(0, 599).r, 127);
+	EXPECT_EQ(cameraData.index(799, 0).r, 127);
+	EXPECT_EQ(cameraData.index(799, 599).r, 127);
 }
 
 TEST(RenderTestBasic, BasicDrawable)
@@ -143,7 +145,7 @@ TEST(RenderTestBasic, BasicDrawable)
 	descriptor.indexData = indices;
 	renderer.scenes[0].drawables.emplace_back(renderer.scenes[0], descriptor);
 
-	renderer.scenes[0].clearColor = {.uint32 = {42, 1, 2, 255}};
+	renderer.scenes[0].clearColor = {.float32 = {0.5F, 0.1F, 0.1F, 1.0F}};
 	renderer.scenes[0].render();
 	ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
@@ -152,6 +154,70 @@ TEST(RenderTestBasic, BasicDrawable)
 	EXPECT_EQ(cameraData.index(799, 0).r, 255);
 	EXPECT_EQ(cameraData.index(799, 599).r, 255);
 	EXPECT_EQ(cameraData.index(400, 300).r, 255);
+}
+
+TEST(RenderTestBasic, TwoDrawables)
+{
+    std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(args[0])).parent_path();
+    RendererBase rendererBase(pwd, "RenderTestBasic");
+    ASSERT_NE(rendererBase.physicalDevices.size(), 0);
+
+    auto gpuDescriptor = std::ranges::find_if(rendererBase.physicalDevices, [](PhysicalDeviceDescriptor& pdd){return pdd.properties.vendorID != 0;});
+    ASSERT_NE(gpuDescriptor, rendererBase.physicalDevices.end());
+
+    VulkanRenderer renderer(rendererBase, *gpuDescriptor);
+
+    renderer.scenes.emplace_back(renderer, 800, 600);
+
+    const std::filesystem::path shaderDirectory = renderer.rendererBase.projectDirectory.parent_path() / "shaders";
+    GraphicsPipelineDescriptor descriptor;
+    descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+    descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+
+    // Quad covering left side of screen
+    const std::vector<Vertex> vertices = {
+        {{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
+        {{0.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
+        {{0.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
+        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}
+    };
+    const std::vector<uint16_t> indices = {
+        0, 1, 2, 2, 3, 0
+    };
+
+    descriptor.vertexData = vertices;
+    descriptor.indexData = indices;
+    renderer.scenes[0].drawables.emplace_back(renderer.scenes[0], descriptor);
+
+    // Quad covering right side of screen
+    const std::vector<Vertex> vertices2 = {
+        {{0.0F, -1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
+        {{1.0F, -1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
+        {{1.0F, 1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
+        {{0.0F, 1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}}
+    };
+    const std::vector<uint16_t> indices2 = {
+        0, 1, 2, 2, 3, 0
+    };
+
+    GraphicsPipelineDescriptor descriptor2;
+    descriptor2.vertexData = vertices2;
+    descriptor2.indexData = indices2;
+    descriptor2.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+    descriptor2.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    renderer.scenes[0].drawables.emplace_back(renderer.scenes[0], descriptor2);
+
+    renderer.scenes[0].clearColor = {.float32 = {0.5F, 0.1F, 0.1F, 1.0F}};
+    renderer.scenes[0].render();
+    ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
+
+    EXPECT_EQ(cameraData.index(0, 0).r, 255);
+    EXPECT_EQ(cameraData.index(0, 599).r, 255);
+    EXPECT_EQ(cameraData.index(799, 0).b, 255);
+    EXPECT_EQ(cameraData.index(799, 599).b, 255);
+
+    EXPECT_EQ(cameraData.index(399, 0).r, 255);
+    EXPECT_EQ(cameraData.index(400, 0).b, 255);
 }
 
 TEST(RenderTestBasic, DrawableWithTransform)
@@ -189,16 +255,16 @@ TEST(RenderTestBasic, DrawableWithTransform)
 
 	renderer.scenes[0].drawables[0].transform = glm::translate(glm::mat4(1.0F), glm::vec3(-1.0F, 0.0F, 0.0F));
 
-	renderer.scenes[0].clearColor = {.uint32 = {42, 1, 2, 255}};
+	renderer.scenes[0].clearColor = {.float32 = {0.5F, 0.1F, 0.1F, 1.0F}};
 	renderer.scenes[0].render();
 	ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
 	EXPECT_EQ(cameraData.index(0, 0).r, 255);
 	EXPECT_EQ(cameraData.index(0, 599).r, 255);
-	EXPECT_EQ(cameraData.index(799, 0).r, 42);
-	EXPECT_EQ(cameraData.index(799, 599).r, 42);
+	EXPECT_EQ(cameraData.index(799, 0).r, 127);
+	EXPECT_EQ(cameraData.index(799, 599).r, 127);
 	EXPECT_EQ(cameraData.index(399, 300).r, 255);
-	EXPECT_EQ(cameraData.index(400, 300).r, 42);
+	EXPECT_EQ(cameraData.index(400, 300).r, 127);
 }
 
 TEST(RenderTestBasic, CameraWithTransformAndPerspective)
@@ -236,27 +302,104 @@ TEST(RenderTestBasic, CameraWithTransformAndPerspective)
 	renderer.scenes[0].camera.transform = glm::lookAt(glm::vec3(-.25, 0, 4), glm::vec3(-.25, 0, 0), glm::vec3(0, 1, 0));
 	renderer.scenes[0].camera.perspective = glm::perspective(glm::radians(45.0F), static_cast<float>(800) / static_cast<float>(600), 0.1F, 10.0F);
 
-	renderer.scenes[0].clearColor = {.uint32 = {42, 1, 2, 255}};
+	renderer.scenes[0].clearColor = {.float32 = {0.5F, 0.1F, 0.1F, 1.0F}};
 	renderer.scenes[0].render();
 	ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
 	// Top left corner
 	EXPECT_EQ(cameraData.index(264, 119).r, 255);
-	EXPECT_EQ(cameraData.index(263, 119).r, 42);
-	EXPECT_EQ(cameraData.index(264, 118).r, 42);
+	EXPECT_EQ(cameraData.index(263, 119).r, 127);
+	EXPECT_EQ(cameraData.index(264, 118).r, 127);
 
 	// Top right corner
 	EXPECT_EQ(cameraData.index(625, 119).r, 255);
-	EXPECT_EQ(cameraData.index(626, 119).r, 42);
-	EXPECT_EQ(cameraData.index(625, 118).r, 42);
+	EXPECT_EQ(cameraData.index(626, 119).r, 127);
+	EXPECT_EQ(cameraData.index(625, 118).r, 127);
 
 	// Bottom right corner
 	EXPECT_EQ(cameraData.index(625, 480).r, 255);
-	EXPECT_EQ(cameraData.index(626, 480).r, 42);
-	EXPECT_EQ(cameraData.index(625, 481).r, 42);
+	EXPECT_EQ(cameraData.index(626, 480).r, 127);
+	EXPECT_EQ(cameraData.index(625, 481).r, 127);
 
 	// Bottom left corner
 	EXPECT_EQ(cameraData.index(264, 480).r, 255);
-	EXPECT_EQ(cameraData.index(263, 480).r, 42);
-	EXPECT_EQ(cameraData.index(264, 481).r, 42);
+	EXPECT_EQ(cameraData.index(263, 480).r, 127);
+	EXPECT_EQ(cameraData.index(264, 481).r, 127);
 }
+
+TEST(RenderTestBasic, CameraDepthBuffering)
+{
+	std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(args[0])).parent_path();
+	RendererBase rendererBase(pwd, "RenderTestBasic");
+	ASSERT_NE(rendererBase.physicalDevices.size(), 0);
+
+	auto gpuDescriptor = std::ranges::find_if(rendererBase.physicalDevices, [](PhysicalDeviceDescriptor& pdd){return pdd.properties.vendorID != 0;});
+	ASSERT_NE(gpuDescriptor, rendererBase.physicalDevices.end());
+
+    VulkanRenderer renderer(rendererBase, *gpuDescriptor);
+
+	renderer.scenes.emplace_back(renderer, 800, 600);
+
+	const std::filesystem::path shaderDirectory = renderer.rendererBase.projectDirectory.parent_path() / "shaders";
+    GraphicsPipelineDescriptor descriptor1;
+    descriptor1.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+    descriptor1.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+
+    // Fullscreen quad
+	const std::vector<Vertex> vertices1 = {
+			{{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
+			{{1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
+			{{1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
+			{{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}
+	};
+	const std::vector<uint16_t> indices1 = {
+			0, 1, 2, 2, 3, 0
+	};
+
+	descriptor1.vertexData = vertices1;
+	descriptor1.indexData = indices1;
+	renderer.scenes[0].drawables.emplace_back(renderer.scenes[0], descriptor1);
+
+    GraphicsPipelineDescriptor descriptor2;
+    descriptor2.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+    descriptor2.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+
+    // Fullscreen quad
+	const std::vector<Vertex> vertices2 = {
+			{{-1.0F, -1.0F, 1.0F}, {1.0F, 0.0F, 1.0F}},
+			{{1.0F, -1.0F, 1.0F}, {1.0F, 0.0F, 1.0F}},
+			{{1.0F, 1.0F, 1.0F}, {1.0F, 0.0F, 1.0F}},
+			{{-1.0F, 1.0F, 1.0F}, {1.0F, 0.0F, 1.0F}}
+	};
+	const std::vector<uint16_t> indices2 = {
+			0, 1, 2, 2, 3, 0
+	};
+
+	descriptor2.vertexData = vertices2;
+	descriptor2.indexData = indices2;
+	renderer.scenes[0].drawables.emplace_back(renderer.scenes[0], descriptor2);
+
+	renderer.scenes[0].render();
+	ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
+
+	// Any pixel should work, choose one near the center
+	EXPECT_EQ(cameraData.index(400, 300).r, 255);
+	EXPECT_EQ(cameraData.index(400, 300).g, 0);
+	EXPECT_EQ(cameraData.index(400, 300).b, 255);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

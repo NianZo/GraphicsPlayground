@@ -16,7 +16,38 @@ Scene::Scene(VulkanRenderer& rendererIn, uint16_t cameraWidth, uint16_t cameraHe
 	camera(renderer, cameraWidth, cameraHeight),
 	clearColor({.uint32 = {0, 0, 0, 255}})
 {
+    // TODO (nic) this is sized based on all the drawables in a scene.
+    VkDescriptorPoolSize poolSize;
+    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSize.descriptorCount = 1;
+    //poolSize.descriptorCount = display->surfaceCapabilities.minImageCount;
 
+    VkDescriptorPoolCreateInfo poolCi;
+    poolCi.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolCi.pNext = nullptr;
+    poolCi.flags = 0;
+    poolCi.poolSizeCount = 1;
+    poolCi.pPoolSizes = &poolSize;
+    poolCi.maxSets = poolSize.descriptorCount;
+    VkResult result = vkCreateDescriptorPool(renderer.device, &poolCi, nullptr, &descriptorPool);
+    if (result != VK_SUCCESS)
+    {
+    	throw std::runtime_error("Failed to create descriptor pool\n");
+    }
+}
+
+Scene::~Scene()
+{
+	vkDestroyDescriptorPool(renderer.device, descriptorPool, nullptr);
+}
+
+Scene::Scene(Scene&& scene) noexcept :
+    renderer(scene.renderer),
+                                       camera(std::move(scene.camera)),
+                                       clearColor(scene.clearColor),
+                                       descriptorPool(scene.descriptorPool)
+{
+    scene.descriptorPool = VK_NULL_HANDLE;
 }
 
 bool Scene::render(uint32_t imageIndex)

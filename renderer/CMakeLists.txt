@@ -51,6 +51,7 @@ target_link_libraries(${RENDERER_LIB} PUBLIC ${Vulkan_LIBRARIES})
 target_include_directories(${RENDERER_LIB} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${RENDERER_LIB} PUBLIC ${VULKAN_PATH}/include)
 target_link_libraries(${RENDERER_LIB} PRIVATE project_warnings)
+add_dependencies(${RENDERER_LIB} "shaders")
 
 find_package(glm)
 message(STATUS "GLM includes ${GLM_INCLUDE_DIRS}")
