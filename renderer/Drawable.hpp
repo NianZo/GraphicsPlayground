@@ -117,7 +117,7 @@ class Drawable
     std::vector<VkFramebuffer> framebuffers;
     VertexBuffer vertexBuffer;
     IndexBuffer indexBuffer;
-    VulkanImage depthImage;
+    //VulkanImage depthImage;
 
     // TODO (nic) need one uniformBuffer per frame in flight, unsure how to do this properly
 

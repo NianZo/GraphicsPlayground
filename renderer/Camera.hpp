@@ -79,6 +79,7 @@ public:
     VulkanRenderer& renderer;
     VkExtent2D extent;
 	VulkanImage image;
+        VulkanImage depthImage;
 	ImageData imageDataCpu;
 	VkCommandBuffer commandBuffer;
 	glm::mat4 transform;

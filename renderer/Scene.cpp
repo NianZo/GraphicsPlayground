@@ -60,6 +60,7 @@ Scene::Scene(std::span<GraphicsPipelineDescriptor> drawableDescriptors, VulkanRe
         throw std::runtime_error("Failed to create descriptor pool\n");
     }
 
+    drawables.reserve(drawableDescriptors.size());
     std::ranges::for_each(drawableDescriptors, [this](GraphicsPipelineDescriptor& descriptor){drawables.emplace_back(*this,descriptor);});
 }
 

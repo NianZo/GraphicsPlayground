@@ -29,11 +29,11 @@ Drawable::Drawable(Scene& scene, GraphicsPipelineDescriptor& pipelineDescriptor)
 		pipelineDescriptors(pipelineDescriptor),
 		vertexBuffer(m_renderer, pipelineDescriptor.vertexData),
 		indexBuffer(m_renderer, pipelineDescriptor.indexData),
-		depthImage(m_renderer, scene.camera.extent, VulkanImage::findDepthFormat(m_renderer.gpu.physicalDevice), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
+		//depthImage(m_renderer, scene.camera.extent, VulkanImage::findDepthFormat(m_renderer.gpu.physicalDevice), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
 		m_scene(scene)
 {
 	pipelineDescriptors.colorAttachment.format = m_scene.camera.image.m_format;
-	pipelineDescriptors.depthAttachment.format = depthImage.m_format;
+	pipelineDescriptors.depthAttachment.format = m_scene.camera.depthImage.m_format;
 
 	pipelineDescriptors.viewports[0].width = static_cast<float>(scene.camera.extent.width);
 	pipelineDescriptors.viewports[0].height = static_cast<float>(scene.camera.extent.height);
@@ -94,7 +94,7 @@ Drawable::Drawable(Scene& scene, GraphicsPipelineDescriptor& pipelineDescriptor)
 	framebuffers.resize(m_scene.camera.image.imageViews.size());
 	for (size_t i = 0; i < m_scene.camera.image.imageViews.size(); i++)
 	{
-	    std::array<VkImageView, 2> attachments = {m_scene.camera.image.imageViews[i], depthImage.imageViews[0]};
+	    std::array<VkImageView, 2> attachments = {m_scene.camera.image.imageViews[i], m_scene.camera.depthImage.imageViews[0]};
 	    VkFramebufferCreateInfo framebufferCI;
 	    framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 	    framebufferCI.pNext = nullptr;
@@ -120,7 +120,7 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
 		pipelineDescriptors(pipelineDescriptor),
 		vertexBuffer(renderer, pipelineDescriptor.vertexData),
 		indexBuffer(renderer, pipelineDescriptor.indexData),
-		depthImage(renderer, renderer.display->swapchainExtent, VulkanImage::findDepthFormat(renderer.gpu.physicalDevice), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
+
 		m_scene(renderer.scenes[0])
 {
     VkCommandBufferAllocateInfo commandBufferAI;
@@ -173,7 +173,7 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
     framebuffers.resize(m_renderer.scenes[0].camera.image.imageViews.size());
     for (size_t i = 0; i < m_renderer.scenes[0].camera.image.imageViews.size(); i++)
     {
-        std::array<VkImageView, 2> attachments = {m_renderer.scenes[0].camera.image.imageViews[i], depthImage.imageViews[0]};
+        std::array<VkImageView, 2> attachments = {m_renderer.scenes[0].camera.image.imageViews[i], m_scene.camera.depthImage.imageViews[0]};
         VkFramebufferCreateInfo framebufferCI;
         framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferCI.pNext = nullptr;
@@ -694,11 +694,11 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() : inputAssembly({}),
     depthAttachment.flags = 0;
     depthAttachment.format = VK_FORMAT_UNDEFINED;
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 }
 

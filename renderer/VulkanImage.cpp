@@ -54,7 +54,7 @@ VulkanImage::VulkanImage(VulkanRenderer& rendererIn, VkExtent2D extent, VkFormat
 	vkBindImageMemory(renderer.device, images[0], imageMemory[0], 0);
 
 	imageViews.resize(1);
-	const VkImageAspectFlags aspectMask = usage == VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+	const VkImageAspectFlags aspectMask = usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
     VkImageViewCreateInfo imageViewCI;
     imageViewCI.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     imageViewCI.pNext = nullptr;
