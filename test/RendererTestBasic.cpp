@@ -321,9 +321,9 @@ TEST(RenderTestBasic, CameraWithTransformAndPerspective)
 
 TEST(RenderTestBasic, CameraDepthBuffering)
 {
-	std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(args[0])).parent_path();
-	RendererBase rendererBase(pwd, "RenderTestBasic");
-	ASSERT_NE(rendererBase.physicalDevices.size(), 0);
+    std::filesystem::path pwd = std::filesystem::weakly_canonical(std::filesystem::path(args[0])).parent_path();
+    RendererBase rendererBase(pwd, "RenderTestBasic");
+    ASSERT_NE(rendererBase.physicalDevices.size(), 0);
 
 	auto gpuDescriptor = std::ranges::find_if(rendererBase.physicalDevices, [](PhysicalDeviceDescriptor& pdd){return pdd.properties.vendorID != 0;});
 	ASSERT_NE(gpuDescriptor, rendererBase.physicalDevices.end());
@@ -331,39 +331,23 @@ TEST(RenderTestBasic, CameraDepthBuffering)
     VulkanRenderer renderer(rendererBase, *gpuDescriptor);
 
 	const std::filesystem::path shaderDirectory = renderer.rendererBase.projectDirectory.parent_path() / "shaders";
-//    GraphicsPipelineDescriptor descriptor1;
-//    descriptor1.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-//    descriptor1.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
 
-    // Fullscreen quad
+    // Fullscreen quads
 	const std::vector<Vertex> verticesBottom = {
 			{{-1.0F, -1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}},
 			{{1.0F, -1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}},
 			{{1.0F, 1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}},
 			{{-1.0F, 1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}}
 	};
+        const std::vector<Vertex> verticesTop = {
+            {{-1.0F, -1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}},
+            {{1.0F, -1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}},
+            {{1.0F, 1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}},
+            {{-1.0F, 1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}}
+        };
 	const std::vector<uint16_t> indices = {
 			0, 1, 2, 2, 3, 0
 	};
-
-//	descriptor1.vertexData = vertices1;
-//	descriptor1.indexData = indices1;
-//	renderer.scenes[0].drawables.emplace_back(renderer.scenes[0], descriptor1);
-
-//    GraphicsPipelineDescriptor descriptor2;
-//    descriptor2.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-//    descriptor2.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
-
-    // Fullscreen quad
-	const std::vector<Vertex> verticesTop = {
-			{{-1.0F, -1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}},
-			{{1.0F, -1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}},
-			{{1.0F, 1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}},
-			{{-1.0F, 1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}}
-	};
-//	const std::vector<uint16_t> indices2 = {
-//			0, 1, 2, 2, 3, 0
-//	};
 
         std::array<GraphicsPipelineDescriptor, 2> descriptors;
         descriptors[0].vertexData = verticesTop;
@@ -377,10 +361,6 @@ TEST(RenderTestBasic, CameraDepthBuffering)
 
         renderer.scenes.emplace_back(descriptors,renderer, 800, 600);
 
-//	descriptor2.vertexData = vertices2;
-//	descriptor2.indexData = indices2;
-//	renderer.scenes[0].drawables.emplace_back(renderer.scenes[0], descriptor2);
-        //renderer.scenes[0].clearColor = {.float32 = {0.5F, 0.1F, 0.1F, 1.0F}};
 	renderer.scenes[0].render();
 	ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
