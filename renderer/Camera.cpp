@@ -14,7 +14,13 @@ Camera::Camera(VulkanRenderer& rendererIn) :
     renderer(rendererIn),
     extent(0, 0),
     image(renderer),
-    depthImage(renderer, renderer.display->swapchainExtent, VulkanImage::findDepthFormat(renderer.gpu.physicalDevice), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
+    depthImage(
+        renderer,
+        renderer.display->swapchainExtent,
+        VulkanImage::findDepthFormat(renderer.gpu.physicalDevice),
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+    ),
     imageDataCpu(0, 0),
     commandBuffer(VK_NULL_HANDLE),
     transform(glm::mat4(1.0F)),
@@ -27,8 +33,20 @@ Camera::Camera(VulkanRenderer& rendererIn) :
 Camera::Camera(VulkanRenderer& rendererIn, uint16_t width, uint16_t height) :
     renderer(rendererIn),
     extent(width, height),
-    image(renderer, extent, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
-    depthImage(renderer, extent, VulkanImage::findDepthFormat(renderer.gpu.physicalDevice), VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
+    image(
+        renderer,
+        extent,
+        VK_FORMAT_R8G8B8A8_UNORM,
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+    ),
+    depthImage(
+        renderer,
+        extent,
+        VulkanImage::findDepthFormat(renderer.gpu.physicalDevice),
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+    ),
     imageDataCpu(width, height),
     commandBuffer(VK_NULL_HANDLE),
     transform(glm::mat4(1.0F)),
@@ -55,7 +73,7 @@ Camera::Camera(VulkanRenderer& rendererIn, uint16_t width, uint16_t height) :
 
 void Camera::clear(VkClearColorValue clearColor)
 {
-    VkClearDepthStencilValue depthClearValue = { .depth = 1.0F, .stencil = 0 };
+    VkClearDepthStencilValue depthClearValue = {.depth = 1.0F, .stencil = 0};
     vkResetCommandBuffer(commandBuffer, 0);
     VkCommandBufferBeginInfo beginInfo;
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -72,11 +90,7 @@ void Camera::clear(VkClearColorValue clearColor)
     subresourceRange.layerCount = 1;
 
     VkImageSubresourceRange depthSubresourceRange = {
-        .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
-        .baseMipLevel = 0,
-        .levelCount = 1,
-        .baseArrayLayer = 0,
-        .layerCount = 1
+        .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1
     };
 
     // Move the image into the correct layout
@@ -92,34 +106,97 @@ void Camera::clear(VkClearColorValue clearColor)
     //    generalToClearBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     //    generalToClearBarrier.image = image.images[0];
     //    generalToClearBarrier.subresourceRange = subresourceRange;
-    std::array<VkImageMemoryBarrier, 2> imageBarriers = { { { .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-                                                              .pNext = nullptr,
-                                                              .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
-                                                              .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                              .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                                                              .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                                              .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                                                              .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                                                              .image = image.images[0],
-                                                              .subresourceRange = subresourceRange },
-                                                            { .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-                                                              .pNext = nullptr,
-                                                              .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
-                                                              .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                              .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                                                              .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                                              .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                                                              .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                                                              .image = depthImage.images[0],
-                                                              .subresourceRange = depthSubresourceRange } } };
+    //    std::array<VkImageMemoryBarrier, 2> imageBarriers = { { { .sType =
+    //    VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+    //                                                              .pNext = nullptr,
+    //                                                              .srcAccessMask =
+    //                                                              VK_ACCESS_MEMORY_READ_BIT,
+    //                                                              .dstAccessMask =
+    //                                                              VK_ACCESS_TRANSFER_WRITE_BIT,
+    //                                                              .oldLayout =
+    //                                                              VK_IMAGE_LAYOUT_UNDEFINED,
+    //                                                              .newLayout =
+    //                                                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    //                                                              .srcQueueFamilyIndex =
+    //                                                              VK_QUEUE_FAMILY_IGNORED,
+    //                                                              .dstQueueFamilyIndex =
+    //                                                              VK_QUEUE_FAMILY_IGNORED, .image
+    //                                                              = image.images[0],
+    //                                                              .subresourceRange =
+    //                                                              subresourceRange },
+    //                                                            { .sType =
+    //                                                            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+    //                                                              .pNext = nullptr,
+    //                                                              .srcAccessMask =
+    //                                                              VK_ACCESS_MEMORY_READ_BIT,
+    //                                                              .dstAccessMask =
+    //                                                              VK_ACCESS_TRANSFER_WRITE_BIT,
+    //                                                              .oldLayout =
+    //                                                              VK_IMAGE_LAYOUT_UNDEFINED,
+    //                                                              .newLayout =
+    //                                                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    //                                                              .srcQueueFamilyIndex =
+    //                                                              VK_QUEUE_FAMILY_IGNORED,
+    //                                                              .dstQueueFamilyIndex =
+    //                                                              VK_QUEUE_FAMILY_IGNORED, .image
+    //                                                              = depthImage.images[0],
+    //                                                              .subresourceRange =
+    //                                                              depthSubresourceRange } } };
+    std::array<VkImageMemoryBarrier, 2> imageBarriers{
+        {{.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+          .pNext = nullptr,
+          .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+          .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+          .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+          .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+          .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+          .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+          .image = image.images[0],
+          .subresourceRange = subresourceRange},
+         {.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+          .pNext = nullptr,
+          .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+          .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+          .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+          .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+          .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+          .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+          .image = depthImage.images[0],
+          .subresourceRange = depthSubresourceRange}}
+    };
 
-    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, imageBarriers.size(), imageBarriers.data());
+    vkCmdPipelineBarrier(
+        commandBuffer,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        imageBarriers.size(),
+        imageBarriers.data()
+    );
     // VK_PIPELINE_STAGE_TRANSFER_BIT
     //  Use this for now to clear the image to a specific color
     // const VkClearColorValue clearColor = {{0.42F, 1.0F, 0.46F, 1.0F}};
 
-    vkCmdClearColorImage(commandBuffer, image.images[0], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearColor, 1, &subresourceRange);
-    vkCmdClearDepthStencilImage(commandBuffer, depthImage.images[0], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &depthClearValue, 1, &depthSubresourceRange);
+    vkCmdClearColorImage(
+        commandBuffer,
+        image.images[0],
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        &clearColor,
+        1,
+        &subresourceRange
+    );
+    vkCmdClearDepthStencilImage(
+        commandBuffer,
+        depthImage.images[0],
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        &depthClearValue,
+        1,
+        &depthSubresourceRange
+    );
 
     //    VkImageSubresourceRange depthSubresourceRange =
     //        {
@@ -155,7 +232,18 @@ void Camera::clear(VkClearColorValue clearColor)
         .subresourceRange = depthSubresourceRange
     };
     //
-    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &depthClearToAttachmentBarrier);
+    vkCmdPipelineBarrier(
+        commandBuffer,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        1,
+        &depthClearToAttachmentBarrier
+    );
     //    VkImageMemoryBarrier clearToPresentBarrier;
     //    clearToPresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     //    clearToPresentBarrier.pNext = nullptr;
@@ -168,11 +256,13 @@ void Camera::clear(VkClearColorValue clearColor)
     //    clearToPresentBarrier.image = image.images[0];
     //    clearToPresentBarrier.subresourceRange = subresourceRange;
     //
-    //    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearToPresentBarrier);
+    //    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
+    //    VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1,
+    //    &clearToPresentBarrier);
 
     vkEndCommandBuffer(commandBuffer);
 
-    std::array<VkPipelineStageFlags, 1> waitStages = { VK_PIPELINE_STAGE_TRANSFER_BIT };
+    std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_TRANSFER_BIT};
 
     VkSubmitInfo submitInfo;
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -196,7 +286,12 @@ void Camera::clear(VkClearColorValue clearColor)
 
 ImageData& Camera::cpuData()
 {
-    Buffer buffer(renderer, sizeof(R8G8B8A8Texel) * extent.width * extent.height, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    Buffer buffer(
+        renderer,
+        sizeof(R8G8B8A8Texel) * extent.width * extent.height,
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    );
     vkResetCommandBuffer(commandBuffer, 0);
     VkCommandBufferBeginInfo beginInfo;
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -226,7 +321,18 @@ ImageData& Camera::cpuData()
     generalToClearBarrier.image = image.images[0];
     generalToClearBarrier.subresourceRange = subresourceRange;
 
-    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &generalToClearBarrier);
+    vkCmdPipelineBarrier(
+        commandBuffer,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        1,
+        &generalToClearBarrier
+    );
     // VK_PIPELINE_STAGE_TRANSFER_BIT
     //  Use this for now to clear the image to a specific color
     // const VkClearColorValue clearColor = {{0.42F, 1.0F, 0.46F, 1.0F}};
@@ -238,8 +344,8 @@ ImageData& Camera::cpuData()
     region.imageSubresource.mipLevel = 0;
     region.imageSubresource.baseArrayLayer = 0;
     region.imageSubresource.layerCount = 1;
-    region.imageOffset = { 0, 0, 0 };
-    region.imageExtent = { extent.width, extent.height, 1 };
+    region.imageOffset = {0, 0, 0};
+    region.imageExtent = {extent.width, extent.height, 1};
 
     vkCmdCopyImageToBuffer(commandBuffer, image.images[0], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer.buffer, 1, &region);
 
@@ -255,11 +361,22 @@ ImageData& Camera::cpuData()
     clearToPresentBarrier.image = image.images[0];
     clearToPresentBarrier.subresourceRange = subresourceRange;
 
-    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearToPresentBarrier);
+    vkCmdPipelineBarrier(
+        commandBuffer,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+        0,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        1,
+        &clearToPresentBarrier
+    );
 
     vkEndCommandBuffer(commandBuffer);
 
-    std::array<VkPipelineStageFlags, 1> waitStages = { VK_PIPELINE_STAGE_TRANSFER_BIT };
+    std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_TRANSFER_BIT};
 
     VkSubmitInfo submitInfo;
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

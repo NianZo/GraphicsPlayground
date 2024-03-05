@@ -14,7 +14,7 @@ RendererBase::RendererBase(std::filesystem::path directory, const char* const ap
     projectDirectory(std::move(directory))
 {
     std::vector<const char*> layers;
-    std::vector<const char*> extensions = { VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_xcb_surface" }; // TODO(nic) this is an issue and will come back to haunt me on cross-platform support
+    std::vector<const char*> extensions = {VK_KHR_SURFACE_EXTENSION_NAME, "VK_KHR_xcb_surface"}; // TODO(nic) this is an issue and will come back to haunt me on cross-platform support
     if (enableValidationLayers)
     {
         // TODO(nic) check for validation layer availability here
@@ -162,7 +162,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL RendererBase::debugCallback(
     [[maybe_unused]] VkDebugUtilsMessageSeverityFlagBitsEXT severity,
     [[maybe_unused]] VkDebugUtilsMessageTypeFlagsEXT type,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-    [[maybe_unused]] void* userData)
+    [[maybe_unused]] void* userData
+)
 {
     std::cerr << "[VK_DEBUG_REPORT] " << pCallbackData->pMessage << std::endl;
     if (severity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)

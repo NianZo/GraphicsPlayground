@@ -94,7 +94,7 @@ Drawable::Drawable(Scene& scene, GraphicsPipelineDescriptor& pipelineDescriptor)
     framebuffers.resize(m_scene.camera.image.imageViews.size());
     for (size_t i = 0; i < m_scene.camera.image.imageViews.size(); i++)
     {
-        std::array<VkImageView, 2> attachments = { m_scene.camera.image.imageViews[i], m_scene.camera.depthImage.imageViews[0] };
+        std::array<VkImageView, 2> attachments = {m_scene.camera.image.imageViews[i], m_scene.camera.depthImage.imageViews[0]};
         VkFramebufferCreateInfo framebufferCI;
         framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferCI.pNext = nullptr;
@@ -173,7 +173,7 @@ Drawable::Drawable(VulkanRenderer& renderer, VkCommandPool& commandPool, const G
     framebuffers.resize(m_renderer.scenes[0].camera.image.imageViews.size());
     for (size_t i = 0; i < m_renderer.scenes[0].camera.image.imageViews.size(); i++)
     {
-        std::array<VkImageView, 2> attachments = { m_renderer.scenes[0].camera.image.imageViews[i], m_scene.camera.depthImage.imageViews[0] };
+        std::array<VkImageView, 2> attachments = {m_renderer.scenes[0].camera.image.imageViews[i], m_scene.camera.depthImage.imageViews[0]};
         VkFramebufferCreateInfo framebufferCI;
         framebufferCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferCI.pNext = nullptr;
@@ -242,9 +242,9 @@ void Drawable::ExecuteCommandBuffer([[maybe_unused]] uint32_t imageIndex)
     //    std::memcpy(uniformBuffers[imageIndex].data, &ubo, sizeof(UniformBufferObject));
 
     // Submit command buffer
-    std::array<VkSemaphore, 1> waitSemaphores = { imageAvailableSemaphore }; // TODO(nic) use Drawable's instead
-    std::array<VkSemaphore, 1> signalSemaphores = { renderFinishedSemaphore };
-    std::array<VkPipelineStageFlags, 1> waitStages = { VK_PIPELINE_STAGE_TRANSFER_BIT };
+    std::array<VkSemaphore, 1> waitSemaphores = {imageAvailableSemaphore}; // TODO(nic) use Drawable's instead
+    std::array<VkSemaphore, 1> signalSemaphores = {renderFinishedSemaphore};
+    std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_TRANSFER_BIT};
 
     VkSubmitInfo submitInfo;
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -444,19 +444,19 @@ void Drawable::Render(uint32_t imageIndex)
     renderPassBI.pNext = nullptr;
     renderPassBI.renderPass = pipelineStates[0].renderPass;
     renderPassBI.framebuffer = framebuffers[imageIndex];
-    renderPassBI.renderArea.offset = { 0, 0 };
+    renderPassBI.renderArea.offset = {0, 0};
     renderPassBI.renderArea.extent = m_renderer.display->swapchainExtent;
     std::array<VkClearValue, 2> clearColors;
-    clearColors[0].color = { { 0.0F, 0.0F, 0.0F, 1.0F } };
-    clearColors[1].depthStencil = { 1.0F, 0 };
+    clearColors[0].color = {{0.0F, 0.0F, 0.0F, 1.0F}};
+    clearColors[1].depthStencil = {1.0F, 0};
     renderPassBI.clearValueCount = clearColors.size();
     renderPassBI.pClearValues = clearColors.data();
     vkCmdBeginRenderPass(commandBuffer, &renderPassBI, VK_SUBPASS_CONTENTS_INLINE);
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineStates[0].graphicsPipeline);
 
-    std::array<VkBuffer, 1> vertexBuffers = { vertexBuffer.buffer.buffer };
-    std::array<VkDeviceSize, 1> offsets = { 0 };
+    std::array<VkBuffer, 1> vertexBuffers = {vertexBuffer.buffer.buffer};
+    std::array<VkDeviceSize, 1> offsets = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers.data(), offsets.data());
     vkCmdBindIndexBuffer(commandBuffer, indexBuffer.buffer.buffer, 0, VK_INDEX_TYPE_UINT16);
 
@@ -497,20 +497,20 @@ void Drawable::recordCommandBuffer()
     renderPassBI.pNext = nullptr;
     renderPassBI.renderPass = pipelineStates[0].renderPass;
     renderPassBI.framebuffer = framebuffers[0];
-    renderPassBI.renderArea.offset = { 0, 0 };
+    renderPassBI.renderArea.offset = {0, 0};
     // renderPassBI.renderArea.extent = m_renderer.display->swapchainExtent;
     renderPassBI.renderArea.extent = m_scene.camera.extent;
     std::array<VkClearValue, 2> clearColors;
-    clearColors[0].color = { { 0.0F, 0.0F, 0.0F, 1.0F } };
-    clearColors[1].depthStencil = { 1.0F, 0 };
+    clearColors[0].color = {{0.0F, 0.0F, 0.0F, 1.0F}};
+    clearColors[1].depthStencil = {1.0F, 0};
     renderPassBI.clearValueCount = clearColors.size();
     renderPassBI.pClearValues = clearColors.data();
     vkCmdBeginRenderPass(commandBuffer, &renderPassBI, VK_SUBPASS_CONTENTS_INLINE);
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineStates[0].graphicsPipeline);
 
-    std::array<VkBuffer, 1> vertexBuffers = { vertexBuffer.buffer.buffer };
-    std::array<VkDeviceSize, 1> offsets = { 0 };
+    std::array<VkBuffer, 1> vertexBuffers = {vertexBuffer.buffer.buffer};
+    std::array<VkDeviceSize, 1> offsets = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers.data(), offsets.data());
     vkCmdBindIndexBuffer(commandBuffer, indexBuffer.buffer.buffer, 0, VK_INDEX_TYPE_UINT16);
 
@@ -543,7 +543,7 @@ void Drawable::executeCommandBuffer()
     // Submit command buffer
     //    std::array<VkSemaphore, 1> waitSemaphores = {imageAvailableSemaphore}; // TODO(nic) use Drawable's instead
     //    std::array<VkSemaphore, 1> signalSemaphores = {renderFinishedSemaphore};
-    std::array<VkPipelineStageFlags, 1> waitStages = { VK_PIPELINE_STAGE_TRANSFER_BIT };
+    std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_TRANSFER_BIT};
 
     VkSubmitInfo submitInfo;
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -610,8 +610,8 @@ GraphicsPipelineDescriptor::GraphicsPipelineDescriptor() :
     viewports.emplace_back(viewport);
 
     VkRect2D scissor;
-    scissor.offset = { 0, 0 };
-    scissor.extent = { 0, 0 };
+    scissor.offset = {0, 0};
+    scissor.extent = {0, 0};
     scissors.emplace_back(scissor);
 
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -750,7 +750,7 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     fragShaderStageCI.pName = descriptor.fragmentShader[1].c_str();
     fragShaderStageCI.pSpecializationInfo = nullptr;
 
-    std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = { vertShaderStageCI, fragShaderStageCI };
+    std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {vertShaderStageCI, fragShaderStageCI};
 
     VkVertexInputBindingDescription vertexBinding;
     vertexBinding.binding = 0;
@@ -899,7 +899,7 @@ GraphicsPipelineState::GraphicsPipelineState(VkDevice& device, VulkanRenderer& r
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-    std::array<VkAttachmentDescription, 2> attachments = { descriptor.colorAttachment, descriptor.depthAttachment };
+    std::array<VkAttachmentDescription, 2> attachments = {descriptor.colorAttachment, descriptor.depthAttachment};
     VkRenderPassCreateInfo renderPassCI;
     renderPassCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassCI.pNext = nullptr;

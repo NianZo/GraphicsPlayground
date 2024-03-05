@@ -12,6 +12,7 @@
 #include <vector>
 
 class Drawable;
+class GraphicsPipelineDescriptor;
 class VulkanRenderer;
 class ImageData;
 

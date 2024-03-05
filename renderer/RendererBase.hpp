@@ -35,7 +35,8 @@ class RendererBase
         VkDebugUtilsMessageSeverityFlagBitsEXT severity,
         VkDebugUtilsMessageTypeFlagsEXT type,
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-        void* userData);
+        void* userData
+    );
 
     VkInstance instance;
     std::vector<PhysicalDeviceDescriptor> physicalDevices;

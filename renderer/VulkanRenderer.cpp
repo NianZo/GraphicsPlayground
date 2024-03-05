@@ -27,7 +27,7 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, VkSurfaceKHR& surface, Physic
     combinedQueue(VK_NULL_HANDLE),
     commandPool(VK_NULL_HANDLE)
 {
-    std::array<float, 1> queuePriorities = { 0.0F };
+    std::array<float, 1> queuePriorities = {0.0F};
     VkDeviceQueueCreateInfo queueCI;
     queueCI.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queueCI.pNext = nullptr;
@@ -87,7 +87,7 @@ VulkanRenderer::VulkanRenderer(RendererBase& base, PhysicalDeviceDescriptor& phy
     combinedQueue(VK_NULL_HANDLE),
     commandPool(VK_NULL_HANDLE)
 {
-    std::array<float, 1> queuePriorities = { 0.0F };
+    std::array<float, 1> queuePriorities = {0.0F};
     VkDeviceQueueCreateInfo queueCI;
     queueCI.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queueCI.pNext = nullptr;
