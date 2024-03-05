@@ -14,7 +14,7 @@
 Scene::Scene(VulkanRenderer& rendererIn, uint16_t cameraWidth, uint16_t cameraHeight) :
     renderer(rendererIn),
     camera(renderer, cameraWidth, cameraHeight),
-    clearColor({.uint32 = {0, 0, 0, 255}})
+    clearColor({ .uint32 = { 0, 0, 0, 255 } })
 {
     // TODO (nic) this is sized based on all the drawables in a scene.
     VkDescriptorPoolSize poolSize;
@@ -39,9 +39,9 @@ Scene::Scene(VulkanRenderer& rendererIn, uint16_t cameraWidth, uint16_t cameraHe
 Scene::Scene(std::span<GraphicsPipelineDescriptor> drawableDescriptors, VulkanRenderer& rendererIn, uint16_t cameraWidth, uint16_t cameraHeight) :
     renderer(rendererIn),
     camera(renderer, cameraWidth, cameraHeight),
-    clearColor({.float32 = {0.0F, 0.0F, 0.0F, 1.0F}})
+    clearColor({ .float32 = { 0.0F, 0.0F, 0.0F, 1.0F } })
 {
-    std::array<VkDescriptorPoolSize, 1> poolSizes = {{{.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, .descriptorCount = static_cast<uint32_t>(drawableDescriptors.size())}}};
+    std::array<VkDescriptorPoolSize, 1> poolSizes = { { { .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, .descriptorCount = static_cast<uint32_t>(drawableDescriptors.size()) } } };
     // poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     // poolSizes[0].descriptorCount = drawableDescriptors.size();
     const VkDescriptorPoolCreateInfo poolCi = {
@@ -96,9 +96,9 @@ bool Scene::render(uint32_t imageIndex)
     std::ranges::for_each(drawables, [imageIndex](Drawable& drawable)
                           { drawable.ExecuteCommandBuffer(imageIndex); });
 
-    std::array<VkSemaphore, 1> signalSemaphores = {drawables[0].renderFinishedSemaphore}; // TODO (nic) this is a hack to use the first drawable
+    std::array<VkSemaphore, 1> signalSemaphores = { drawables[0].renderFinishedSemaphore }; // TODO (nic) this is a hack to use the first drawable
 
-    std::array<VkSwapchainKHR, 1> swapchains = {renderer.display->swapchain};
+    std::array<VkSwapchainKHR, 1> swapchains = { renderer.display->swapchain };
     VkPresentInfoKHR presentInfo;
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.pNext = nullptr;

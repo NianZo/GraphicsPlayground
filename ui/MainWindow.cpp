@@ -247,7 +247,7 @@ void MainWindow::vertexShaderTextChanged()
 {
     // std::cout << "vertexShaderTextChanged\n";
     const std::filesystem::path shaderDirectory = projectDirectory.parent_path() / "shaders";
-    pipelineDescriptor.vertexShader = {std::string(shaderDirectory / ui->textEdit_vertexShader->toPlainText().toStdString()), "main"};
+    pipelineDescriptor.vertexShader = { std::string(shaderDirectory / ui->textEdit_vertexShader->toPlainText().toStdString()), "main" };
     try
     {
         renderer->Render();
@@ -261,7 +261,7 @@ void MainWindow::vertexShaderTextChanged()
 void MainWindow::fragmentShaderTextChanged()
 {
     const std::filesystem::path shaderDirectory = projectDirectory.parent_path() / "shaders";
-    pipelineDescriptor.fragmentShader = {std::string(shaderDirectory / ui->textEdit_fragmentShader->toPlainText().toStdString()), "main"};
+    pipelineDescriptor.fragmentShader = { std::string(shaderDirectory / ui->textEdit_fragmentShader->toPlainText().toStdString()), "main" };
     try
     {
         renderer->Render();
@@ -283,12 +283,12 @@ void MainWindow::createRenderer()
     if (descriptor.vertexShader[0] == "")
     {
         // std::cout << "Shader directory: " << shaderDirectory << "\n";
-        descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
+        descriptor.vertexShader = { std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main" };
     }
 
     if (descriptor.fragmentShader[0] == "")
     {
-        descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+        descriptor.fragmentShader = { std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main" };
     }
 
     // TODO (nic) I don't want the user to have to set the extents (unless they need to) so for a fullscreen render these shouldn't be dynamic states set here
@@ -346,15 +346,15 @@ void MainWindow::createRenderer()
     //	};
 
     const std::vector<Vertex> vertices = {
-        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-        {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}},
+        { { -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
+        { { 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+        { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
+        { { -0.5f, 0.5f, 0.0f }, { 1.0f, 1.0f, 1.0f } },
 
-        {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-        {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}},
-        {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}}
+        { { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f } },
+        { { 0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f } },
+        { { 0.5f, 0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f } },
+        { { -0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f } }
     };
 
     const std::vector<uint16_t> indices = {

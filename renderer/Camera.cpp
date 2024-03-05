@@ -73,7 +73,7 @@ Camera::Camera(VulkanRenderer& rendererIn, uint16_t width, uint16_t height) :
 
 void Camera::clear(VkClearColorValue clearColor)
 {
-    VkClearDepthStencilValue depthClearValue = {.depth = 1.0F, .stencil = 0};
+    VkClearDepthStencilValue depthClearValue = { .depth = 1.0F, .stencil = 0 };
     vkResetCommandBuffer(commandBuffer, 0);
     VkCommandBufferBeginInfo beginInfo;
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -143,26 +143,26 @@ void Camera::clear(VkClearColorValue clearColor)
     //                                                              .subresourceRange =
     //                                                              depthSubresourceRange } } };
     std::array<VkImageMemoryBarrier, 2> imageBarriers{
-        {{.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-          .pNext = nullptr,
-          .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
-          .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-          .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-          .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-          .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-          .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-          .image = image.images[0],
-          .subresourceRange = subresourceRange},
-         {.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-          .pNext = nullptr,
-          .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
-          .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-          .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-          .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-          .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-          .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-          .image = depthImage.images[0],
-          .subresourceRange = depthSubresourceRange}}
+        { { .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .pNext = nullptr,
+            .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+            .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = image.images[0],
+            .subresourceRange = subresourceRange },
+          { .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .pNext = nullptr,
+            .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+            .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = depthImage.images[0],
+            .subresourceRange = depthSubresourceRange } }
     };
 
     vkCmdPipelineBarrier(
@@ -262,7 +262,7 @@ void Camera::clear(VkClearColorValue clearColor)
 
     vkEndCommandBuffer(commandBuffer);
 
-    std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_TRANSFER_BIT};
+    std::array<VkPipelineStageFlags, 1> waitStages = { VK_PIPELINE_STAGE_TRANSFER_BIT };
 
     VkSubmitInfo submitInfo;
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -344,8 +344,8 @@ ImageData& Camera::cpuData()
     region.imageSubresource.mipLevel = 0;
     region.imageSubresource.baseArrayLayer = 0;
     region.imageSubresource.layerCount = 1;
-    region.imageOffset = {0, 0, 0};
-    region.imageExtent = {extent.width, extent.height, 1};
+    region.imageOffset = { 0, 0, 0 };
+    region.imageExtent = { extent.width, extent.height, 1 };
 
     vkCmdCopyImageToBuffer(commandBuffer, image.images[0], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer.buffer, 1, &region);
 
@@ -376,7 +376,7 @@ ImageData& Camera::cpuData()
 
     vkEndCommandBuffer(commandBuffer);
 
-    std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_TRANSFER_BIT};
+    std::array<VkPipelineStageFlags, 1> waitStages = { VK_PIPELINE_STAGE_TRANSFER_BIT };
 
     VkSubmitInfo submitInfo;
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

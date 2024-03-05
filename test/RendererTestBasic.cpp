@@ -100,7 +100,7 @@ TEST(RenderTestBasic, BasicCamera)
     VulkanRenderer renderer(rendererBase, *gpuDescriptor);
 
     renderer.scenes.emplace_back(renderer, 800, 600);
-    renderer.scenes[0].clearColor = {.float32 = {0.5F, 0.1F, 0.1F, 1.0F}};
+    renderer.scenes[0].clearColor = { .float32 = { 0.5F, 0.1F, 0.1F, 1.0F } };
     renderer.scenes[0].render();
     ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
@@ -128,15 +128,15 @@ TEST(RenderTestBasic, BasicDrawable)
 
     const std::filesystem::path shaderDirectory = renderer.rendererBase.projectDirectory.parent_path() / "shaders";
     GraphicsPipelineDescriptor descriptor;
-    descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    descriptor.vertexShader = { std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main" };
+    descriptor.fragmentShader = { std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main" };
 
     // Fullscreen quad
     const std::vector<Vertex> vertices = {
-        {{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}
+        { { -1.0F, -1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } },
+        { { 1.0F, -1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } },
+        { { 1.0F, 1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } },
+        { { -1.0F, 1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } }
     };
     const std::vector<uint16_t> indices = {
         0, 1, 2, 2, 3, 0
@@ -146,7 +146,7 @@ TEST(RenderTestBasic, BasicDrawable)
     descriptor.indexData = indices;
     renderer.scenes[0].drawables.emplace_back(renderer.scenes[0], descriptor);
 
-    renderer.scenes[0].clearColor = {.float32 = {0.5F, 0.1F, 0.1F, 1.0F}};
+    renderer.scenes[0].clearColor = { .float32 = { 0.5F, 0.1F, 0.1F, 1.0F } };
     renderer.scenes[0].render();
     ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
@@ -173,17 +173,17 @@ TEST(RenderTestBasic, TwoDrawables)
 
     // Quad covering left side of screen
     const std::vector<Vertex> verticesL = {
-        {{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{0.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{0.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}
+        { { -1.0F, -1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } },
+        { { 0.0F, -1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } },
+        { { 0.0F, 1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } },
+        { { -1.0F, 1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } }
     };
     // Quad covering right side of screen
     const std::vector<Vertex> verticesR = {
-        {{0.0F, -1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
-        {{1.0F, -1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
-        {{1.0F, 1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
-        {{0.0F, 1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}}
+        { { 0.0F, -1.0F, 0.0F }, { 0.0F, 0.0F, 1.0F } },
+        { { 1.0F, -1.0F, 0.0F }, { 0.0F, 0.0F, 1.0F } },
+        { { 1.0F, 1.0F, 0.0F }, { 0.0F, 0.0F, 1.0F } },
+        { { 0.0F, 1.0F, 0.0F }, { 0.0F, 0.0F, 1.0F } }
     };
     const std::vector<uint16_t> indices = {
         0, 1, 2, 2, 3, 0
@@ -192,16 +192,16 @@ TEST(RenderTestBasic, TwoDrawables)
     std::array<GraphicsPipelineDescriptor, 2> descriptors;
     descriptors[0].vertexData = verticesL;
     descriptors[0].indexData = indices;
-    descriptors[0].vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    descriptors[0].fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    descriptors[0].vertexShader = { std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main" };
+    descriptors[0].fragmentShader = { std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main" };
     descriptors[1].vertexData = verticesR;
     descriptors[1].indexData = indices;
-    descriptors[1].vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    descriptors[1].fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    descriptors[1].vertexShader = { std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main" };
+    descriptors[1].fragmentShader = { std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main" };
 
     renderer.scenes.emplace_back(descriptors, renderer, 800, 600);
 
-    renderer.scenes[0].clearColor = {.float32 = {0.5F, 0.1F, 0.1F, 1.0F}};
+    renderer.scenes[0].clearColor = { .float32 = { 0.5F, 0.1F, 0.1F, 1.0F } };
     renderer.scenes[0].render();
     ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
@@ -230,15 +230,15 @@ TEST(RenderTestBasic, DrawableWithTransform)
 
     const std::filesystem::path shaderDirectory = renderer.rendererBase.projectDirectory.parent_path() / "shaders";
     GraphicsPipelineDescriptor descriptor;
-    descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    descriptor.vertexShader = { std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main" };
+    descriptor.fragmentShader = { std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main" };
 
     // Fullscreen quad
     const std::vector<Vertex> vertices = {
-        {{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}
+        { { -1.0F, -1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } },
+        { { 1.0F, -1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } },
+        { { 1.0F, 1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } },
+        { { -1.0F, 1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } }
     };
     const std::vector<uint16_t> indices = {
         0, 1, 2, 2, 3, 0
@@ -250,7 +250,7 @@ TEST(RenderTestBasic, DrawableWithTransform)
 
     renderer.scenes[0].drawables[0].transform = glm::translate(glm::mat4(1.0F), glm::vec3(-1.0F, 0.0F, 0.0F));
 
-    renderer.scenes[0].clearColor = {.float32 = {0.5F, 0.1F, 0.1F, 1.0F}};
+    renderer.scenes[0].clearColor = { .float32 = { 0.5F, 0.1F, 0.1F, 1.0F } };
     renderer.scenes[0].render();
     ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
@@ -278,15 +278,15 @@ TEST(RenderTestBasic, CameraWithTransformAndPerspective)
 
     const std::filesystem::path shaderDirectory = renderer.rendererBase.projectDirectory.parent_path() / "shaders";
     GraphicsPipelineDescriptor descriptor;
-    descriptor.vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    descriptor.fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    descriptor.vertexShader = { std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main" };
+    descriptor.fragmentShader = { std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main" };
 
     // Fullscreen quad
     const std::vector<Vertex> vertices = {
-        {{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}
+        { { -1.0F, -1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } },
+        { { 1.0F, -1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } },
+        { { 1.0F, 1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } },
+        { { -1.0F, 1.0F, 0.0F }, { 1.0F, 1.0F, 0.0F } }
     };
     const std::vector<uint16_t> indices = {
         0, 1, 2, 2, 3, 0
@@ -298,7 +298,7 @@ TEST(RenderTestBasic, CameraWithTransformAndPerspective)
     renderer.scenes[0].camera.transform = glm::lookAt(glm::vec3(-.25, 0, 4), glm::vec3(-.25, 0, 0), glm::vec3(0, 1, 0));
     renderer.scenes[0].camera.perspective = glm::perspective(glm::radians(45.0F), static_cast<float>(800) / static_cast<float>(600), 0.1F, 10.0F);
 
-    renderer.scenes[0].clearColor = {.float32 = {0.5F, 0.1F, 0.1F, 1.0F}};
+    renderer.scenes[0].clearColor = { .float32 = { 0.5F, 0.1F, 0.1F, 1.0F } };
     renderer.scenes[0].render();
     ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
@@ -339,16 +339,16 @@ TEST(RenderTestBasic, CameraDepthBuffering)
 
     // Fullscreen quads
     const std::vector<Vertex> verticesBottom = {
-        {{-1.0F, -1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}},
-        {{1.0F, -1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}},
-        {{1.0F, 1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}},
-        {{-1.0F, 1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}}
+        { { -1.0F, -1.0F, -0.5F }, { 1.0F, 1.0F, 0.0F } },
+        { { 1.0F, -1.0F, -0.5F }, { 1.0F, 1.0F, 0.0F } },
+        { { 1.0F, 1.0F, -0.5F }, { 1.0F, 1.0F, 0.0F } },
+        { { -1.0F, 1.0F, -0.5F }, { 1.0F, 1.0F, 0.0F } }
     };
     const std::vector<Vertex> verticesTop = {
-        {{-1.0F, -1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}},
-        {{1.0F, -1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}},
-        {{1.0F, 1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}},
-        {{-1.0F, 1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}}
+        { { -1.0F, -1.0F, 0.0F }, { 1.0F, 0.0F, 1.0F } },
+        { { 1.0F, -1.0F, 0.0F }, { 1.0F, 0.0F, 1.0F } },
+        { { 1.0F, 1.0F, 0.0F }, { 1.0F, 0.0F, 1.0F } },
+        { { -1.0F, 1.0F, 0.0F }, { 1.0F, 0.0F, 1.0F } }
     };
     const std::vector<uint16_t> indices = {
         0, 1, 2, 2, 3, 0
@@ -357,12 +357,12 @@ TEST(RenderTestBasic, CameraDepthBuffering)
     std::array<GraphicsPipelineDescriptor, 2> descriptors;
     descriptors[0].vertexData = verticesTop;
     descriptors[0].indexData = indices;
-    descriptors[0].vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    descriptors[0].fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    descriptors[0].vertexShader = { std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main" };
+    descriptors[0].fragmentShader = { std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main" };
     descriptors[1].vertexData = verticesBottom;
     descriptors[1].indexData = indices;
-    descriptors[1].vertexShader = {std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main"};
-    descriptors[1].fragmentShader = {std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main"};
+    descriptors[1].vertexShader = { std::string(shaderDirectory / "DrawTriangle-vert.spv"), "main" };
+    descriptors[1].fragmentShader = { std::string(shaderDirectory / "DrawTriangle-frag.spv"), "main" };
 
     renderer.scenes.emplace_back(descriptors, renderer, 800, 600);
 
