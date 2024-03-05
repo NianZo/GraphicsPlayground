@@ -10,8 +10,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/.clang-tidy" "---
 Checks: '-*,llvm-twine-local'")
 
 #Gather list of header and source files for compilation
-file(GLOB_RECURSE CPP_FILES MainWindow.cpp)#${
-    CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB_RECURSE CPP_FILES MainWindow.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 set(AUTOGEN_BUILD_DIR ${CMAKE_SOURCE_DIR}/build/default)
 qt6_wrap_ui(CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/MainGUI.ui)
