@@ -49,7 +49,8 @@ VulkanDisplay::VulkanDisplay(VulkanRenderer& rendererIn, VkSurfaceKHR& displaySu
     //	}
     swapchainExtent = {
         std::clamp(width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width),
-        std::clamp(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height)};
+        std::clamp(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height)
+    };
     //    swapchainExtent.width = std::clamp(width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
     //    swapchainExtent.height = std::clamp(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
     // std::cout << "swapchainExtent: " << width << ", " << height << "\n";

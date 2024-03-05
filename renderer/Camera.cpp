@@ -90,7 +90,8 @@ void Camera::clear(VkClearColorValue clearColor)
     subresourceRange.layerCount = 1;
 
     VkImageSubresourceRange depthSubresourceRange = {
-        .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1};
+        .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1
+    };
 
     // Move the image into the correct layout
     // No? just use clearcolorimage
@@ -161,7 +162,8 @@ void Camera::clear(VkClearColorValue clearColor)
           .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
           .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
           .image = depthImage.images[0],
-          .subresourceRange = depthSubresourceRange}}};
+          .subresourceRange = depthSubresourceRange}}
+    };
 
     vkCmdPipelineBarrier(
         commandBuffer,
@@ -227,7 +229,8 @@ void Camera::clear(VkClearColorValue clearColor)
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image = depthImage.images[0],
-        .subresourceRange = depthSubresourceRange};
+        .subresourceRange = depthSubresourceRange
+    };
     //
     vkCmdPipelineBarrier(
         commandBuffer,

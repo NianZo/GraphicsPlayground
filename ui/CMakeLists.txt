@@ -10,8 +10,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/.clang-tidy" "---
 Checks: '-*,llvm-twine-local'")
 
 #Gather list of header and source files for compilation
-file(GLOB_RECURSE CPP_FILES MainWindow.cpp)#${
-    CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB_RECURSE CPP_FILES MainWindow.cpp)#${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 set(AUTOGEN_BUILD_DIR ${CMAKE_SOURCE_DIR}/build/default)
 qt6_wrap_ui(CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/MainGUI.ui)
@@ -31,7 +30,7 @@ target_link_libraries(${UI_LIB} PRIVATE Qt6::Core Qt6::Widgets)
 target_link_libraries(${UI_LIB} PUBLIC "VulkanRenderer")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    #    target_link_libraries(${UI_LIB} PRIVATE --coverage -fprofile-instr-generate -fcoverage-mapping)
+#    target_link_libraries(${UI_LIB} PRIVATE --coverage -fprofile-instr-generate -fcoverage-mapping)
 endif ()
 
 add_executable(${MAIN_BINARY} main.cpp)#${CPP_FILES} ${HPP_FILES})

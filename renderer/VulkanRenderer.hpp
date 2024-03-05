@@ -67,7 +67,8 @@ class VulkanRenderer
 
   private:
     std::vector<const char*> deviceExtensionNames = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
 
     // static void renderLoop(std::stop_token stopToken, VulkanRenderer& renderer);
 };
