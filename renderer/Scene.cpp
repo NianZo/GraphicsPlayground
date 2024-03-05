@@ -50,8 +50,7 @@ Scene::Scene(std::span<GraphicsPipelineDescriptor> drawableDescriptors, VulkanRe
         .flags = 0,
         .maxSets = poolSizes[0].descriptorCount,
         .poolSizeCount = poolSizes.size(),
-        .pPoolSizes = poolSizes.data()
-    };
+        .pPoolSizes = poolSizes.data()};
     VkResult result = vkCreateDescriptorPool(renderer.device, &poolCi, nullptr, &descriptorPool);
     if (result != VK_SUCCESS)
     {
