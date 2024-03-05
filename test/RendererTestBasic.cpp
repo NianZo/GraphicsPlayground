@@ -136,11 +136,9 @@ TEST(RenderTestBasic, BasicDrawable)
         {{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
         {{1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
         {{1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}
-    };
+        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}};
     const std::vector<uint16_t> indices = {
-        0, 1, 2, 2, 3, 0
-    };
+        0, 1, 2, 2, 3, 0};
 
     descriptor.vertexData = vertices;
     descriptor.indexData = indices;
@@ -176,18 +174,15 @@ TEST(RenderTestBasic, TwoDrawables)
         {{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
         {{0.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
         {{0.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}
-    };
+        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}};
     // Quad covering right side of screen
     const std::vector<Vertex> verticesR = {
         {{0.0F, -1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
         {{1.0F, -1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
         {{1.0F, 1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
-        {{0.0F, 1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}}
-    };
+        {{0.0F, 1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}}};
     const std::vector<uint16_t> indices = {
-        0, 1, 2, 2, 3, 0
-    };
+        0, 1, 2, 2, 3, 0};
 
     std::array<GraphicsPipelineDescriptor, 2> descriptors;
     descriptors[0].vertexData = verticesL;
@@ -238,11 +233,9 @@ TEST(RenderTestBasic, DrawableWithTransform)
         {{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
         {{1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
         {{1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}
-    };
+        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}};
     const std::vector<uint16_t> indices = {
-        0, 1, 2, 2, 3, 0
-    };
+        0, 1, 2, 2, 3, 0};
 
     descriptor.vertexData = vertices;
     descriptor.indexData = indices;
@@ -286,11 +279,9 @@ TEST(RenderTestBasic, CameraWithTransformAndPerspective)
         {{-1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
         {{1.0F, -1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
         {{1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}},
-        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}
-    };
+        {{-1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}};
     const std::vector<uint16_t> indices = {
-        0, 1, 2, 2, 3, 0
-    };
+        0, 1, 2, 2, 3, 0};
 
     descriptor.vertexData = vertices;
     descriptor.indexData = indices;
@@ -342,17 +333,14 @@ TEST(RenderTestBasic, CameraDepthBuffering)
         {{-1.0F, -1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}},
         {{1.0F, -1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}},
         {{1.0F, 1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}},
-        {{-1.0F, 1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}}
-    };
+        {{-1.0F, 1.0F, -0.5F}, {1.0F, 1.0F, 0.0F}}};
     const std::vector<Vertex> verticesTop = {
         {{-1.0F, -1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}},
         {{1.0F, -1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}},
         {{1.0F, 1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}},
-        {{-1.0F, 1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}}
-    };
+        {{-1.0F, 1.0F, 0.0F}, {1.0F, 0.0F, 1.0F}}};
     const std::vector<uint16_t> indices = {
-        0, 1, 2, 2, 3, 0
-    };
+        0, 1, 2, 2, 3, 0};
 
     std::array<GraphicsPipelineDescriptor, 2> descriptors;
     descriptors[0].vertexData = verticesTop;

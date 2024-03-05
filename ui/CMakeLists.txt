@@ -1,16 +1,17 @@
 set(MAIN_BINARY "GraphicsPlayground")
 
-# Define include path
+#Define include path
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 qt6_standard_project_setup()
 set(CMAKE_AUTOUIC ON)
 
-# Put a 'null' .clang-tidy file where generated Qt files will be so that Clang-Tidy ignores them
+#Put a 'null'.clang - tidy file where generated Qt files will be so that Clang - Tidy ignores them
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/.clang-tidy" "---
 Checks: '-*,llvm-twine-local'")
 
-# Gather list of header and source files for compilation
-file(GLOB_RECURSE CPP_FILES MainWindow.cpp)#${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+#Gather list of header and source files for compilation
+file(GLOB_RECURSE CPP_FILES MainWindow.cpp)#${
+    CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 set(AUTOGEN_BUILD_DIR ${CMAKE_SOURCE_DIR}/build/default)
 qt6_wrap_ui(CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/MainGUI.ui)
