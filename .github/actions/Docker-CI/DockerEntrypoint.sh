@@ -5,6 +5,7 @@
 # $2: A codecov.io upload token passed in as a secret from the project settings on Github
 echo "Running DockerEntrypoint.sh"
 echo "Command: $1"
+apt-get install glfw3
 if [ $1 = "build&test" ]
 then
     cd src
