@@ -5,7 +5,6 @@
 # $2: A codecov.io upload token passed in as a secret from the project settings on Github
 echo "Running DockerEntrypoint.sh"
 echo "Command: $1"
-pacman -S --noconfirm glfw3
 if [ $1 = "build&test" ]
 then
     cd src
@@ -16,7 +15,15 @@ then
     # Build project
     ./compile_shaders.sh
     cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    if [ $? != 0 ]
+    then
+        exit 1
+    fi
     cmake --build build --config Debug
+    if [ $? != 0 ]
+    then
+        exit 1
+    fi
 
     # Required for code coverage in Clang
     export LLVM_PROFILE_FILE=/profile.profraw
