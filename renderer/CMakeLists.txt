@@ -63,7 +63,7 @@ set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "-extra-arg=-Wno-unknown-warning-opti
 set_property(TARGET ${RENDERER_LIB} PROPERTY CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    #    target_link_libraries(${RENDERER_LIB} PRIVATE --coverage -fprofile-instr-generate -fcoverage-mapping)
+    target_link_libraries(${RENDERER_LIB} PRIVATE --coverage -fprofile-generate)
 endif ()
 
 

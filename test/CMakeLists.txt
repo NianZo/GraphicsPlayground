@@ -15,7 +15,7 @@ target_link_libraries(${UI_TEST_BINARY} PRIVATE Qt6::Core Qt6::Widgets glfw proj
 #set_property(TARGET ${UI_TEST_BINARY} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    #    target_link_libraries(${UI_TEST_BINARY} PRIVATE --coverage -fprofile-instr-generate -fcoverage-mapping)
+    target_link_libraries(${UI_TEST_BINARY} PRIVATE --coverage -fprofile-generate)
 endif ()
 
 add_test(NAME ${UI_TEST_BINARY} COMMAND ${UI_TEST_BINARY})
