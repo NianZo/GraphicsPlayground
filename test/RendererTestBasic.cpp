@@ -19,18 +19,6 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-::testing::AssertionResult TestPixel(int pixel, int expected)
-{
-    if ((pixel > expected - 1) && (pixel < expected + 1))
-    {
-        return ::testing::AssertionSuccess();
-    }
-    else
-    {
-        return ::testing::AssertionFailure();
-    }
-}
-
 extern std::vector<char*> args;
 
 TEST(RenderTestBasic, CreateRendererBase)
@@ -118,14 +106,10 @@ TEST(RenderTestBasic, BasicCamera)
 
     const int ret = stbi_write_png("screenshot.png", 800, 600, 4, cameraData.data.data(), 800 * 4);
 
-//    EXPECT_EQ(cameraData.index(0, 0).r, 127);
-//    EXPECT_EQ(cameraData.index(0, 599).r, 127);
-//    EXPECT_EQ(cameraData.index(799, 0).r, 127);
-//    EXPECT_EQ(cameraData.index(799, 599).r, 127);
-    EXPECT_TRUE(TestPixel(cameraData.index(0, 0).r, 127));
-    EXPECT_TRUE(TestPixel(cameraData.index(0, 599).r, 127));
-    EXPECT_TRUE(TestPixel(cameraData.index(799, 0).r, 127));
-    EXPECT_TRUE(TestPixel(cameraData.index(799, 599).r, 127));
+    EXPECT_NEAR(cameraData.index(0, 0).r, 127, 1);
+    EXPECT_NEAR(cameraData.index(0, 599).r, 127, 1);
+    EXPECT_NEAR(cameraData.index(799, 0).r, 127, 1);
+    EXPECT_NEAR(cameraData.index(799, 599).r, 127, 1);
 }
 
 TEST(RenderTestBasic, BasicDrawable)
@@ -166,16 +150,11 @@ TEST(RenderTestBasic, BasicDrawable)
     renderer.scenes[0].render();
     ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
-//    EXPECT_EQ(cameraData.index(0, 0).r, 255);
-//    EXPECT_EQ(cameraData.index(0, 599).r, 255);
-//    EXPECT_EQ(cameraData.index(799, 0).r, 255);
-//    EXPECT_EQ(cameraData.index(799, 599).r, 255);
-//    EXPECT_EQ(cameraData.index(400, 300).r, 255);
-    EXPECT_TRUE(TestPixel(cameraData.index(0, 0).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(0, 599).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(799, 0).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(799, 599).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(400, 300).r, 255));
+    EXPECT_NEAR(cameraData.index(0, 0).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(0, 599).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(799, 0).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(799, 599).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(400, 300).r, 255, 1);
 }
 
 TEST(RenderTestBasic, TwoDrawables)
@@ -226,20 +205,13 @@ TEST(RenderTestBasic, TwoDrawables)
     renderer.scenes[0].render();
     ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
-//    EXPECT_EQ(cameraData.index(0, 0).r, 255);
-//    EXPECT_EQ(cameraData.index(0, 599).r, 255);
-//    EXPECT_EQ(cameraData.index(799, 0).b, 255);
-//    EXPECT_EQ(cameraData.index(799, 599).b, 255);
-//
-//    EXPECT_EQ(cameraData.index(399, 0).r, 255);
-//    EXPECT_EQ(cameraData.index(400, 0).b, 255);
+    EXPECT_NEAR(cameraData.index(0, 0).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(0, 599).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(799, 0).b, 255, 1);
+    EXPECT_NEAR(cameraData.index(799, 599).b, 255, 1);
 
-    EXPECT_TRUE(TestPixel(cameraData.index(0, 0).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(0, 599).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(799, 0).b, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(799, 599).b, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(399, 0).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(400, 0).b, 255));
+    EXPECT_NEAR(cameraData.index(399, 0).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(400, 0).b, 255, 1);
 }
 
 TEST(RenderTestBasic, DrawableWithTransform)
@@ -282,19 +254,12 @@ TEST(RenderTestBasic, DrawableWithTransform)
     renderer.scenes[0].render();
     ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
-//    EXPECT_EQ(cameraData.index(0, 0).r, 255);
-//    EXPECT_EQ(cameraData.index(0, 599).r, 255);
-//    EXPECT_EQ(cameraData.index(799, 0).r, 127);
-//    EXPECT_EQ(cameraData.index(799, 599).r, 127);
-//    EXPECT_EQ(cameraData.index(399, 300).r, 255);
-//    EXPECT_EQ(cameraData.index(400, 300).r, 127);
-
-    EXPECT_TRUE(TestPixel(cameraData.index(0, 0).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(0, 599).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(799, 0).r, 127));
-    EXPECT_TRUE(TestPixel(cameraData.index(799, 599).r, 127));
-    EXPECT_TRUE(TestPixel(cameraData.index(399, 300).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(400, 300).r, 127));
+    EXPECT_NEAR(cameraData.index(0, 0).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(0, 599).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(799, 0).r, 127, 1);
+    EXPECT_NEAR(cameraData.index(799, 599).r, 127, 1);
+    EXPECT_NEAR(cameraData.index(399, 300).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(400, 300).r, 127, 1);
 }
 
 TEST(RenderTestBasic, CameraWithTransformAndPerspective)
@@ -338,36 +303,24 @@ TEST(RenderTestBasic, CameraWithTransformAndPerspective)
     ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
     // Top left corner
-//    EXPECT_EQ(cameraData.index(264, 119).r, 255);
-//    EXPECT_EQ(cameraData.index(263, 119).r, 127);
-//    EXPECT_EQ(cameraData.index(264, 118).r, 127);
-    EXPECT_TRUE(TestPixel(cameraData.index(264, 119).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(263, 119).r, 127));
-    EXPECT_TRUE(TestPixel(cameraData.index(264, 118).r, 127));
+    EXPECT_NEAR(cameraData.index(264, 119).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(263, 119).r, 127, 1);
+    EXPECT_NEAR(cameraData.index(264, 118).r, 127, 1);
 
     // Top right corner
-//    EXPECT_EQ(cameraData.index(625, 119).r, 255);
-//    EXPECT_EQ(cameraData.index(626, 119).r, 127);
-//    EXPECT_EQ(cameraData.index(625, 118).r, 127);
-    EXPECT_TRUE(TestPixel(cameraData.index(625, 119).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(626, 119).r, 127));
-    EXPECT_TRUE(TestPixel(cameraData.index(625, 118).r, 127));
+    EXPECT_NEAR(cameraData.index(625, 119).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(626, 119).r, 127, 1);
+    EXPECT_NEAR(cameraData.index(625, 118).r, 127, 1);
 
     // Bottom right corner
-//    EXPECT_EQ(cameraData.index(625, 480).r, 255);
-//    EXPECT_EQ(cameraData.index(626, 480).r, 127);
-//    EXPECT_EQ(cameraData.index(625, 481).r, 127);
-    EXPECT_TRUE(TestPixel(cameraData.index(625, 480).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(626, 480).r, 127));
-    EXPECT_TRUE(TestPixel(cameraData.index(625, 481).r, 127));
+    EXPECT_NEAR(cameraData.index(625, 480).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(626, 480).r, 127, 1);
+    EXPECT_NEAR(cameraData.index(625, 481).r, 127, 1);
 
     // Bottom left corner
-//    EXPECT_EQ(cameraData.index(264, 480).r, 255);
-//    EXPECT_EQ(cameraData.index(263, 480).r, 127);
-//    EXPECT_EQ(cameraData.index(264, 481).r, 127);
-    EXPECT_TRUE(TestPixel(cameraData.index(264, 480).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(263, 480).r, 127));
-    EXPECT_TRUE(TestPixel(cameraData.index(264, 481).r, 127));
+    EXPECT_NEAR(cameraData.index(264, 480).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(263, 480).r, 127, 1);
+    EXPECT_NEAR(cameraData.index(264, 481).r, 127, 1);
 }
 
 TEST(RenderTestBasic, CameraDepthBuffering)
@@ -417,10 +370,7 @@ TEST(RenderTestBasic, CameraDepthBuffering)
     ImageData& cameraData = renderer.scenes[0].renderTargetCpuData();
 
     // Any pixel should work, choose one near the center
-//    EXPECT_EQ(cameraData.index(400, 300).r, 255);
-//    EXPECT_EQ(cameraData.index(400, 300).g, 0);
-//    EXPECT_EQ(cameraData.index(400, 300).b, 255);
-    EXPECT_TRUE(TestPixel(cameraData.index(400, 300).r, 255));
-    EXPECT_TRUE(TestPixel(cameraData.index(400, 300).g, 0));
-    EXPECT_TRUE(TestPixel(cameraData.index(400, 300).b, 255));
+    EXPECT_NEAR(cameraData.index(400, 300).r, 255, 1);
+    EXPECT_NEAR(cameraData.index(400, 300).g, 0, 1);
+    EXPECT_NEAR(cameraData.index(400, 300).b, 255, 1);
 }
