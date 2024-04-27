@@ -8,9 +8,10 @@ inputs:
   codecov-token:
     description: 'Token for codecov upload'
     required: true
-    default: ${CODECOV_TOKEN}
+    default: ${{ secrets.CODECOV_TOKEN }}
 runs:
   using: 'docker'
   image: 'docker://nianzo/cpp-development-environment:latest'
   args:
-    - ${{ inputs.action-to-perform }} ${{ inputs.codecov-token }}
+    - ${{ inputs.action-to-perform }} 
+    - ${{ inputs.codecov-token }}
