@@ -13,5 +13,4 @@ runs:
   using: 'docker'
   image: 'docker://nianzo/cpp-development-environment:latest'
   args:
-    - ${{ inputs.action-to-perform }}
-    - ${{ inputs.codecov-token }}
+    - ${{ inputs.action-to-perform }} ${{ inputs.codecov-token }}
