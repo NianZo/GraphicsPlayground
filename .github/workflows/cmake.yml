@@ -27,6 +27,7 @@ jobs:
       uses: ./.github/actions/Docker-CI
       with: 
         action-to-perform: 'build&test'
+        codecov-token: ${{ secrets.CODECOV_TOKEN }}
       #runs:
         #id: 'docker'
         #image: 'Dockerfile'
